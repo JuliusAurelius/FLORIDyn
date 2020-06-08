@@ -25,16 +25,34 @@ clear startOPs TurbinePosD
 
 %% Start simulation
 for i = 1:NoTimeSteps
+    % Shift opList and insert new points
+    
+    
     % Update wind dir and speed
     U_OPs = getWindVec(opList(:,1:2));
     U_t   = getWindVec(turbines(:,1:2));
     
+    %====================== CONTROLLER ===================================%
+    turbines(:,5:6) = controller(turbines);
+    %=====================================================================%
+    
     % Get effective yaw for each turbine
     yaw_t = getEffectiveYaw(turbines(:,6), U_t);
     
-    % Get 
-    % Shift opList with new positions
+    % Set 'uninfluenced' Windspeed for all OPs U = U_free*r_t
+    opList(:,4:5) = U_OPs.*opList(:,7);
     
+    % Get r-> u=U*r (NOT u=U(1-r)!!!)
+    opList(:,6) = getR(opList(:,[1:3 8:9])); % TODO which values are needed
+    
+    % Get r_f, foreign influence / wake interaction u=U*r*r_f
+    opList(:,6) = getR_f(opList(:,[1:3 6]));
+    
+    % Calculate effective windspeed and down wind step d_dw=U*r_g*t
+    opList(:,1:2) = opList(:,4:5).*opList(:,6)*timeStep;
+    
+    % Based on new down wind pos, calculate new crosswind pos (y & z dir)
+    opList(:,1:3) = distibutionStrategy(opList);
     
     % Insert new points
     
@@ -42,10 +60,58 @@ for i = 1:NoTimeSteps
 end
 
 
-
+% [x,y,z, Ux,Uy, r,r_t, a,yaw, t_id] // World coordinates
 
 end
 
+%% Reduction methods
+
+function r = getR(OPs)
+% getR calculates the reduction factor of the wind velocity to get the
+% effective windspeed based on the eq. u = U*r
+%
+% INPUT
+% OPs           := [n x 5] vector [x,y,z,a,yaw] in World coordinates
+%
+% OUTPUT
+% r             := [n x 1] vector reduction factor
+%
+
+% ==================== !!!!DUMMY METHOD!!!! ====================== % 
+% ================= should link to wake models =================== %
+
+r = zeros(size(OPs,1),1);
+end
+
+function r = getR_f(OPs)
+% getR_f calculates the reduction influence of other OPs/wakes and
+% multiplies it to the natural wake reduction
+%
+% INPUT
+% OPs           := [n x 4] vector [x,y,z,r] in World coordinates
+%
+% OUTPUT
+% r             := [n x 1] vector reduction factor
+%
+
+% ==================== !!!!DUMMY METHOD!!!! ====================== % 
+% ================= should link to wake models =================== %
+
+r = OPs(:,4).*zeros(size(OPs,1),1);
+end
+
+%% DISTRIBUTION
+
+function xyz = distibutionStrategy(opList)
+xyz = ones(size(opList,1),3);
+end
+
+%% 
+
+function a_yaw = controller(turbines)
+    % CONTROLLER sets a and yaw (in world coordinates!) for each turbine.
+    a_yaw = ones(size(turbines(:,5:6)))*[0.3, 0; 0, 0]; % TODO Placeholder
+end
 %%
 
 function U = getWindVec(pos)
@@ -132,9 +198,9 @@ function [opList, startInd_T] = assembleOPList(startOPs,chainLength)
 % startInd_T    := [n x 2] starting Indices for all chain lengths and which 
 %                   turbine they belong to.
 %
-% [x,y,z, ux,uy,uz, r,r_t, a,yaw, t_id] // World coordinates
+% [x,y,z, Ux,Uy, r,r_t, a,yaw, t_id] // World coordinates
 %% Constants
-NumOfVariables  = 11;
+NumOfVariables  = 10;
 numChains       = size(startOPs,1);
 startInd_T      = zeros(numChains,2);
 startInd_T(:,2) = startOPs(:,4);
