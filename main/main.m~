@@ -8,7 +8,6 @@ chainLength     = randi(5,NumChains*size(TurbinePosD,1),1)+1;
 timeStep        = 5;   % in s
 SimDuration     = 100; % in s
 
-
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
@@ -16,23 +15,21 @@ NoTimeSteps = length(timeSteps);
 % [x,y,z,d,a,yaw] // World Coordinates
 turbines = [TurbinePosD, zeros(size(TurbinePosD,1),2)];
 
-
 %% Create starting OPs and build opList
 startOPs =  getChainStart(NumChains, TurbinePosD);
 [opList, startInd_T] = assembleOPList(startOPs,chainLength);
-clear startOPs TurbinePosD
-
+clear startOPs
 
 %% Start simulation
+
 for i = 1:NoTimeSteps
     % Update wind dir and speed
-    U_OPs = getWindVec(opList(:,1:2));
+    U_OPs = getWindVec(opList)
     U_t   = getWindVec(turbines(:,1:2));
     
-    % Get effective yaw for each turbine
-    yaw_t = getEffectiveYaw(turbines(:,6), U_t);
+    % Get effective yaw
+    yaw_t = getEffectiveYaw(t_orientation, U_t)
     
-    % Get 
     % Shift opList with new positions
     
     
@@ -112,7 +109,7 @@ OPs(:,5) = t_d(:);
 
 % ========================= TODO ========================= 
 % ///////////////////////// Strategy to create points ////
-OPs(:,1:3) = ones(NumChains*size(TurbinePosD,1),3);     % TODO Placeholder
+OPs(:,1:3) = ones(NumChains*size(TurbinePosD,1),3);
 % ////////////////////////////////////////////////////////
 end
 
@@ -158,7 +155,7 @@ else
 end
 
 opList(startInd_T(:,1),[1:3 end]) = startOPs(:,1:4);
-% ==== To change last entry to diameter uncomment the following line ==== %
+% To change last entry to diameter uncomment the following line
 % opList(startInd_T(:,1),[1:3 end]) = startOPs(:,[1:3 5]);
 
 end
