@@ -1,4 +1,4 @@
-function initChains()
+function main()
 %% Test Variables
 NumChains   = 6;
 TurbinePosD  = [magic(3),ones(3,1)];
