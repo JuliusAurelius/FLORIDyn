@@ -20,13 +20,17 @@ turbines = [TurbinePosD, zeros(size(TurbinePosD,1),2)];
 %% Create starting OPs and build opList
 startOPs =  getChainStart(NumChains, TurbinePosD);
 [opList, startInd_T] = assembleOPList(startOPs,chainLength);
-clear startOPs TurbinePosD
-
+clear startOPs TurbinePosD 
 
 %% Start simulation
 for i = 1:NoTimeSteps
     % Shift opList and insert new points
     
+    % ______ DISCUSSION ______
+    % If a new point is added here, it will be processed and will move
+    % further. Result is that there are no OPs at the rotor plane.
+    % Alternative is to first process all exsisting OPs and then shift,
+    % which means that time is wasted on points which will be thrown away.
     
     % Update wind dir and speed
     U_OPs = getWindVec(opList(:,1:2));
@@ -54,7 +58,6 @@ for i = 1:NoTimeSteps
     % Based on new down wind pos, calculate new crosswind pos (y & z dir)
     opList(:,1:3) = distibutionStrategy(opList);
     
-    % Insert new points
     
     
 end
@@ -103,12 +106,14 @@ end
 %% DISTRIBUTION
 
 function xyz = distibutionStrategy(opList)
+% ==================== !!!!DUMMY METHOD!!!! ====================== % 
 xyz = ones(size(opList,1),3);
 end
 
 %% 
 
 function a_yaw = controller(turbines)
+% ==================== !!!!DUMMY METHOD!!!! ====================== % 
     % CONTROLLER sets a and yaw (in world coordinates!) for each turbine.
     a_yaw = ones(size(turbines(:,5:6)))*[0.3, 0; 0, 0]; % TODO Placeholder
 end
