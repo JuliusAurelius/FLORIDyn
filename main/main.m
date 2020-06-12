@@ -103,21 +103,16 @@ function r = getR_f(OPs)
 r = OPs(:,4).*zeros(size(OPs,1),1);
 end
 
-%% DISTRIBUTION
 
-function xyz = distibutionStrategy(opList)
-% ==================== !!!!DUMMY METHOD!!!! ====================== % 
-xyz = ones(size(opList,1),3);
-end
-
-%% 
+%% CONTROLLER
 
 function a_yaw = controller(turbines)
 % ==================== !!!!DUMMY METHOD!!!! ====================== % 
     % CONTROLLER sets a and yaw (in world coordinates!) for each turbine.
     a_yaw = ones(size(turbines(:,5:6)))*[0.3, 0; 0, 0]; % TODO Placeholder
 end
-%%
+
+%% WIND FIELD DIRECTION AND VELOCITY
 
 function U = getWindVec(pos)
 % GETWINDVEC returns a free wind vector (== speed and direction) for the
@@ -135,30 +130,14 @@ function U = getWindVec(pos)
 U = ones(size(pos));                                    % TODO Placeholder
 end
 
-
-%%
-
-function yaw_t = getEffectiveYaw(t_orientation, U)
-% GETEFFECTIVEYAW returns the effective yaw angle between the wind
-% direction and the turbine orientation.
-%
-% INPUT
-% t_orientation := [n x 1] Angle of the turbine in world coordinates
-% U             := [n x 2] Wind vector [ux,uy] at the location of the
-%                           turbine in world coordinates
-%
-% OUTPUT
-% yaw_t         := [n x 1] vector with the effective yaw angles [-pi,+pi]
-
-% ========================= TODO ========================= 
-% Vec to angle
-%
-% get effective angle
-%
-yaw_t = zeros(size(t_orientation));                     % TODO Placeholder
+%% OP Methods
+% Initialize 
+function xyz = distibutionStrategy(opList)
+% ==================== !!!!DUMMY METHOD!!!! ====================== % 
+xyz = ones(size(opList,1),3);
 end
 
-%%
+% Create chain starting OPs
 function OPs = getChainStart(NumChains, TurbinePosD)
 % getChainStart creates starting points of the chains based on the number
 % of chains and the turbines
@@ -170,7 +149,7 @@ function OPs = getChainStart(NumChains, TurbinePosD)
 % OUTPUT
 % OPs           := [(n*m)x5] m Chain starts [x,y,z,t_id, d] per turbine
 
-%% Allocation
+% Allocation
 OPs = zeros(NumChains*size(TurbinePosD,1),5);
 
 % assign each OP to a turbine (first all OPs from turbine 1, then t2 etc.)
@@ -187,7 +166,7 @@ OPs(:,1:3) = ones(NumChains*size(TurbinePosD,1),3);     % TODO Placeholder
 % ////////////////////////////////////////////////////////
 end
 
-%%
+% Create the OP matrix
 function [opList, startInd_T] = assembleOPList(startOPs,chainLength)
 % assembleOPList creates a list of OPs with entries for the starting points 
 % and the rest being 0
@@ -196,7 +175,6 @@ function [opList, startInd_T] = assembleOPList(startOPs,chainLength)
 % startOPs      := [n x 3] vector [x,y,z]   // World coordinates
 % chainLength   := [n x 1] vector
 % chainLength   := Int
-% TurbinePosD   := [n x 4] vector [x,y,z,d] // World coordinates
 %
 % OUTPUT
 % opList        := [n x vars]
@@ -204,13 +182,13 @@ function [opList, startInd_T] = assembleOPList(startOPs,chainLength)
 %                   turbine they belong to.
 %
 % [x,y,z, Ux,Uy, r,r_t, a,yaw, t_id] // World coordinates
-%% Constants
+% ==== Constants ==== %
 NumOfVariables  = 10;
 numChains       = size(startOPs,1);
 startInd_T      = zeros(numChains,2);
 startInd_T(:,2) = startOPs(:,4);
 
-%% Build Chains
+% ==== Build Chains ==== %
 if length(chainLength)==numChains
     % diverse length, for every chain there is a length.
     
@@ -232,4 +210,26 @@ opList(startInd_T(:,1),[1:3 end]) = startOPs(:,1:4);
 % ==== To change last entry to diameter uncomment the following line ==== %
 % opList(startInd_T(:,1),[1:3 end]) = startOPs(:,[1:3 5]);
 
+end
+
+%% Utility methods
+
+function yaw_t = getEffectiveYaw(t_orientation, U)
+% GETEFFECTIVEYAW returns the effective yaw angle between the wind
+% direction and the turbine orientation.
+%
+% INPUT
+% t_orientation := [n x 1] Angle of the turbine in world coordinates
+% U             := [n x 2] Wind vector [ux,uy] at the location of the
+%                           turbine in world coordinates
+%
+% OUTPUT
+% yaw_t         := [n x 1] vector with the effective yaw angles [-pi,+pi]
+
+% ========================= TODO ========================= 
+% Vec to angle
+%
+% get effective angle
+%
+yaw_t = zeros(size(t_orientation));                     % TODO Placeholder
 end
