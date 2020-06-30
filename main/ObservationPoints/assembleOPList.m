@@ -31,25 +31,25 @@ if length(chainLength)==numChains
     % diverse length, for every chain there is a length.
     
     % Get starting indeces
-    chainList(:,1) = cumsum(chainLength')'-chainLength+1;
+    chainList(:,2) = cumsum(chainLength')'-chainLength+1;
     
     % Allocate opList
     opList = zeros(sum(chainLength), NumOfVariables);
     
 else
     % Uniform length
-    chainList(:,1) = cumsum(ones(1,numChains)*chainLength)'-chainLength+1;
+    chainList(:,2) = cumsum(ones(1,numChains)*chainLength)'-chainLength+1;
     
     % Allocate opList
     opList = zeros(chainList(end,1), NumOfVariables);
 end
 
 % Starting index = first OP index
-chainList(:,2) = chainList(:,1);
+%chainList(:,2) = chainList(:,1);
 chainList(:,3) = chainLength;
 
 % Insert the starting OPs in the opList
-opList(chainList(:,1),[1:3 end]) = startOPs(:,1:4);
+opList(chainList(:,2),[1:3 end]) = startOPs(:,1:4);
 % ==== To change last entry to diameter uncomment the following line ==== %
 % opList(startInd_T(:,1),[1:3 end]) = startOPs(:,[1:3 5]);
 

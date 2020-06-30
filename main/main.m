@@ -32,9 +32,6 @@ clear startOPs
 %% Start simulation
 
 for i = 1:NoTimeSteps
-    % Increment the index of the chain starting entry
-    chainList = shiftChainList(chainList);
-    
     % Insert new points
     opList = initAtRotorplane(opList,chainList,turbineList,'circle');
     
@@ -65,6 +62,9 @@ for i = 1:NoTimeSteps
     
     % Based on new down wind pos, calculate new crosswind pos (y & z dir)
     opList(:,1:3) = distibutionStrategy(opList,chainList,'circle');
+    
+    % Increment the index of the chain starting entry
+    chainList = shiftChainList(chainList);
     
 end
 

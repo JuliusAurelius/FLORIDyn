@@ -18,6 +18,7 @@ switch method
         % equations to place points on a circle
         op_y_w =@(r,phi) r.*sin(phi);
         op_z_w =@(r,phi) r.*cos(phi);
+        R = @(phi) [cos(phi),-sin(phi),0;sin(phi),cos(phi),0;0,0,1];
         
         % ratio to get radius from diameter for chain groups
         d_factor = [0; ones(cDist(2),1)*0.25;ones(cDist(3),1)*0.5];
@@ -34,8 +35,17 @@ switch method
         
         phi_all = repmat(phi,numTurbines,1);
         
+        % Distribute points in the wake coordinate system
         opList(ind,5) = op_y_w(radius.*D, phi_all);
         opList(ind,6) = op_z_w(radius.*D, phi_all);
+        
+        % Yaw angleto map points to world
+        yaw_t = reshape(repmat(turbineList(:,6)',numChains,1),...
+            numTurbines*numChains,1);
+        
+        for i = 1:length(yaw_t) % MAKE NICER! HAS TOB BE POSSIBLE TO SOLVE WITHOUT FOR
+            opList(ind(i),1:3) = (R(yaw_t(i))*(opList(ind(i),4:6)'))'+turbineList(opList(ind(i),13),1:3);
+        end
         
     otherwise
         print('Invalid option, using circle')
