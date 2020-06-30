@@ -14,7 +14,7 @@ timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
 
 % [x,y,z,D,a,yaw,P] // World Coordinates
-turbines = [TurbinePosD, zeros(size(TurbinePosD,1),2)];
+turbineList = [TurbinePosD, zeros(size(TurbinePosD,1),3)];
 
 
 %% Create starting OPs and build opList
@@ -36,15 +36,15 @@ for i = 1:NoTimeSteps
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
-    U_OPs = getWindVec(opList(:,1:2));
-    U_t   = getWindVec(turbines(:,1:2));
+    U_OPs = getWindVec(opList(:,1:3));
+    U_t   = getWindVec(turbineList(:,1:3));
     
     %====================== CONTROLLER ===================================%
-    turbines(:,5:6) = controller(turbines);
+    turbineList(:,5:6) = controller(turbineList);
     %=====================================================================%
     
     % Get effective yaw for each turbine
-    yaw_t = getEffectiveYaw(turbines(:,6), U_t);
+    yaw_t = getEffectiveYaw(turbineList(:,6), U_t);
     
     % Set 'uninfluenced' Windspeed for all OPs U = U_free*r_t
     opList(:,4:5) = U_OPs.*opList(:,7);
@@ -122,7 +122,7 @@ function U = getWindVec(pos)
 % position(s) given as a [x,y] vector
 %
 % INPUT
-% NumChains     := [n x 2] vector with postions [x,y] // World coordinates
+% NumChains     := [n x 3] vector with postions [x,y,z]// World coordinates
 %
 % OUTPUT
 % u             := [n x 2] vector with the [ux, uy] velocities
@@ -130,7 +130,7 @@ function U = getWindVec(pos)
 % ========================= TODO ========================= 
 % ///////////////////////// LINK Wind Dir  //////////
 
-U = ones(size(pos));                                    % TODO Placeholder
+U = ones(size(pos,1),2);                                 % TODO Placeholder
 end
 
 %% OP Methods
@@ -233,6 +233,7 @@ function yaw_t = getEffectiveYaw(t_orientation, U)
 %
 % INPUT
 % t_orientation := [n x 1] Angle of the turbine in world coordinates
+%                   looking WITH the wind (backwards)
 % U             := [n x 2] Wind vector [ux,uy] at the location of the
 %                           turbine in world coordinates
 %
@@ -243,8 +244,15 @@ function yaw_t = getEffectiveYaw(t_orientation, U)
 % Vec to angle
 %
 % get effective angle
-%
-yaw_t = zeros(size(t_orientation));                     % TODO Placeholder
+ang_wind = atan2(U(:,1),U(:,2));
+yaw_t = mod((ang_wind-t_orientation) + pi/2,pi)-pi/2;
+
+% needs checking!!!
+%   -> equivalent to angdiff?
+%   -> right sign?
+%   -> right values?
+% Eq. based on
+% https://stackoverflow.com/questions/1878907/the-smallest-difference-between-2-angles
 end
 
 
@@ -268,6 +276,7 @@ end
 % [x] Include all 3 linked lists: OP[... t_id], chain[OP_entry, start_ind,
 %       length, t_id], turbines[...] (chain currently missing)
 % [x] Implement shifting the pointers
+% [~] Implement the effective yaw calculation
 % [ ] Which Information is needed to place new initial OPs?
 % [ ] Add [word_coord. wake_coord. ...] system to OP list
 % [ ] Refine getR(), working alpha version (Park Model?) / define Interface
