@@ -15,12 +15,18 @@ function [opList, chainList] = assembleOPList(startOPs,chainLength)
 % startInd_T    := [n x 2] starting Indices for all chain lengths and which 
 %                   turbine they belong to.
 %
-% [x,y,z, Ux,Uy, r,r_t, a,yaw, t_id] // World coordinates
+% OP List
+% [world     wake             world  world       ]
+% [x,y,z, x_w,y_w,z_w, r,r_t, Ux,Uy, a,yaw, t_ind]
+% [1,2,3,   4,5,6,      7,8,   9,10, 11,12,   13 ]
+%
+%
+% OLD [x,y,z, Ux,Uy, r,r_t, a,yaw, t_id] // World coordinates
 % ==== Constants ==== %
-NumOfVariables  = 10;
+NumOfVariables  = 13;
 numChains       = size(startOPs,1);
-chainList      = zeros(numChains,4);
-chainList(:,4) = startOPs(:,4);
+chainList       = zeros(numChains,4);
+chainList(:,4)  = startOPs(:,4);
 
 % ==== Build Chains ==== %
 if length(chainLength)==numChains
