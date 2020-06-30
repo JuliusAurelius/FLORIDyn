@@ -20,8 +20,6 @@ function [opList, chainList] = assembleOPList(startOPs,chainLength)
 % [x,y,z, x_w,y_w,z_w, r,r_t, Ux,Uy, a,yaw, t_ind]
 % [1,2,3,   4,5,6,      7,8,   9,10, 11,12,   13 ]
 %
-%
-% OLD [x,y,z, Ux,Uy, r,r_t, a,yaw, t_id] // World coordinates
 % ==== Constants ==== %
 NumOfVariables  = 13;
 numChains       = size(startOPs,1);

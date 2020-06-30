@@ -1,0 +1,61 @@
+function opList = initAtRotorplane(opList,chainList,turbineList,method)
+%INITATROTORPLANE creates points at the rotor plane, based on a pattern
+%method
+%   At the pointer entry, insert the new OPs at the rotor plane of the
+%   turbines
+
+
+% Get the number of chains, assumed to be constant
+numChains = sum(chainList(:,4)==1);
+numTurbines   = size(turbineList,1);
+switch method
+    case 'circle'
+        % Distribute the chains: one center, slightly less than half on
+        % half the rotor, rest on the outer rim of the rotor.
+        cDist = [1, floor((numChains-1)/2),0];
+        cDist(3) = numChains - sum(cDist);
+        
+        % equations to place points on a circle
+        op_y_w =@(r,phi) r.*sin(phi);
+        op_z_w =@(r,phi) r.*cos(phi);
+        
+        % ratio to get radius from diameter for chain groups
+        d_factor = [0; ones(cDist(2),1)*0.25;ones(cDist(3),1)*0.5];
+        radius = repmat(d_factor,numTurbines,1);
+        D = reshape(repmat(turbineList(:,4)',numChains,1),...
+            numTurbines*numChains,1);
+        
+        % Get indeces of the starting observation points
+        ind = chainList(:,1) + chainList(:,2);
+        
+        % Get the angles for each chain at one turbine
+        phi = [0, 2*pi/cDist(2):2*pi/cDist(2):2*pi, ...
+            2*pi/cDist(3):2*pi/cDist(3):2*pi]';
+        
+        phi_all = repmat(phi,numTurbines,1);
+        
+        opList(ind,5) = op_y_w(radius*D, phi_all);
+        opList(ind,6) = op_z_w(radius*D, phi_all);
+        
+    otherwise
+        print('Invalid option, using circle')
+        opList = initAtRotorplane(opList,chainList,'circle');
+end
+
+% OP List
+% [world     wake             world  world       ]
+% [x,y,z, x_w,y_w,z_w, r,r_t, Ux,Uy, a,yaw, t_ind]
+% [1,2,3,   4,5,6,      7,8,   9,10, 11,12,   13 ]
+
+% Turbine list
+% [world        world   world  ]
+% [x,y,z,   D,  a,yaw,  Ux,Uy P]
+% [1,2,3,   4,   5,6     7,8  9]
+
+% Chain List
+% [                         ]
+% [offset start length t_ind]
+% [   1     2     3      4  ]
+
+end
+

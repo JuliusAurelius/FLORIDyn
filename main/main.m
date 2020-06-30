@@ -36,10 +36,7 @@ for i = 1:NoTimeSteps
     chainList = shiftChainList(chainList);
     
     % Insert new points
-    %   At the pointer entry, insert the new OPs at the rotor plane of the
-    %   turbines -> distribution strategy
-    % TO GET the index, use ind = chainList(:,1) + chainList(:,2);
-    
+    opList = initAtRotorplane(opList,chainList,turbineList,'circle');
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
@@ -67,7 +64,7 @@ for i = 1:NoTimeSteps
     opList(:,4)     = sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
     
     % Based on new down wind pos, calculate new crosswind pos (y & z dir)
-    opList(:,1:3) = distibutionStrategy(opList);
+    opList(:,1:3) = distibutionStrategy(opList,chainList,'circle');
     
 end
 
@@ -80,6 +77,12 @@ end
 % [world        world   world  ]
 % [x,y,z,   D,  a,yaw,  Ux,Uy P]
 % [1,2,3,   4,   5,6     7,8  9]
+
+% Chain List
+% [                         ]
+% [offset start length t_ind]
+% [   1     2     3      4  ]
+
 
 end
 
