@@ -243,5 +243,4 @@ end
 % [ ] Implement shifting the pointers
 % [ ] Which Information is needed to place new initial OPs?
 % [ ] Add [word_coord. wake_coord. ...] system to OP list
-% [ ] Refine getR(), working alpha version (Park Model?) / define Interface
-% [ ] Refactor code: Move functions to own files.
+% [ ] Refine getR(), working al
