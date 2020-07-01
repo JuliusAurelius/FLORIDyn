@@ -8,6 +8,24 @@ function opList = initAtRotorplane(opList,chainList,turbineList,method)
 % Get the number of chains, assumed to be constant
 numChains = sum(chainList(:,4)==1);
 numTurbines   = size(turbineList,1);
+
+% Get indeces of the starting observation points
+ind = chainList(:,1) + chainList(:,2);
+
+% Set turbine index (repeated, could be optimized -> move to general init)
+opList(ind,13) = chainList(:,4);
+
+
+% Assign a and yaw values of the turbines, together with coordinates
+try
+    opList(ind,[1:3 11:12]) = turbineList(opList(ind,13),[1:3 5:6]);
+catch
+    disp(opList(ind,13));
+end
+
+
+
+        
 switch method
     case 'circle'
         % Distribute the chains: one center, slightly less than half on
@@ -26,9 +44,6 @@ switch method
         D = reshape(repmat(turbineList(:,4)',numChains,1),...
             numTurbines*numChains,1);
         
-        % Get indeces of the starting observation points
-        ind = chainList(:,1) + chainList(:,2);
-        
         % Get the angles for each chain at one turbine
         phi = [0, 2*pi/cDist(2):2*pi/cDist(2):2*pi, ...
             2*pi/cDist(3):2*pi/cDist(3):2*pi]';
@@ -39,12 +54,14 @@ switch method
         opList(ind,5) = op_y_w(radius.*D, phi_all);
         opList(ind,6) = op_z_w(radius.*D, phi_all);
         
-        % Yaw angleto map points to world
+        
+        
+        % Yaw angle to map points to world
         yaw_t = reshape(repmat(turbineList(:,6)',numChains,1),...
             numTurbines*numChains,1);
         
         for i = 1:length(yaw_t) % MAKE NICER! HAS TOB BE POSSIBLE TO SOLVE WITHOUT FOR
-            opList(ind(i),1:3) = (R(yaw_t(i))*(opList(ind(i),4:6)'))'+turbineList(opList(ind(i),13),1:3);
+            opList(ind(i),1:3) = opList(ind(i),1:3) + (R(yaw_t(i))*(opList(ind(i),4:6)'))';
         end
         
     otherwise

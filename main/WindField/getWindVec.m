@@ -6,10 +6,13 @@ function U = getWindVec(pos)
 % NumChains     := [n x 3] vector with postions [x,y,z]// World coordinates
 %
 % OUTPUT
-% u             := [n x 2] vector with the [ux, uy] velocities
+% U             := [n x 2] vector with the [Ux, Uy] velocities
 
 % ========================= TODO ========================= 
 % ///////////////////////// LINK Wind Dir  //////////
 
-U = ones(size(pos,1),2);                                 % TODO Placeholder
+%windspeed = @(x) [x(1) 0;0 x(2)]*x;
+%U = windspeed(pos');
+
+U = 12*ones(size(pos,1),2);                                 % TODO Placeholder
 end
