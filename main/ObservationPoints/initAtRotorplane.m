@@ -12,18 +12,8 @@ numTurbines   = size(turbineList,1);
 % Get indeces of the starting observation points
 ind = chainList(:,1) + chainList(:,2);
 
-% Set turbine index (repeated, could be optimized -> move to general init)
-opList(ind,13) = chainList(:,4);
-
-
 % Assign a and yaw values of the turbines, together with coordinates
-try
-    opList(ind,[1:3 11:12]) = turbineList(opList(ind,13),[1:3 5:6]);
-catch
-    disp(opList(ind,13));
-end
-
-
+opList(ind,[1:3 11:12]) = turbineList(opList(ind,13),[1:3 5:6]);
 
         
 switch method

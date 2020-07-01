@@ -47,7 +47,7 @@ end
 chainList(:,3) = chainLength;
 
 
-
+opList = assignTIDs(chainList,opList);
 
 %=================================%
 % assign the t_id value in opList % Remove code from initAtRotorplane then
@@ -72,3 +72,10 @@ end
 % [                         ]
 % [offset start length t_ind]
 % [   1     2     3      4  ]
+
+function opList = assignTIDs(chainList,opList)
+% ASSIGNTIDS writes t_id entries of opList
+i = 1;
+while i<size(
+
+end

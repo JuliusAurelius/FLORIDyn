@@ -47,11 +47,7 @@ end
 chainList(:,3) = chainLength;
 
 
-
-
-%=================================%
-% assign the t_id value in opList % Remove code from initAtRotorplane then
-%=================================%
+opList = assignTIDs(chainList,opList);
 
 
 
@@ -72,3 +68,19 @@ end
 % [                         ]
 % [offset start length t_ind]
 % [   1     2     3      4  ]
+
+function opList = assignTIDs(chainList,opList)
+% ASSIGNTIDS writes t_id entries of opList
+%   IMPROVEMENT: Returns vector with the t_ids fitting assembeled
+ind_op = 1;
+ind_ch = 1;
+while ind_op<=size(opList,1)
+    if(ind_op == sum(chainList(ind_ch,[2 3])))
+        ind_ch = ind_ch + 1;
+    end
+    
+    opList(ind_op,13) = chainList(ind_ch,4);
+    
+    ind_op = ind_op+1;
+end
+end
