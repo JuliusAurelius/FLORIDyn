@@ -17,7 +17,7 @@ borderAng = 600;
 borderSpe = 100;
 beyond_Ang = pos(:,1)>borderAng;
 pre_Speed  = pos(:,1)<borderSpe;
-U = 8*ones(size(pos,1),2) * [1, 0; 0, 0.5];             % m/s   % TODO Placeholder
+U = 6*ones(size(pos,1),2) * [1, 0; 0, 0.5];             % m/s   % TODO Placeholder
 U(beyond_Ang,2) = -U(beyond_Ang,2);
-U(pre_Speed,:) = U(pre_Speed,:)*0.6;
+U(pre_Speed,:) = 
 end

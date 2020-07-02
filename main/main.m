@@ -7,7 +7,7 @@ addpath('./WakeModel')
 
 %% Test Variables
 NumChains       = 20;
-NumTurbines     = 6;
+NumTurbines     = 2;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(5,NumChains*NumTurbines,1)+1;
@@ -96,9 +96,42 @@ end
 %scatter3(opList(:,4),opList(:,5),opList(:,6),opList(:,13)*10);
 
 % World coordinates
-figure(3)
-scatter3(opList(:,1),opList(:,2),opList(:,3),opList(:,13)*10);
+figure(1)
+subplot(3,1,1)
+
+scatter3(opList(:,1),opList(:,2),opList(:,3),...
+    opList(:,13)*20,sqrt(sum(opList(:,9:10).^2,2))+opList(:,10)*0.5,...
+    'filled');
 axis equal
+colormap lines
+title('Proof of concept: wind speed and direction change, two turbines')
+xlabel('east - west [m]')
+ylabel('south - north [m]')
+zlabel('height [m]')
+
+subplot(3,1,2)
+t1 = opList(:,13) == 1;
+scatter3(opList(t1,4),opList(t1,5),opList(t1,6),...
+    opList(t1,13)*20,sqrt(sum(opList(t1,9:10).^2,2))+opList(t1,10)*0.5,...
+    'filled');
+axis equal
+colormap lines
+title('Turbine 1 observation points in wake coordinates, speed change')
+xlabel('downwind [m]')
+ylabel('crosswind_y [m]')
+zlabel('crosswind_z [m]')
+
+subplot(3,1,3)
+t2 = opList(:,13) == 2;
+scatter3(opList(t2,4),opList(t2,5),opList(t2,6),...
+    opList(t2,13)*20,sqrt(sum(opList(t2,9:10).^2,2))+opList(t2,10)*0.5,...
+    'filled');
+axis equal
+colormap lines
+title('Turbine 2 observation points in wake coordinates, direction change')
+xlabel('downwind [m]')
+ylabel('crosswind_y [m]')
+zlabel('crosswind_z [m]')
 end
 
 %% TICKETS
