@@ -7,7 +7,7 @@ addpath('./WakeModel')
 
 %% Test Variables
 NumChains       = 20;
-NumTurbines     = 1;
+NumTurbines     = 6;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(5,NumChains*NumTurbines,1)+1;
@@ -93,10 +93,12 @@ end
 
 %% PLOT
 % Wake coordinates
-scatter3(opList(:,4),opList(:,5),opList(:,6),opList(:,13)*10);
+%scatter3(opList(:,4),opList(:,5),opList(:,6),opList(:,13)*10);
 
 % World coordinates
+figure(3)
 scatter3(opList(:,1),opList(:,2),opList(:,3),opList(:,13)*10);
+axis equal
 end
 
 %% TICKETS

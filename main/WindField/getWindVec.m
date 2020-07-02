@@ -14,5 +14,5 @@ function U = getWindVec(pos)
 %windspeed = @(x) [x(1) 0;0 x(2)]*x;
 %U = windspeed(pos');
 
-U = 6*ones(size(pos,1),2);             % m/s   % TODO Placeholder
+U = 6*ones(size(pos,1),2) * [0.6, 0; 0, -1.4];             % m/s   % TODO Placeholder
 end
