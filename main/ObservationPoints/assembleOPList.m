@@ -37,11 +37,14 @@ if length(chainLength)==numChains
     opList = zeros(sum(chainLength), NumOfVariables);
     
 else
-    % Uniform length
+    % Starting points
     chainList(:,2) = cumsum(ones(1,numChains)*chainLength)'-chainLength+1;
     
+    % Uniform length
+    chainList(:,3) = chainLength;
+    
     % Allocate opList
-    opList = zeros(chainList(end,1), NumOfVariables);
+    opList = zeros(sum(chainList(:,3)), NumOfVariables);
 end
 
 chainList(:,3) = chainLength;

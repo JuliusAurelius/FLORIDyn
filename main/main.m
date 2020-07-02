@@ -1,4 +1,4 @@
-function main()
+function [opList, chainList, turbineList] = main()
 
 addpath('./WindField')
 addpath('./Controller')
@@ -6,12 +6,12 @@ addpath('./ObservationPoints')
 addpath('./WakeModel')
 
 %% Test Variables
-NumChains       = 6;
-NumTurbines     = 3;
+NumChains       = 20;
+NumTurbines     = 1;
 
 % Uniform chain length or individual chainlength
-chainLength     = randi(5,NumChains*NumTurbines,1)+1;
-%chainLength = 5;   
+%chainLength     = randi(5,NumChains*NumTurbines,1)+1;
+chainLength = 10;   
 
 timeStep        = 5;   % in s
 SimDuration     = 100; % in s
@@ -57,13 +57,13 @@ for i = 1:NoTimeSteps
     % Calculate effective windspeed and down wind step d_dw=U*r_g*t
     dw_step = opList(:,9:10).*opList(:,7)*timeStep;
     %   ... in world coordinates
-    opList(:,1:2)   = dw_step;
+    opList(:,1:2)   = opList(:,1:2) + dw_step;
     %   ... in wake coordinates
-    opList(:,4)     = sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
+    opList(:,4)     = opList(:,4) + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
     
     
     % Based on new down wind pos, calculate new crosswind pos (y & z dir)
-    opList(:,1:3) = distibutionStrategy(opList,chainList,'circle');
+    %opList(:,1:3) = distibutionStrategy(opList,chainList,'circle');
     
     
     % Prepare next time step
@@ -91,7 +91,12 @@ end
 % [offset start length t_ind]
 % [   1     2     3      4  ]
 
+%% PLOT
+% Wake coordinates
+scatter3(opList(:,4),opList(:,5),opList(:,6),opList(:,13)*10);
 
+% World coordinates
+scatter3(opList(:,1),opList(:,2),opList(:,3),opList(:,13)*10);
 end
 
 %% TICKETS

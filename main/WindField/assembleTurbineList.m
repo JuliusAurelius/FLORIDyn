@@ -13,7 +13,8 @@ function turbineList = assembleTurbineList(layout)
 % [x,y,z,   D,  a,yaw,  Ux,Uy P]
 % [1,2,3,   4,   5,6     7,8  9]
 %=========================================================================%
-TurbinePosD = [magic(3),ones(3,1)];
+TurbinePosD = [magic(3),ones(3,1)*160];
+TurbinePosD = TurbinePosD(1:layout,:);
 turbineList = [TurbinePosD, zeros(size(TurbinePosD,1),3)];
 end
 
