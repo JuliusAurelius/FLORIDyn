@@ -15,7 +15,16 @@ ind = chainList(:,1) + chainList(:,2);
 % Assign a and yaw values of the turbines, together with coordinates
 opList(ind,[1:3 11:12]) = turbineList(opList(ind,13),[1:3 5:6]);
 
-        
+% Set r_t to 1 (no influence) will be overwritten at the end of the
+% simulation step.
+opList(ind,8) = 1;
+
+% Set x_w to 0 (at the rotor plane)
+opList(ind,4) = 0;
+
+% Entries not changed here: r,Ux,Uy,a,yaw & t_id. All these will be
+% overwritten or are constant (t_id).
+
 switch method
     case 'circle'
         % Distribute the chains: one center, slightly less than half on

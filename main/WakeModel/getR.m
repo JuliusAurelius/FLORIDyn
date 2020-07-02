@@ -26,5 +26,5 @@ yawEff = getEffectiveYaw(turbineList(:,3), turbineList(:,4:5));
 % ==================== !!!!DUMMY METHOD!!!! ====================== % 
 % ================= should link to wake models =================== %
 
-r = zeros(size(opList,1),1);
+r = ones(size(opList,1),1); % (1 = no influence)
 end

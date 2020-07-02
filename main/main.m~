@@ -44,15 +44,16 @@ for i = 1:NoTimeSteps
     turbineList(:,5:6) = controller(turbineList);
     %=====================================================================%
     
+    % Get 
+    
+    % Set 'uninfluenced' Windspeed for all OPs U = U_free*r_t
+    opList(:,9:10) = U_OPs.*opList(:,8);
+    
     % Get r-> u=U*r (NOT u=U(1-r)!!!)
     opList(:,7) = getR(opList(:,[4:6 11:12 13]),turbineList(:,[3:4 6:8]));
     
     % Get r_f, foreign influence / wake interaction u=U*r*r_f
-    r_f = getR_f(opList(:,[1:7 11:13]),turbineList(:,1:3));
-    opList(:,7) = opList(:,7).*r_f;
-    
-    % Set 'uninfluenced' Windspeed for all OPs U = U_free*r_t
-    opList(:,9:10) = U_OPs.*opList(:,8);
+    opList(:,7) = getR_f(opList(:,[1:3 7]),turbineList(:,1:3));
     
     % Calculate effective windspeed and down wind step d_dw=U*r_g*t
     dw_step = opList(:,9:10).*opList(:,7)*timeStep;
@@ -61,15 +62,8 @@ for i = 1:NoTimeSteps
     %   ... in wake coordinates
     opList(:,4)     = sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
     
-    
     % Based on new down wind pos, calculate new crosswind pos (y & z dir)
     opList(:,1:3) = distibutionStrategy(opList,chainList,'circle');
-    
-    
-    % Prepare next time step
-    % set r_t = r_f for the chain starting points
-    ind = chainList(:,1) + chainList(:,2);
-    opList(ind,8) = r_f(ind);
     
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
@@ -104,4 +98,3 @@ end
 % [ ] Refine getR(), working alpha version (Park Model?) / define Interface
 % [x] Refactor code: Move functions to own files.
 % [ ] Calc / Set Chainlength (?)
-% [ ] Set yaw in opList to wake coord.!
