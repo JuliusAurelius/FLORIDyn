@@ -145,3 +145,8 @@ end
 % [x] Refactor code: Move functions to own files.
 % [ ] Calc / Set Chainlength (?)
 % [ ] Set yaw in opList to wake coord.!
+% [ ] Visulization / Video
+% [ ] Power Output
+% [ ] Get one version of r_f working
+% [ ] 2D implementation?
+% [ ] How many coordinates are really needed?
