@@ -134,6 +134,16 @@ ylabel('crosswind_y [m]')
 zlabel('crosswind_z [m]')
 end
 
+%% TICKETS split_OPList - branch
+% [ ] Split the opList in multiple sub matrices (pos, dw, r, U, a,yaw t_ind)
+% [ ] Split turbineList
+% [ ] Split chainList
+% [ ] Reduce the number of variables: delete y_w and z_w
+% [ ] Introduce \sig_y \sig_z factors to the chain matrix - new way of
+%       locating the chains in the wake 
+% [ ] Note at which points changes have to be made in order to get 2D/3D
+%       running
+
 %% TICKETS
 % [x] Include all 3 linked lists: OP[... t_id], chain[OP_entry, start_ind,
 %       length, t_id], turbines[...] (chain currently missing)

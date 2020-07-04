@@ -134,6 +134,11 @@ ylabel('crosswind_y [m]')
 zlabel('crosswind_z [m]')
 end
 
+%% TICKETS split_OPList - branch
+% [ ] Split the list in multiple sub matrices (pos, dw, r, U, theta
+% [ ] 
+% [ ] 
+
 %% TICKETS
 % [x] Include all 3 linked lists: OP[... t_id], chain[OP_entry, start_ind,
 %       length, t_id], turbines[...] (chain currently missing)
