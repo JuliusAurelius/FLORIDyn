@@ -1,10 +1,10 @@
-function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList] = assembleOPList(NumChains,chainLength,tl_D)
+function [opList, chainList] = assembleOPList(NumChains,chainLength,tl_D)
 % assembleOPList creates a list of OPs with entries for the starting points 
 % and the rest being 0
 % 
 % INPUT
-% NumChains     := int Number of chains per turbine
-% chainLength   := int or [NumChains*NumTurbines x 1] vector
+% NumChains      := [n x 6] vector [x,y,z,t_id,D,c_id]  // World coordinates
+% chainLength   := [n x 1] vector
 % tl_D          := Int
 %
 % OUTPUT
@@ -23,12 +23,11 @@ function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList] = assembleOPLi
 % ==== Constants ==== %
 NumOfVariables  = 13;
 NumTurb         = length(tl_D);
-NumChainsTot    = NumChains*NumTurb; % Total number of chains across all t.
-chainList       = zeros(NumChainsTot,4);
-chainList(:,4)  = reshape(repmat(1:NumTurb,NumChains,1),NumChainsTot,1);
+chainList       = zeros(NumChains*NumTurb,4);
+chainList(:,4)  = reshape(repmat(1:NumTurb,NumChains,1),NumChains*NumTurb,1);
 
 % ==== Build Chains ==== %
-if length(chainLength)==NumChainsTot
+if length(chainLength)==NumChains
     % diverse length, for every chain there is a length.
     
     % Get starting indeces
@@ -38,8 +37,10 @@ if length(chainLength)==NumChainsTot
     len_OPs = sum(chainLength);
 else
     % Starting points
-    chainList(:,2) = cumsum(ones(1,NumChainsTot)*chainLength(1))'...
-        -chainLength(1)+1;
+    chainList(:,2) = cumsum(ones(1,NumChains)*chainLength)'-chainLength+1;
+    
+    % Uniform length
+    chainList(:,3) = chainLength;
     
     % Allocate opList
     len_OPs = sum(chainList(:,3));
@@ -56,6 +57,9 @@ op_r    = zeros(len_OPs,2);
 op_U    = zeros(len_OPs,2);
 op_ayaw = zeros(len_OPs,2);
 op_t_id = assignTIDs(chainList,opList);
+
+
+opList = [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
 
 % Insert the starting OPs in the opList
 

@@ -1,27 +1,10 @@
-function opList = initAtRotorplane(opList,chainList,turbineList,method)
+function opList = initAtRotorplaneOld(opList,chainList,turbineList,method)
 %INITATROTORPLANE creates points at the rotor plane, based on a pattern
 %method
 %   At the pointer entry, insert the new OPs at the rotor plane of the
 %   turbines
 
-%% OP List
-% OP List
-% [world     wake             world  world       ]
-% [x,y,z, x_w,y_w,z_w, r,r_t, Ux,Uy, a,yaw, t_ind]
-% [1,2,3,   4,5,6,      7,8,   9,10, 11,12,   13 ]
-% [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
-% reads:  op_t_id, op_pos, op_ayaw, op_r, op_dw
-% writes: op_pos, op_ayaw, op_r, op_dw
 
-%% turbineList
-% Turbine list
-% [world        world   world  ]
-% [x,y,z,   D,  a,yaw,  Ux,Uy P]
-% [1,2,3,   4,   5,6     7,8  9]
-
-% [tl_pos,tl_D,tl_ayaw,tl_U]
-% reads : tl_pos, tl_ayaw, tl_D
-%%
 % Get the number of chains, assumed to be constant
 numChains = sum(chainList(:,4)==1);
 numTurbines   = size(turbineList,1);
@@ -82,12 +65,18 @@ switch method
         
     otherwise
         print('Invalid option, using circle')
-        opList = initAtRotorplane(opList,chainList,'circle');
+        opList = initAtRotorplaneOld(opList,chainList,'circle');
 end
 
+% OP List
+% [world     wake             world  world       ]
+% [x,y,z, x_w,y_w,z_w, r,r_t, Ux,Uy, a,yaw, t_ind]
+% [1,2,3,   4,5,6,      7,8,   9,10, 11,12,   13 ]
 
-
-
+% Turbine list
+% [world        world   world  ]
+% [x,y,z,   D,  a,yaw,  Ux,Uy P]
+% [1,2,3,   4,   5,6     7,8  9]
 
 % Chain List
 % [                         ]

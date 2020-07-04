@@ -1,4 +1,4 @@
-function turbineList = assembleTurbineList(layout)
+function [tl_pos,tl_d,tl_ayaw,tl_U] = assembleTurbineList(layout,varargin)
 %assembleTurbineList creates list of turbines with their properties
 %   Sets the number, position, height and diameter, but also stores the yaw
 %   and axial induction factor of the controller, along with the current
@@ -13,16 +13,23 @@ function turbineList = assembleTurbineList(layout)
 % [x,y,z,   D,  a,yaw,  Ux,Uy P]
 % [1,2,3,   4,   5,6     7,8  9]
 %=========================================================================%
-TurbinePosD = [magic(3),ones(3,1)*160];
+T_num = 6;
 D=160;
-TurbinePosD = [...
+
+
+T_Pos = [...
                 0 0 90 D;...
                 3*D 0 90 D;...
                 3*D 6*D 90 D;...
                 0 6*D 90 D;...
                 3*D 12*D 90 D;...
                 0 12*D 90 D];
-TurbinePosD = TurbinePosD(1:layout,:);
-turbineList = [TurbinePosD, zeros(size(TurbinePosD,1),5)];
+T_D = ones(T_num,1)*D;
+
+tl_pos  = T_Pos;             %<--- 2D / 3D change
+tl_d    = T_D;
+tl_ayaw = zeros(T_num,2);
+tl_U    = zeros(T_num,2);
+
 end
 

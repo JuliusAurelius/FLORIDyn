@@ -21,14 +21,14 @@ timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
 
 % Create the list of turbines with their properties
-turbineList = assembleTurbineList(NumTurbines);               % TODO should call layout
+[tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(NumTurbines);               % TODO should call layout
 
-
+turbineList = [tl_pos,tl_D,tl_ayaw,tl_U];
 %% Create starting OPs and build opList
-startOPs =  getChainStart(NumChains, turbineList(:,1:4));
-[opList, chainList] = assembleOPList(startOPs,chainLength);
-clear startOPs 
+[op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList] =...
+    assembleOPList(NumChains,chainLength,tl_D);
 
+opList = [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
 %% Start simulation
 
 for i = 1:NoTimeSteps
@@ -135,9 +135,11 @@ zlabel('crosswind_z [m]')
 end
 
 %% TICKETS split_OPList - branch
-% [ ] Split the opList in multiple sub matrices (pos, dw, r, U, a,yaw t_ind)
-% [ ] Split turbineList
-% [ ] Split chainList
+% [x] Split the opList in multiple sub matrices (pos, dw, r, U, a,yaw t_ind)
+% [ ] Implement splitted opList list
+% [x] Split turbineList
+% [ ] Implement splitted turbine list
+% [x] Split chainList [not needed]
 % [ ] Reduce the number of variables: delete y_w and z_w
 % [ ] Introduce \sig_y \sig_z factors to the chain matrix - new way of
 %       locating the chains in the wake 

@@ -11,8 +11,7 @@ function opList = initAtRotorplane(opList,chainList,turbineList,method)
 % [1,2,3,   4,5,6,      7,8,   9,10, 11,12,   13 ]
 % [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
 % reads:  op_t_id, op_pos, op_ayaw, op_r, op_dw
-% writes: op_pos, op_ayaw, op_r, op_dw
-
+% writes: op_pos, op_ayaw
 %% turbineList
 % Turbine list
 % [world        world   world  ]
@@ -21,6 +20,7 @@ function opList = initAtRotorplane(opList,chainList,turbineList,method)
 
 % [tl_pos,tl_D,tl_ayaw,tl_U]
 % reads : tl_pos, tl_ayaw, tl_D
+% writes: 
 %%
 % Get the number of chains, assumed to be constant
 numChains = sum(chainList(:,4)==1);
