@@ -1,4 +1,4 @@
-function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList] = assembleOPList(NumChains,chainLength,tl_D)
+function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = assembleOPList(NumChains,chainLength,tl_D)
 % assembleOPList creates a list of OPs with entries for the starting points 
 % and the rest being 0
 % 
@@ -45,7 +45,7 @@ else
     len_OPs = sum(chainList(:,3));
 end
 
-opList = zeros(len_OPs, NumOfVariables);
+%opList = zeros(len_OPs, NumOfVariables);
 chainList(:,3) = chainLength;
 
 %(pos, dw, r, U, a,yaw t_ind)
@@ -55,8 +55,9 @@ op_dw   = zeros(len_OPs,1);
 op_r    = zeros(len_OPs,2);
 op_U    = zeros(len_OPs,2);
 op_ayaw = zeros(len_OPs,2);
-op_t_id = assignTIDs(chainList,opList);
+op_t_id = assignTIDs(chainList,len_OPs);
 
+cl_dstr = zeros(NumChainsTot,3);        %<--- 2D / 3D change
 % Insert the starting OPs in the opList
 
 % ==== To change last entry to diameter uncomment the following line ==== %
@@ -80,7 +81,7 @@ function t_id = assignTIDs(chainList,len_OPs)
 ind_op = 1;
 ind_ch = 1;
 t_id = zeros(len_OPs,1);
-while ind_op<=size(len_OPs,1)
+while ind_op<=len_OPs
     if(ind_op == sum(chainList(ind_ch,[2 3])))
         ind_ch = ind_ch + 1;
     end

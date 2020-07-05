@@ -25,7 +25,7 @@ NoTimeSteps = length(timeSteps);
 
 turbineList = [tl_pos,tl_D,tl_ayaw,tl_U];
 %% Create starting OPs and build opList
-[op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList] =...
+[op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] =...
     assembleOPList(NumChains,chainLength,tl_D);
 
 opList = [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
@@ -33,7 +33,9 @@ opList = [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
 
 for i = 1:NoTimeSteps
     % Insert new points
-    opList = initAtRotorplane(opList,chainList,turbineList,'circle');
+    %opList = initAtRotorplaneOld(opList,chainList,turbineList,'circle');
+    [op_pos, op_dw, op_r, op_ayaw, cl_dstr] = ...
+        initAtRotorplane(op_pos, op_ayaw, op_r, op_t_id,chainList, cl_dstr, tl_pos, tl_D, tl_ayaw,'circle');
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
@@ -141,11 +143,11 @@ end
 % [ ] Implement splitted turbine list
 % [x] Split chainList [not needed]
 % [ ] Reduce the number of variables: delete y_w and z_w
-% [ ] Introduce \sig_y \sig_z factors to the chain matrix - new way of
-%       locating the chains in the wake 
+% [~] Introduce \sig_y \sig_z factors to the chain matrix - new way of
+%       locating the chains in the wake (in progress)
 % [ ] Note at which points changes have to be made in order to get 2D/3D
 %       running
-
+% [ ] Implement flower distrobution
 %% TICKETS
 % [x] Include all 3 linked lists: OP[... t_id], chain[OP_entry, start_ind,
 %       length, t_id], turbines[...] (chain currently missing)
