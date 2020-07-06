@@ -34,8 +34,7 @@ opList = [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
 for i = 1:NoTimeSteps
     % Insert new points
     %opList = initAtRotorplaneOld(opList,chainList,turbineList,'circle');
-    [op_pos, op_dw, op_r, op_ayaw, cl_dstr] = ...
-        initAtRotorplane(op_pos, op_ayaw, op_r, op_t_id,chainList, cl_dstr, tl_pos, tl_D, tl_ayaw,'circle');
+    [op_pos, op_dw, op_r, op_ayaw, cl_dstr] = initAtRotorplane(op_pos, op_ayaw, op_r, op_t_id,chainList, cl_dstr, tl_pos, tl_D, tl_ayaw, 'circle');
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed

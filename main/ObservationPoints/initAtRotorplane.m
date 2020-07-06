@@ -1,4 +1,4 @@
-function [op_pos, op_dw, op_r, op_ayaw, cl_dstr] = initAtRotorplane(op_pos, op_ayaw, op_r, op_t_id, chainList, cl_dstr, tl_pos, tl_D, tl_ayaw,method)
+function [op_pos, op_dw, op_r, op_ayaw, cl_dstr] = initAtRotorplane(op_pos, op_ayaw, op_r, op_t_id, chainList, cl_dstr, tl_pos, tl_D, tl_ayaw, method)
 %INITATROTORPLANE creates points at the rotor plane, based on a pattern
 %method
 %   At the pointer entry, insert the new OPs at the rotor plane of the
@@ -62,62 +62,26 @@ switch method
         
         % Links to the subject:
         % https://demonstrations.wolfram.com/SunflowerSeedArrangements/
-        % https://stackoverflow.com/questions/28567166/uniformly-distribute-x-points-inside-a-circle#28572551
         
-        % Set constant c
-        c = 1;
+        Dim = 3;    %<- Switch between dimentions
         
-        % get radii and phis
-        radii = zeros(numChains,1); %for one turbine
-        phis  = zeros(numChains,1);
-        
-        % scale radii to size max(r) = 0.5
-        % TODO
-        
-        % convert radii and phi to cl_dstr entries [-.5,0.5] (2D/3D !)
-        % TODO
-        
-        %===================== OLD CODE BELOW ============================%
-        
-        % Distribute the chains: one center, slightly less than half on
-        % half the rotor, rest on the outer rim of the rotor.
-        cDist = [1, floor((numChains-1)/2),0];
-        cDist(3) = numChains - sum(cDist);
-        
-        % equations to place points on a circle
-        op_y_w =@(r,phi) r.*sin(phi);
-        op_z_w =@(r,phi) r.*cos(phi);
-        R = @(phi) [cos(phi),-sin(phi),0;sin(phi),cos(phi),0;0,0,1];
-        
-        % ratio to get radius from diameter for chain groups
-        d_factor = [0; ones(cDist(2),1)*0.25;ones(cDist(3),1)*0.5];
-        radius = repmat(d_factor,numTurbines,1);
-        D = reshape(repmat(turbineList(:,4)',numChains,1),...
-            numTurbines*numChains,1);
-        
-        % Get the angles for each chain at one turbine
-        phi = [0, 2*pi/cDist(2):2*pi/cDist(2):2*pi, ...
-            2*pi/cDist(3):2*pi/cDist(3):2*pi]';
-        
-        phi_all = repmat(phi,numTurbines,1);
-        
-        % Distribute points in the wake coordinate system
-        opList(ind,5) = op_y_w(radius.*D, phi_all);
-        opList(ind,6) = op_z_w(radius.*D, phi_all);
-        
-        
-        
-        % Yaw angle to map points to world
-        yaw_t = reshape(repmat(turbineList(:,6)',numChains,1),...
-            numTurbines*numChains,1);
-        
-        for i = 1:length(yaw_t) % MAKE NICER! HAS TOB BE POSSIBLE TO SOLVE WITHOUT FOR
-            opList(ind(i),1:3) = opList(ind(i),1:3) + (R(yaw_t(i))*(opList(ind(i),4:6)'))';
+        if Dim == 3
+            % 3 Dimentional field: 2D rotor plane
+            cl_dstr = sunflower(numChains, 2)*0.5;
+        else
+            % 2 Dimentional field: 1D rotor plane
+            cl_dstr = linspace(-0.5,5,numChains)';
         end
-        %======================= OLD CODE END ============================%
+        
+        % Spread points across the rotor plane at wind angle, NOT yaw angle
+        % -> plane is always perpenducular to the wind dir, yaw is only
+        % used for the model
     otherwise
         print('Invalid option, using circle')
-        opList = initAtRotorplane(opList,chainList,'sunflower');
+        [op_pos, op_dw, op_r, op_ayaw, cl_dstr] = ...
+            initAtRotorplane(...
+            op_pos, op_ayaw, op_r, op_t_id, chainList, ...
+            cl_dstr, tl_pos, tl_D, tl_ayaw, 'sunflower');
 end
 
 
@@ -128,3 +92,26 @@ end
 
 end
 
+function [y,z] = sunflower(n, alpha)   %  example: n=500, alpha=2
+% SUNFLOWER distributes n points in a sunflower pattern 
+%   Uses altered code from stack overflow (link below).
+%
+% INPUT
+% n     := Int, Number of points to be placed
+% alpha := Int, weight of points on the rim (musn't be above sqrt(n)!)
+%           -> Check?!
+
+    b   = round(alpha*sqrt(n));      % number of boundary points
+    gr  = (sqrt(5)+1)/2;            % golden ratio
+    k   = 1:n;
+    r   = ones(1,n);
+    
+    r(1:n-b) = sqrt(k(1:n-b)-1/2)/sqrt(n-(b+1)/2);
+    theta = 2*pi*k/gr^2;
+    
+    y = r.*cos(theta)';
+    z = r.*sin(theta)';
+    clf
+    plot(y, z, 'r*')
+    axis equal
+end
