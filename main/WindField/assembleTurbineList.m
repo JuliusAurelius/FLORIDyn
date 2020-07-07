@@ -26,10 +26,11 @@ T_Pos = [...
                 0 12*D 90 D];
 T_D = ones(T_num,1)*D;
 
-tl_pos  = T_Pos;             %<--- 2D / 3D change
-tl_d    = T_D;
-tl_ayaw = zeros(T_num,2);
-tl_U    = zeros(T_num,2);
+tl_pos  = T_Pos(1:layout,1:3);             %<--- 2D / 3D change
+tl_d    = T_D(1:layout,:);
+tl_ayaw = zeros(layout,2);
+tl_U    = ones(layout,2);
 
 end
 
+%% NEEDS TO BE FILLED WITH PROPER WINDFARMS

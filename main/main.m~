@@ -34,13 +34,13 @@ opList = [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
 for i = 1:NoTimeSteps
     % Insert new points
     [op_pos, op_dw, op_r, op_ayaw, cl_dstr] = ...
-        initAtRotorPlane(...
+        initAtRotorplane(...
         op_pos, op_dw, op_ayaw, op_r, op_t_id, chainList,...
         cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U, 'sunflower');
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
-    U_OPs   = getWindVec(op_pos);                                           % TO DELETE
+    U_OPs   = getWindVec(op_pos);
     op_U    = getWindVec(op_pos);
     tl_U    = getWindVec(tl_pos);
     %====================== CONTROLLER ===================================%
@@ -80,8 +80,8 @@ for i = 1:NoTimeSteps
     % Prepare next time step
     % set r_t = r_f for the chain starting points
     ind = chainList(:,1) + chainList(:,2);
-    opList(ind,8) = r_f(ind); % TO DELETE
-    op_r(ind,2) = r_f(ind);     %NEW
+    opList(ind,8) = r_f(ind);
+    
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     

@@ -20,6 +20,8 @@ function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = ass
 % [x,y,z, x_w,y_w,z_w, r,r_t, Ux,Uy, a,yaw, t_ind]
 % [1,2,3,   4,5,6,      7,8,   9,10, 11,12,   13 ]
 %
+
+Dim = 3;
 % ==== Constants ==== %
 NumOfVariables  = 13;
 NumTurb         = length(tl_D);
@@ -33,31 +35,27 @@ if length(chainLength)==NumChainsTot
     
     % Get starting indeces
     chainList(:,2) = cumsum(chainLength')'-chainLength+1;
-    
-    % get length opList
-    len_OPs = sum(chainLength);
 else
     % Starting points
     chainList(:,2) = cumsum(ones(1,NumChainsTot)*chainLength(1))'...
         -chainLength(1)+1;
-    
-    % Allocate opList
-    len_OPs = sum(chainList(:,3));
 end
 
-%opList = zeros(len_OPs, NumOfVariables);
-chainList(:,3) = chainLength;
+% Store chain length
+    chainList(:,3) = chainLength;
+    
+% Allocate opList
+len_OPs = sum(chainList(:,3));
 
 %(pos, dw, r, U, a,yaw t_ind)
-
-op_pos  = zeros(len_OPs,3);             %<--- 2D / 3D change
+op_pos  = zeros(len_OPs,Dim);             %<--- 2D / 3D change
 op_dw   = zeros(len_OPs,1);
 op_r    = zeros(len_OPs,2);
 op_U    = zeros(len_OPs,2);
 op_ayaw = zeros(len_OPs,2);
 op_t_id = assignTIDs(chainList,len_OPs);
 
-cl_dstr = zeros(NumChainsTot,3);        %<--- 2D / 3D change
+cl_dstr = zeros(NumChainsTot,Dim-1);        %<--- 2D / 3D change 
 % Insert the starting OPs in the opList
 
 % ==== To change last entry to diameter uncomment the following line ==== %
