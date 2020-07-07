@@ -26,26 +26,29 @@ NoTimeSteps = length(timeSteps);
 turbineList = [tl_pos,tl_D,tl_ayaw,tl_U];
 %% Create starting OPs and build opList
 [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] =...
-    assembleOPList(NumChains,chainLength,tl_D);
+    assembleOPList(NumChains,chainLength,tl_D,'sunflower');
 
 opList = [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
 %% Start simulation
 
 for i = 1:NoTimeSteps
+    % Update Turbine data to get controller input
+    tl_U    = getWindVec(tl_pos);
+    %====================== CONTROLLER ===================================%
+    tl_ayaw = controller(tl_pos,tl_D,tl_ayaw,tl_U);
+    %=====================================================================%
+    
     % Insert new points
-    [op_pos, op_dw, op_r, op_ayaw, cl_dstr] = ...
+    [op_pos, op_dw, op_r, op_ayaw] = ...
         initAtRotorPlane(...
         op_pos, op_dw, op_ayaw, op_r, op_t_id, chainList,...
-        cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U, 'sunflower');
+        cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U);
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
     U_OPs   = getWindVec(op_pos);                                           % TO DELETE
     op_U    = getWindVec(op_pos);
-    tl_U    = getWindVec(tl_pos);
-    %====================== CONTROLLER ===================================%
-    tl_ayaw = controller(tl_pos,tl_D,tl_ayaw,tl_U);
-    %=====================================================================%
+    
     
     % Get r-> u=U*r (NOT u=U(1-r)!!!)
     opList(:,7) = getR(opList(:,[4:6 11:12 13]),turbineList(:,[3:4 6:8]));  % TO CHANGE

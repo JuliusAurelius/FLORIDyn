@@ -15,7 +15,7 @@ function yaw_t = getEffectiveYaw(t_orientation, U)
 % Vec to angle
 %
 % get effective angle
-ang_wind = atan2(U(:,1),U(:,2));
+ang_wind = atan2(U(:,2),U(:,1));
 yaw_t = mod((ang_wind-t_orientation) + pi/2,pi)-pi/2;
 
 % needs checking!!!
