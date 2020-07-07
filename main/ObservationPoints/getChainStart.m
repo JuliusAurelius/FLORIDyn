@@ -1,4 +1,4 @@
-function OPs = getChainStart(NumChains, TurbinePosD)
+function OPs = getChainStart(NumChains, tl_D)
 % getChainStart creates starting points of the chains based on the number
 % of chains and the turbines
 %
@@ -7,23 +7,19 @@ function OPs = getChainStart(NumChains, TurbinePosD)
 % TurbinePosD   := [nx4] vector, [x,y,z,d] // World coordinates & in m
 %
 % OUTPUT
-% OPs           := [(n*m)x5] m Chain starts [x,y,z,t_id, d] per turbine
+% OPs           := [(n*m)x5] m Chain starts [t_id, d,c_ind] per turbine
 
 % Allocation
-OPs = zeros(NumChains*size(TurbinePosD,1),6);
+OPs = zeros(NumChains*length(tl_D),3);
 
 % assign each OP to a turbine (first all OPs from turbine 1, then t2 etc.)
-t_ind   = repmat(1:size(TurbinePosD,1),NumChains,1);
-t_d     = repmat(TurbinePosD(:,end)',NumChains,1);
-c_ind   = repmat((1:NumChains)',size(TurbinePosD,1),1);
 
-OPs(:,4) = t_ind(:);    % Turbine index
-OPs(:,5) = t_d(:);      % Turbine diameter
-OPs(:,6) = c_ind;       % Chain index
+t_d     = repmat(tl_D',NumChains,1);
+c_ind   = repmat((1:NumChains)',length(tl_D),1);
 
-
-% ========================= TODO ========================= 
-% ///////////////////////// Strategy to create points ////
-OPs(:,1:3) = ones(NumChains*size(TurbinePosD,1),3);     % TODO Placeholder
-% ////////////////////////////////////////////////////////
+OPs(:,1) = t_ind(:);    % Turbine index
+OPs(:,2) = t_d(:);      % Turbine diameter
+OPs(:,3) = c_ind;       % Chain index
 end
+
+% 1:3 are unused!

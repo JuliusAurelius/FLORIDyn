@@ -21,60 +21,94 @@ timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
 
 % Create the list of turbines with their properties
-turbineList = assembleTurbineList(NumTurbines);               % TODO should call layout
+[tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(NumTurbines);               % TODO should call layout
 
-
+turbineList = [tl_pos,tl_D,tl_ayaw,tl_U];
 %% Create starting OPs and build opList
-startOPs =  getChainStart(NumChains, turbineList(:,1:4));
-[opList, chainList] = assembleOPList(startOPs,chainLength);
-clear startOPs 
+[op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] =...
+    assembleOPList(NumChains,chainLength,tl_D,'sunflower');
+
+opList = [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
 
 %% Start simulation
 
 for i = 1:NoTimeSteps
+    % Update Turbine data to get controller input
+    tl_U    = getWindVec(tl_pos);
+    %====================== CONTROLLER ===================================%
+    tl_ayaw = controller(tl_pos,tl_D,tl_ayaw,tl_U);
+    %=====================================================================%
+    
     % Insert new points
-    opList = initAtRotorplane(opList,chainList,turbineList,'circle');
+    [op_pos, op_dw, op_r, op_ayaw] = ...
+        initAtRotorPlane(...
+        op_pos, op_dw, op_ayaw, op_r, op_t_id, chainList,...
+        cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U);
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
-    U_OPs = getWindVec(opList(:,1:3));
-    turbineList(:,7:8) = getWindVec(turbineList(:,1:3));
+    %U_OPs   = getWindVec(op_pos);                                           % TO DELETE
+    op_U    = getWindVec(op_pos);
     
-    %====================== CONTROLLER ===================================%
-    turbineList(:,5:6) = controller(turbineList);
-    %=====================================================================%
     
     % Get r-> u=U*r (NOT u=U(1-r)!!!)
-    opList(:,7) = getR(opList(:,[4:6 11:12 13]),turbineList(:,[3:4 6:8]));
+    op_r(:,1) = getR(op_dw, op_ayaw, op_t_id, tl_D, chainList, cl_dstr);
     
     % Get r_f, foreign influence / wake interaction u=U*r*r_f
-    r_f = getR_f(opList(:,[1:7 11:13]),turbineList(:,1:3));
-    opList(:,7) = opList(:,7).*r_f;
+    r_f = getR_f(...
+        op_pos, op_dw, op_r, op_ayaw, op_t_id, chainList, cl_dstr, tl_pos, tl_D);                 % TO CHANGE
+    %opList(:,7) = opList(:,7).*r_f;                                        % TO DELETE
+    op_r(:,1) = op_r(:,1).*r_f;     %NEW
     
-    % Set 'uninfluenced' Windspeed for all OPs U = U_free*r_t
-    opList(:,9:10) = U_OPs.*opList(:,8);
+    % Set 'uninfluenced' Windspeed for all OPs U = U_free*r_t               % TO DELETE
+    %opList(:,9:10) = U_OPs.*opList(:,8);                                   % TO DELETE
     
-    % Calculate effective windspeed and down wind step d_dw=U*r_g*t
-    dw_step = opList(:,9:10).*opList(:,7)*timeStep;
+    % Calculate effective windspeed and down wind step d_dw=U*r_g*r_t*t
+    %dw_step = opList(:,9:10).*opList(:,7)*timeStep;                         % TO DELETE
+    dw_step = op_U.*op_r(:,1).*op_r(:,2)*timeStep;     %NEW
+    
     %   ... in world coordinates
-    opList(:,1:2)   = opList(:,1:2) + dw_step;
+    opList(:,1:2)   = opList(:,1:2) + dw_step;                              % TO DELETE
+    op_pos(:,1:2) = op_pos(:,1:2) + dw_step;     %NEW
     %   ... in wake coordinates
-    opList(:,4)     = opList(:,4) + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
+    opList(:,4)     = opList(:,4) + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);% TO DELETE
+    op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);     %NEW
     
     
     % Based on new down wind pos, calculate new crosswind pos (y & z dir)
     %opList(:,1:3) = distibutionStrategy(opList,chainList,'circle');
-    
+    % FUNCTION TO IMPLEMENT
+    % get cw out of relative distribution and dw position 
+    %   -> Used here to update y_w and z_w and maybe by getR
     
     % Prepare next time step
     % set r_t = r_f for the chain starting points
     ind = chainList(:,1) + chainList(:,2);
-    opList(ind,8) = r_f(ind);
-    
+    opList(ind,8) = r_f(ind); % TO DELETE
+    op_r(ind,2) = r_f(ind);     %NEW
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     
 end
+%% Variables
+
+% OP Data
+%   op_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
+%   op_dw       := [n x 1] vec; downwind position
+%   op_r        := [n x 2] vec; [r_own, r_turbine]
+%   op_ayaw     := [n x 2] vec; axial induction factor and yaw (wake coord.)
+%   op_t_id     := [n x 1] vec; Turbine op belongs to
+%   op_U        := [n x 2] vec; Uninfluenced wind vector at OP position
+%
+% Chain Data
+%   chainList   := [n x 1] vec; (see at the end of the function)
+%   cl_dstr     := [n x 1] vec; Distribution relative to the wake width
+%
+% Turbine Data
+%   tl_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
+%   tl_D        := [n x 1] vec; Turbine diameter
+%   tl_ayaw     := [n x 2] vec; axial induction factor and yaw (world coord.)
+%   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)
 
 % OP List
 % [world     wake             world  world       ]
@@ -134,6 +168,19 @@ ylabel('crosswind_y [m]')
 zlabel('crosswind_z [m]')
 end
 
+
+%% TICKETS split_OPList - branch
+% [x] Split the opList in multiple sub matrices (pos, dw, r, U, a,yaw t_ind)
+% [ ] Implement splitted opList list
+% [x] Split turbineList
+% [ ] Implement splitted turbine list
+% [x] Split chainList [not needed]
+% [ ] Reduce the number of variables: delete y_w and z_w
+% [~] Introduce \sig_y \sig_z factors to the chain matrix - new way of
+%       locating the chains in the wake (in progress)
+% [ ] Note at which points changes have to be made in order to get 2D/3D
+%       running
+% [ ] Implement flower distrobution
 %% TICKETS
 % [x] Include all 3 linked lists: OP[... t_id], chain[OP_entry, start_ind,
 %       length, t_id], turbines[...] (chain currently missing)

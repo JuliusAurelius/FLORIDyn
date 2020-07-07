@@ -1,4 +1,4 @@
-function [opList, chainList, turbineList] = main()
+function [] = main()
 
 addpath('./WindField')
 addpath('./Controller')
@@ -7,11 +7,11 @@ addpath('./WakeModel')
 
 %% Test Variables
 NumChains       = 20;
-NumTurbines     = 2;
+NumTurbines     = 6;
 
 % Uniform chain length or individual chainlength
-%chainLength     = randi(5,NumChains*NumTurbines,1)+1;
-chainLength = 10;   
+chainLength     = randi(20,NumChains*NumTurbines,1)+1;
+%chainLength = 10;   
 
 timeStep        = 5;   % in s
 SimDuration     = 100; % in s
@@ -21,117 +21,104 @@ timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
 
 % Create the list of turbines with their properties
-turbineList = assembleTurbineList(NumTurbines);               % TODO should call layout
-
+[tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(NumTurbines);               % TODO should call layout
 
 %% Create starting OPs and build opList
-startOPs =  getChainStart(NumChains, turbineList(:,1:4));
-[opList, chainList] = assembleOPList(startOPs,chainLength);
-clear startOPs 
+[op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] =...
+    assembleOPList(NumChains,chainLength,tl_D,'sunflower');
 
 %% Start simulation
 
 for i = 1:NoTimeSteps
+    % Update Turbine data to get controller input
+    tl_U    = getWindVec(tl_pos);
+    %====================== CONTROLLER ===================================%
+    tl_ayaw = controller(tl_pos,tl_D,tl_ayaw,tl_U);
+    %=====================================================================%
+    
     % Insert new points
-    opList = initAtRotorplane(opList,chainList,turbineList,'circle');
+    [op_pos, op_dw, op_r, op_ayaw] = ...
+        initAtRotorPlane(...
+        op_pos, op_dw, op_ayaw, op_r, op_t_id, chainList,...
+        cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U);
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
-    U_OPs = getWindVec(opList(:,1:3));
-    turbineList(:,7:8) = getWindVec(turbineList(:,1:3));
+    op_U    = getWindVec(op_pos);
     
-    %====================== CONTROLLER ===================================%
-    turbineList(:,5:6) = controller(turbineList);
-    %=====================================================================%
     
     % Get r-> u=U*r (NOT u=U(1-r)!!!)
-    opList(:,7) = getR(opList(:,[4:6 11:12 13]),turbineList(:,[3:4 6:8]));
+    op_r(:,1) = getR(op_dw, op_ayaw, op_t_id, tl_D, chainList, cl_dstr);
     
     % Get r_f, foreign influence / wake interaction u=U*r*r_f
-    r_f = getR_f(opList(:,[1:7 11:13]),turbineList(:,1:3));
-    opList(:,7) = opList(:,7).*r_f;
+    r_f = getR_f(...
+        op_pos, op_dw, op_r, op_ayaw, op_t_id, chainList, cl_dstr, tl_pos, tl_D);
+    op_r(:,1) = op_r(:,1).*r_f;
     
-    % Set 'uninfluenced' Windspeed for all OPs U = U_free*r_t
-    opList(:,9:10) = U_OPs.*opList(:,8);
+    % Calculate effective windspeed and down wind step d_dw=U*r_g*r_t*t
+    dw_step = op_U.*op_r(:,1).*op_r(:,2)*timeStep;
     
-    % Calculate effective windspeed and down wind step d_dw=U*r_g*t
-    dw_step = opList(:,9:10).*opList(:,7)*timeStep;
     %   ... in world coordinates
-    opList(:,1:2)   = opList(:,1:2) + dw_step;
+    op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
     %   ... in wake coordinates
-    opList(:,4)     = opList(:,4) + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
+    op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
     
-    
-    % Based on new down wind pos, calculate new crosswind pos (y & z dir)
-    %opList(:,1:3) = distibutionStrategy(opList,chainList,'circle');
-    
+    % FUNCTION TO IMPLEMENT
+    % get cw out of relative distribution and dw position 
+    %   -> Used here to update y_w and z_w and maybe by getR
     
     % Prepare next time step
     % set r_t = r_f for the chain starting points
     ind = chainList(:,1) + chainList(:,2);
-    opList(ind,8) = r_f(ind);
-    
+    op_r(ind,2) = r_f(ind);
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     
 end
+%% Variables
 
-% OP List
-% [world     wake             world  world       ]
-% [x,y,z, x_w,y_w,z_w, r,r_t, Ux,Uy, a,yaw, t_ind]
-% [1,2,3,   4,5,6,      7,8,   9,10, 11,12,   13 ]
-
-% Turbine list
-% [world        world   world  ]
-% [x,y,z,   D,  a,yaw,  Ux,Uy P]
-% [1,2,3,   4,   5,6     7,8  9]
-
-% Chain List
-% [                         ]
-% [offset start length t_ind]
-% [   1     2     3      4  ]
+% OP Data
+%   op_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
+%   op_dw       := [n x 1] vec; downwind position
+%   op_r        := [n x 2] vec; [r_own, r_turbine]
+%   op_ayaw     := [n x 2] vec; axial induction factor and yaw (wake coord.)
+%   op_t_id     := [n x 1] vec; Turbine op belongs to
+%   op_U        := [n x 2] vec; Uninfluenced wind vector at OP position
+%
+% Chain Data
+%   chainList   := [n x 1] vec; (see at the end of the function)
+%   cl_dstr     := [n x 1] vec; Distribution relative to the wake width
+%
+% Turbine Data
+%   tl_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
+%   tl_D        := [n x 1] vec; Turbine diameter
+%   tl_ayaw     := [n x 2] vec; axial induction factor and yaw (world coord.)
+%   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)
 
 %% PLOT
-% Wake coordinates
-%scatter3(opList(:,4),opList(:,5),opList(:,6),opList(:,13)*10);
 
 % World coordinates
 figure(1)
-subplot(3,1,1)
-
-scatter3(opList(:,1),opList(:,2),opList(:,3),...
-    opList(:,13)*20,sqrt(sum(opList(:,9:10).^2,2))+opList(:,10)*0.5,...
+if size(op_pos,2) == 3 % Dimentions
+    scatter3(op_pos(:,1),op_pos(:,2),op_pos(:,3),...
+    ones(size(op_t_id))*20,sqrt(sum(op_U.^2,2)),...
     'filled');
+    zlabel('height [m]')
+else
+    scatter(op_pos(:,1),op_pos(:,2),...
+    ones(size(op_t_id))*20,sqrt(sum(op_U.^2,2))+op_U(:,2)*0.5,...
+    'filled');
+end
+
 axis equal
-colormap lines
-title('Proof of concept: wind speed and direction change, two turbines')
+colormap parula
+c = colorbar;
+c.Label.String = 'Windspeed in m/s';
+title(['Proof of concept: wind speed and direction change, '...
+    num2str(length(tl_D)) ' turbines'])
 xlabel('east - west [m]')
 ylabel('south - north [m]')
-zlabel('height [m]')
 
-subplot(3,1,2)
-t1 = opList(:,13) == 1;
-scatter3(opList(t1,4),opList(t1,5),opList(t1,6),...
-    opList(t1,13)*20,sqrt(sum(opList(t1,9:10).^2,2))+opList(t1,10)*0.5,...
-    'filled');
-axis equal
-colormap lines
-title('Turbine 1 observation points in wake coordinates, speed change')
-xlabel('downwind [m]')
-ylabel('crosswind_y [m]')
-zlabel('crosswind_z [m]')
-
-subplot(3,1,3)
-t2 = opList(:,13) == 2;
-scatter3(opList(t2,4),opList(t2,5),opList(t2,6),...
-    opList(t2,13)*20,sqrt(sum(opList(t2,9:10).^2,2))+opList(t2,10)*0.5,...
-    'filled');
-axis equal
-colormap lines
-title('Turbine 2 observation points in wake coordinates, direction change')
-xlabel('downwind [m]')
-ylabel('crosswind_y [m]')
-zlabel('crosswind_z [m]')
 end
 
 %% TICKETS
@@ -144,9 +131,8 @@ end
 % [ ] Refine getR(), working alpha version (Park Model?) / define Interface
 % [x] Refactor code: Move functions to own files.
 % [ ] Calc / Set Chainlength (?)
-% [ ] Set yaw in opList to wake coord.!
+% [x] Set yaw in opList to wake coord.!
 % [ ] Visulization / Video
 % [ ] Power Output
 % [ ] Get one version of r_f working
-% [ ] 2D implementation?
-% [ ] How many coordinates are really needed?
+% [~] 2D implementation?

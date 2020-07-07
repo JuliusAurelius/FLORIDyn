@@ -108,12 +108,10 @@ function [y,z] = sunflower(n, alpha)   %  example: n=500, alpha=2
 % INPUT
 % n     := Int, Number of points to be placed
 % alpha := Int, weight of points on the rim (musn't be above sqrt(n)!)
-
-if alpha>sqrt(n)
-    error(['Sunflower: Rimpoints weight alpha is to large, must be' ... 
-        ' smaller than sqrt(n), with n points.'])
+%           -> Check?!
+if alpha>=sqrt(n)
+    error('Sunflower: Rimpoints weight alpha is to large, must be smaller' ' than sqrt(n), with n points.')
 end
-
 b   = round(alpha*sqrt(n));      % number of boundary points
 gr  = (sqrt(5)+1)/2;             % golden ratio
 k   = 1:n;
