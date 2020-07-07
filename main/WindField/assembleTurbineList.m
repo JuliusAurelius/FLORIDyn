@@ -1,4 +1,4 @@
-function [tl_pos,tl_d,tl_ayaw,tl_U] = assembleTurbineList(layout,varargin)
+function [tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(layout,varargin)
 %assembleTurbineList creates list of turbines with their properties
 %   Sets the number, position, height and diameter, but also stores the yaw
 %   and axial induction factor of the controller, along with the current
@@ -7,12 +7,13 @@ function [tl_pos,tl_d,tl_ayaw,tl_U] = assembleTurbineList(layout,varargin)
 % INPUT
 %   layout  := to be defined (probably name or id)
 %
-%======================== Structure ======================================%
-% Turbine list
-% [world        world   world  ]
-% [x,y,z,   D,  a,yaw,  Ux,Uy P]
-% [1,2,3,   4,   5,6     7,8  9]
-%=========================================================================%
+% OUTPUT
+% Turbine Data
+%   tl_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
+%   tl_D        := [n x 1] vec; Turbine diameter
+%   tl_ayaw     := [n x 2] vec; axial induction factor and yaw (world coord.)
+%   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)
+
 T_num = 6;
 D=160;
 
@@ -28,7 +29,7 @@ T_Pos = [...
 T_D = ones(T_num,1)*D;
 
 tl_pos  = T_Pos(1:layout,1:Dim);
-tl_d    = T_D(1:layout,:);
+tl_D    = T_D(1:layout,:);
 tl_ayaw = zeros(layout,2);
 tl_U    = ones(layout,2);
 

@@ -15,11 +15,10 @@ function U = getWindVec(pos)
 
 %windspeed = @(x) [x(1) 0;0 x(2)]*x;
 %U = windspeed(pos');
-borderAng = 600;
-borderSpe = 100;
-beyond_Ang = pos(:,1)>borderAng;
-pre_Speed  = pos(:,1)<borderSpe;
-U = 8*ones(size(pos,1),2) * [1, 0; 0, 0.5];             % m/s   % TODO Placeholder
-U(beyond_Ang,2) = -U(beyond_Ang,2);
-U(pre_Speed,:) = U(pre_Speed,:)*0.6;
+
+U = zeros(size(pos,1),2);
+
+MaxSpeed = 8;
+U(:,1) = MaxSpeed*(cos(pos(:,2)'*pi/9000))';
+U(:,2) = MaxSpeed*(sin(pos(:,1)'*pi/600))';
 end

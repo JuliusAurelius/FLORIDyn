@@ -79,8 +79,3 @@ end
 
 end
 
-% Chain List
-% [                         ]
-% [offset start length t_ind]
-% [   1     2     3      4  ]
-

@@ -1,4 +1,4 @@
-function [opList, chainList, turbineList] = main()
+function [] = main()
 
 addpath('./WindField')
 addpath('./Controller')
@@ -10,8 +10,8 @@ NumChains       = 20;
 NumTurbines     = 6;
 
 % Uniform chain length or individual chainlength
-%chainLength     = randi(5,NumChains*NumTurbines,1)+1;
-chainLength = 10;   
+chainLength     = randi(20,NumChains*NumTurbines,1)+1;
+%chainLength = 10;   
 
 timeStep        = 5;   % in s
 SimDuration     = 100; % in s
@@ -23,12 +23,9 @@ NoTimeSteps = length(timeSteps);
 % Create the list of turbines with their properties
 [tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(NumTurbines);               % TODO should call layout
 
-turbineList = [tl_pos,tl_D,tl_ayaw,tl_U];
 %% Create starting OPs and build opList
 [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] =...
     assembleOPList(NumChains,chainLength,tl_D,'sunflower');
-
-opList = [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
 
 %% Start simulation
 
@@ -47,7 +44,6 @@ for i = 1:NoTimeSteps
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
-    %U_OPs   = getWindVec(op_pos);                                           % TO DELETE
     op_U    = getWindVec(op_pos);
     
     
@@ -56,27 +52,17 @@ for i = 1:NoTimeSteps
     
     % Get r_f, foreign influence / wake interaction u=U*r*r_f
     r_f = getR_f(...
-        op_pos, op_dw, op_r, op_ayaw, op_t_id, chainList, cl_dstr, tl_pos, tl_D);                 % TO CHANGE
-    %opList(:,7) = opList(:,7).*r_f;                                        % TO DELETE
-    op_r(:,1) = op_r(:,1).*r_f;     %NEW
-    
-    % Set 'uninfluenced' Windspeed for all OPs U = U_free*r_t               % TO DELETE
-    %opList(:,9:10) = U_OPs.*opList(:,8);                                   % TO DELETE
+        op_pos, op_dw, op_r, op_ayaw, op_t_id, chainList, cl_dstr, tl_pos, tl_D);
+    op_r(:,1) = op_r(:,1).*r_f;
     
     % Calculate effective windspeed and down wind step d_dw=U*r_g*r_t*t
-    %dw_step = opList(:,9:10).*opList(:,7)*timeStep;                         % TO DELETE
-    dw_step = op_U.*op_r(:,1).*op_r(:,2)*timeStep;     %NEW
+    dw_step = op_U.*op_r(:,1).*op_r(:,2)*timeStep;
     
     %   ... in world coordinates
-    %opList(:,1:2)   = opList(:,1:2) + dw_step;                              % TO DELETE
-    op_pos(:,1:2) = op_pos(:,1:2) + dw_step;     %NEW
+    op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
     %   ... in wake coordinates
-    %opList(:,4)     = opList(:,4) + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);% TO DELETE
-    op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);     %NEW
+    op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
     
-    
-    % Based on new down wind pos, calculate new crosswind pos (y & z dir)
-    %opList(:,1:3) = distibutionStrategy(opList,chainList,'circle');
     % FUNCTION TO IMPLEMENT
     % get cw out of relative distribution and dw position 
     %   -> Used here to update y_w and z_w and maybe by getR
@@ -84,8 +70,7 @@ for i = 1:NoTimeSteps
     % Prepare next time step
     % set r_t = r_f for the chain starting points
     ind = chainList(:,1) + chainList(:,2);
-    %opList(ind,8) = r_f(ind); % TO DELETE
-    op_r(ind,2) = r_f(ind);     %NEW
+    op_r(ind,2) = r_f(ind);
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     
@@ -110,30 +95,13 @@ end
 %   tl_ayaw     := [n x 2] vec; axial induction factor and yaw (world coord.)
 %   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)
 
-% OP List
-% [world     wake             world  world       ]
-% [x,y,z, x_w,y_w,z_w, r,r_t, Ux,Uy, a,yaw, t_ind]
-% [1,2,3,   4,5,6,      7,8,   9,10, 11,12,   13 ]
-
-% Turbine list
-% [world        world   world  ]
-% [x,y,z,   D,  a,yaw,  Ux,Uy P]
-% [1,2,3,   4,   5,6     7,8  9]
-
-% Chain List
-% [                         ]
-% [offset start length t_ind]
-% [   1     2     3      4  ]
-
 %% PLOT
-% Wake coordinates
-%scatter3(opList(:,4),opList(:,5),opList(:,6),opList(:,13)*10);
 
 % World coordinates
 figure(1)
-if size(op_pos,2) == 3
+if size(op_pos,2) == 3 % Dimentions
     scatter3(op_pos(:,1),op_pos(:,2),op_pos(:,3),...
-    ones(size(op_t_id))*20,sqrt(sum(op_U.^2,2))+op_U(:,2)*0.5,...
+    ones(size(op_t_id))*20,sqrt(sum(op_U.^2,2)),...
     'filled');
     zlabel('height [m]')
 else
@@ -143,7 +111,9 @@ else
 end
 
 axis equal
-colormap lines
+colormap parula
+c = colorbar;
+c.Label.String = 'Windspeed in m/s';
 title(['Proof of concept: wind speed and direction change, '...
     num2str(length(tl_D)) ' turbines'])
 xlabel('east - west [m]')
@@ -151,19 +121,6 @@ ylabel('south - north [m]')
 
 end
 
-
-%% TICKETS split_OPList - branch
-% [x] Split the opList in multiple sub matrices (pos, dw, r, U, a,yaw t_ind)
-% [ ] Implement splitted opList list
-% [x] Split turbineList
-% [ ] Implement splitted turbine list
-% [x] Split chainList [not needed]
-% [ ] Reduce the number of variables: delete y_w and z_w
-% [~] Introduce \sig_y \sig_z factors to the chain matrix - new way of
-%       locating the chains in the wake (in progress)
-% [ ] Note at which points changes have to be made in order to get 2D/3D
-%       running
-% [ ] Implement flower distrobution
 %% TICKETS
 % [x] Include all 3 linked lists: OP[... t_id], chain[OP_entry, start_ind,
 %       length, t_id], turbines[...] (chain currently missing)
@@ -174,9 +131,8 @@ end
 % [ ] Refine getR(), working alpha version (Park Model?) / define Interface
 % [x] Refactor code: Move functions to own files.
 % [ ] Calc / Set Chainlength (?)
-% [ ] Set yaw in opList to wake coord.!
+% [x] Set yaw in opList to wake coord.!
 % [ ] Visulization / Video
 % [ ] Power Output
 % [ ] Get one version of r_f working
-% [ ] 2D implementation?
-% [ ] How many coordinates are really needed?
+% [~] 2D implementation?

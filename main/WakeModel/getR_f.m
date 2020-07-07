@@ -27,21 +27,3 @@ function r = getR_f(op_pos, op_dw, op_r, op_ayaw, op_t_id, chainList, cl_dstr, t
 
 r = ones(size(op_dw));
 end
-
-% OP Data
-%   op_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
-%   op_dw       := [n x 1] vec; downwind position
-%   op_r        := [n x 2] vec; [r_own, r_turbine]
-%   op_ayaw     := [n x 2] vec; axial induction factor and yaw (wake coord.)
-%   op_t_id     := [n x 1] vec; Turbine op belongs to
-%   op_U        := [n x 2] vec; Uninfluenced wind vector at OP position
-%
-% Chain Data
-%   chainList   := [n x 1] vec; (see at the end of the function)
-%   cl_dstr     := [n x 1] vec; Distribution relative to the wake width
-%
-% Turbine Data
-%   tl_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
-%   tl_D        := [n x 1] vec; Turbine diameter
-%   tl_ayaw     := [n x 2] vec; axial induction factor and yaw (world coord.)
-%   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)
