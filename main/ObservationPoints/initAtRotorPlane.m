@@ -1,36 +1,41 @@
-function [op_pos, op_dw, op_r, op_ayaw, cl_dstr] = initAtRotorPlane(op_pos, op_dw, op_ayaw, op_r, op_t_id, chainList, cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U, method)
+function [op_pos, op_dw, op_r, cl_dstr] = initAtRotorPlane(op_pos, op_dw, op_ayaw, op_r, op_t_id, chainList, cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U, method)
 %INITATROTORPLANE creates points at the rotor plane, based on a pattern
 %method
 %   At the pointer entry, insert the new OPs at the rotor plane of the
 %   turbines
+% INPUT
+% OP Data
+%   op_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
+%   op_dw       := [n x 1] vec; downwind position
+%   op_ayaw     := [n x 2] vec; axial induction factor and yaw (wake coord.)
+%   op_r        := [n x 2] vec; [r_own, r_turbine]
+%   op_t_id     := [n x 1] vec; Turbine op belongs to
+%
+% Chain Data
+%   chainList   := [n x 1] vec; (see at the end of the function)
+%   cl_dstr     := [n x 1] vec; Distribution relative to the wake width
+%
+% Turbine Data
+%   tl_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
+%   tl_D        := [n x 1] vec; Turbine diameter
+%   tl_ayaw     := [n x 2] vec; axial induction factor and yaw (world coord.)
+%   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)
+%
+% Method        := string; selects the distribution method SHOULD NOT BE INPUT!!! MOVE TO assembleOPList.m
+%
+% OUTPUT
+% OP Data
+%   op_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
+%   op_dw       := [n x 1] vec; downwind position
+%   op_r        := [n x 2] vec; [r_own, r_turbine]
+%
+% Chain Data
+%   cl_dstr     := [n x 1] vec; Distribution relative to the wake width SHOULD NOT BE OUTPUT!!! MOVE TO assembleOPList.m 
+%   
 
-%% OP List
-% OP List
-% [world     wake             world  world       ]
-% [x,y,z, x_w,y_w,z_w, r,r_t, Ux,Uy, a,yaw, t_ind]
-% [1,2,3,   4,5,6,      7,8,   9,10, 11,12,   13 ]
-% [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id];
-% reads:  op_pos, op_dw, , op_ayaw, op_r, op_t_id
-% writes: op_pos, op_dw, op_r, op_ayaw
-
-%% turbineList
-% Turbine list
-% [world        world   world  ]
-% [x,y,z,   D,  a,yaw,  Ux,Uy P]
-% [1,2,3,   4,   5,6     7,8  9]
-
-% [tl_pos,tl_D,tl_ayaw,tl_U]
-% reads : tl_pos, tl_D, tl_ayaw, 
-
-%% chainList
-
-% Chain List
-% [                         ]
-% [offset start length t_ind] cl_dstr (distibution)
-% [   1     2     3      4  ]
 %%
 
-Dim = 3;    %<- Switch between dimentions
+Dim = size(op_pos,2);    %<- Switch between dimentions
 
 % Get the number of chains, assumed to be constant
 numChains = sum(chainList(:,4)==1);
@@ -56,6 +61,13 @@ op_dw(ind) = 0;
 % Entries not changed here: r,Ux,Uy,a,yaw & t_id. All these will be
 % overwritten or are constant (t_id).
 
+
+%================= THIS PART SHOULD NOT BE HERE!!! =======================%
+% Code needs to be moved to assembleOPList.m, otherwise the distribution is
+% calculated every time step, waisting computational time!
+% Below, only the variable op_pos should be changed!
+%=========================================================================%
+
 switch method
     case 'sunflower'
         % Distribute the n chains with r = sqrt(n) approach. The angle
@@ -73,6 +85,9 @@ switch method
             y = linspace(-0.5,5,numChains)';
             cl_dstr(:) = repmat(y,numTurbines,1).*0.5;
         end
+        
+        % ============ FROM HERE FORTH IT SHOULD BE HERE =================%
+        % Switch case also needs to be deleted
         
         % Spread points across the rotor plane at wind angle, NOT yaw angle
         % -> plane is always perpenducular to the wind dir, yaw is only
@@ -100,13 +115,12 @@ switch method
             cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U, 'sunflower');
 end
 
-
-
-
-
-
-
 end
+
+% Chain List
+% [                         ]
+% [offset start length t_ind]
+% [   1     2     3      4  ]
 
 function [y,z] = sunflower(n, alpha)   %  example: n=500, alpha=2
 % SUNFLOWER distributes n points in a sunflower pattern 
