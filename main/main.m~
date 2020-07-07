@@ -7,7 +7,7 @@ addpath('./WakeModel')
 
 %% Test Variables
 NumChains       = 20;
-NumTurbines     = 6;
+NumTurbines     = 2;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(5,NumChains*NumTurbines,1)+1;
@@ -68,10 +68,10 @@ for i = 1:NoTimeSteps
     dw_step = op_U.*op_r(:,1).*op_r(:,2)*timeStep;     %NEW
     
     %   ... in world coordinates
-    %opList(:,1:2)   = opList(:,1:2) + dw_step;                              % TO DELETE
+    opList(:,1:2)   = opList(:,1:2) + dw_step;                              % TO DELETE
     op_pos(:,1:2) = op_pos(:,1:2) + dw_step;     %NEW
     %   ... in wake coordinates
-    %opList(:,4)     = opList(:,4) + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);% TO DELETE
+    opList(:,4)     = opList(:,4) + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);% TO DELETE
     op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);     %NEW
     
     
@@ -84,7 +84,7 @@ for i = 1:NoTimeSteps
     % Prepare next time step
     % set r_t = r_f for the chain starting points
     ind = chainList(:,1) + chainList(:,2);
-    %opList(ind,8) = r_f(ind); % TO DELETE
+    opList(ind,8) = r_f(ind); % TO DELETE
     op_r(ind,2) = r_f(ind);     %NEW
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
@@ -131,24 +131,41 @@ end
 
 % World coordinates
 figure(1)
-if size(op_pos,2) == 3
-    scatter3(op_pos(:,1),op_pos(:,2),op_pos(:,3),...
-    ones(size(op_t_id))*20,sqrt(sum(op_U.^2,2))+op_U(:,2)*0.5,...
-    'filled');
-    zlabel('height [m]')
-else
-    scatter(op_pos(:,1),op_pos(:,2),...
-    ones(size(op_t_id))*20,sqrt(sum(op_U.^2,2))+op_U(:,2)*0.5,...
-    'filled');
-end
+subplot(3,1,1)
 
+scatter3(opList(:,1),opList(:,2),opList(:,3),...
+    opList(:,13)*20,sqrt(sum(opList(:,9:10).^2,2))+opList(:,10)*0.5,...
+    'filled');
 axis equal
 colormap lines
-title(['Proof of concept: wind speed and direction change, '...
-    num2str(length(tl_D)) ' turbines'])
+title('Proof of concept: wind speed and direction change, two turbines')
 xlabel('east - west [m]')
 ylabel('south - north [m]')
+zlabel('height [m]')
 
+subplot(3,1,2)
+t1 = opList(:,13) == 1;
+scatter3(opList(t1,4),opList(t1,5),opList(t1,6),...
+    opList(t1,13)*20,sqrt(sum(opList(t1,9:10).^2,2))+opList(t1,10)*0.5,...
+    'filled');
+axis equal
+colormap lines
+title('Turbine 1 observation points in wake coordinates, speed change')
+xlabel('downwind [m]')
+ylabel('crosswind_y [m]')
+zlabel('crosswind_z [m]')
+
+subplot(3,1,3)
+t2 = opList(:,13) == 2;
+scatter3(opList(t2,4),opList(t2,5),opList(t2,6),...
+    opList(t2,13)*20,sqrt(sum(opList(t2,9:10).^2,2))+opList(t2,10)*0.5,...
+    'filled');
+axis equal
+colormap lines
+title('Turbine 2 observation points in wake coordinates, direction change')
+xlabel('downwind [m]')
+ylabel('crosswind_y [m]')
+zlabel('crosswind_z [m]')
 end
 
 

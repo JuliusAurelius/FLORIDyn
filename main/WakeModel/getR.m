@@ -1,30 +1,22 @@
-function r = getR(opList, turbineList)
+function r = getR(op_dw, op_ayaw, op_t_id, tl_D, chainList, cl_dstr)
 % GETR calculates the reduction factor of the wind velocity to get the
 % effective windspeed based on the eq. u = U*r
 %
 % INPUT
-% opList        := [n x 9] description below
-% turbineList   := [n x 3] description below
-% OUTPUT
-% r             := [n x 1] vector reduction factor
+% OP Data
+%   op_dw       := [n x 1] vec; downwind position
+%   op_ayaw     := [n x 2] vec; axial induction factor and yaw (wake coord.)
+%   op_t_id     := [n x 1] vec; Turbine op belongs to
 %
-
-% OP List
-% [world     wake      world       ]
-% [x,y,z, x_w,y_w,z_w, a,yaw, t_ind]
-% [1,2,3,   4,5,6,      7,8,    9  ]
-
-% turbine list
-% [world world world]
-% [z, D,  yaw, Ux,Uy]
-% [1, 2,   3,   4,5 ]
-
-% Get effective yaw for each turbine
-yawEff = getEffectiveYaw(turbineList(:,3), turbineList(:,4:5));
-
+% Chain Data
+%   chainList   := [n x 1] vec; (see at the end of the function)
+%   cl_dstr     := [n x 1] vec; Distribution relative to the wake width
+%
+% Turbine Data
+%   tl_D        := [n x 1] vec; Turbine diameter
 
 % ==================== !!!!DUMMY METHOD!!!! ====================== % 
 % ================= should link to wake models =================== %
 
-r = ones(size(opList,1),1); % (1 = no influence)
+r = ones(size(op_dw)); % (1 = no influence)
 end

@@ -16,6 +16,7 @@ function [tl_pos,tl_d,tl_ayaw,tl_U] = assembleTurbineList(layout,varargin)
 T_num = 6;
 D=160;
 
+Dim = 3;             %<--- 2D / 3D change
 
 T_Pos = [...
                 0 0 90 D;...
@@ -26,7 +27,7 @@ T_Pos = [...
                 0 12*D 90 D];
 T_D = ones(T_num,1)*D;
 
-tl_pos  = T_Pos(1:layout,1:3);             %<--- 2D / 3D change
+tl_pos  = T_Pos(1:layout,1:Dim);
 tl_d    = T_D(1:layout,:);
 tl_ayaw = zeros(layout,2);
 tl_U    = ones(layout,2);
