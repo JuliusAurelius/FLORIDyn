@@ -68,12 +68,7 @@ for i = 1:NoTimeSteps
     cw_new = tmp_get_cw(op_dw, op_ayaw, op_t_id, tl_D, cl_dstr, chainList);
     
     delta_cw = cw_new-cw_old;
-    ang = atan2(op_U(:,2),op_U(:,1));
-    op_pos(:,1) = op_pos(:,1) - sin(ang).*delta_cw(:,1);
-    op_pos(:,2) = op_pos(:,2) + cos(ang).*delta_cw(:,1);
-    if Dim == 3
-        op_pos(:,3) = op_pos(:,3) + delta_cw(:,2);
-    end
+    ang = atan2(op_U(
     % FUNCTION TO IMPLEMENT
     % get cw out of relative distribution and dw position 
     %   -> Used here to update y_w and z_w and maybe by getR
