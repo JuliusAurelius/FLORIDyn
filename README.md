@@ -14,18 +14,21 @@ Additionally, the OPs interact with each other, so wakes influencing each other 
 This implementation extends the basic concept and implements changing wind speeds and directions. It also aims to be able to switch between different wake models and to generally be modular in order for users to add, modify and extend the code.
 
 ### Current state
-The code can simulate multiple wakes (tested with up to 6), heterogeneous wind conditions (direction and speed), uniform or varying chain lengths and numbers per turbine.
+The code can simulate multiple wakes (tested with up to 6), heterogeneous wind conditions (direction and speed), uniform or varying chain lengths and numbers per turbine. The code is able to run 2D as well as 3D simulations. Currently there is a simple wake model implemented (FLORIS Gebraad 2014) but poorly tested, especially between 2D and 3D model, there seem to be differences.
 
 ### What is missing?
-* The wakes experience no speed decrease, the observation point speed is currently always equal to the wind speed of the wind field.
+* Validate the speed decrease in the wake, implement other forms and define an interface.
 * There is no wake interaction implemented yet.
 * No controller is implemented
 * No (proper) visualization is implemented
 
 This code is part of the master thesis of Marcus Becker.
 
-Picture of the wakes currently produced. The Proof-Of-Concept shows multiple turbines, changing wind directions and speed, various chain lengths and the 3D representation of the field. Like mentioned before, wake effects are not included yet, this is meant as a demonstration of the core code.
-![Proof of concept](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/Proof_of_concept_WindDirSpe_change_05.png?raw=true)
+The first Proof-of-Concept shows multiple turbines, changing wind directions and speed, various chain lengths and the 3D representation of the field. Wake effects are not included yet, this is meant as a demonstration of the core code.
+![Proof of concept changing wind direction and speed](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/Proof_of_concept_WindDirSpe_change_05.png?raw=true)
+
+The second Proof-of-Concept shows one turbine with the Gebraad FLORIS Wake Model (2014). The code is not validated but the output shows a recovery process of the wake with clearly visible near field characteristics.
+![Proof of concept changing wind direction and speed](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/Proof_of_concept_Wake_02.png?raw=true)
 
 ### .graphml files
 The .graphml files can be opened with the free software [yEd](https://www.yworks.com/products/yed#yed-support-resources) from yWorks. It is a graphing editor which can automatically layout graphs in various ways.
