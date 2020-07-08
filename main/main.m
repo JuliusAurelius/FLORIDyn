@@ -6,17 +6,17 @@ addpath('./ObservationPoints')
 addpath('./WakeModel')
 
 %% Test Variables
-NumChains       = 20;
-NumTurbines     = 6;
+NumChains       = 60;
+NumTurbines     = 1;
 
 % Uniform chain length or individual chainlength
-chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-%chainLength = 10;   
+%chainLength     = randi(20,NumChains*NumTurbines,1)+1;
+chainLength = 80;   
 
 timeStep        = 5;   % in s
-SimDuration     = 100; % in s
+SimDuration     = 1000; % in s
 
-Dim = 2;
+Dim = 3;
 
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
@@ -103,12 +103,12 @@ end
 figure(1)
 if size(op_pos,2) == 3 % Dimentions
     scatter3(op_pos(:,1),op_pos(:,2),op_pos(:,3),...
-    ones(size(op_t_id))*20,sqrt(sum(op_U.^2,2)),...
+    ones(size(op_t_id))*10,sqrt(sum((op_U.*op_r(:,1)).^2,2)),...
     'filled');
     zlabel('height [m]')
 else
     scatter(op_pos(:,1),op_pos(:,2),...
-    ones(size(op_t_id))*20,sqrt(sum(op_U.^2,2))+op_U(:,2)*0.5,...
+    ones(size(op_t_id))*20,sqrt(sum((op_U.*op_r(:,1)).^2,2))+op_U(:,2)*0.5,...
     'filled');
 end
 
@@ -116,8 +116,8 @@ axis equal
 colormap parula
 c = colorbar;
 c.Label.String = 'Windspeed in m/s';
-title(['Proof of concept: wind speed and direction change, '...
-    num2str(length(tl_D)) ' turbines'])
+%title(['Proof of concept: wind speed and direction change, ' num2str(length(tl_D)) ' turbines'])
+title(['Proof of concept: Simple wake model, 60 chains with 80 observation points'])
 xlabel('east - west [m]')
 ylabel('south - north [m]')
 grid on

@@ -19,6 +19,12 @@ function U = getWindVec(pos)
 U = zeros(size(pos,1),2);
 
 MaxSpeed = 8;
-U(:,1) = MaxSpeed*(cos(pos(:,2)'*pi/9000))';
-U(:,2) = MaxSpeed*(sin(pos(:,1)'*pi/600))';
+phi = 45/180*pi;
+
+
+U_tmp = ([cos(phi) -sin(phi);sin(phi),cos(phi)]*[MaxSpeed;0])';
+U = repmat(U_tmp,size(pos,1),1);
 end
+
+% U(:,1) = MaxSpeed*(cos(pos(:,2)'*pi/9000))';
+% U(:,2) = MaxSpeed*(sin(pos(:,1)'*pi/600))';

@@ -124,3 +124,6 @@ theta = 2*pi*k/gr^2;
 y = (r.*cos(theta))';
 z = (r.*sin(theta))';
 end
+
+% chainList
+% [ off, start_id, length, t_id]

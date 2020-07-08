@@ -68,14 +68,14 @@ cw(:,1) = cw(:,1) + ...
 
 if size(cw,2) == 1
     % 2D
-    m_u = get_m_u(op_dw, cw, op_ayaw(:,2), op_D, centerline);
+    m_u = get_m_u(op_dw, cw.^2)), op_ayaw(:,2), op_D, centerline);
 else
     % 3D
-    m_u = get_m_u(op_dw, sqrt(sum(cw.^2,2)), op_ayaw(:,2), op_D, centerline);
+    m_u = get_m_u(op_dw, sqrt(sum(cw.^2)), op_ayaw(:,2), op_D, centerline);
 end
 
 
-r = 1 - (0.5 + atan(2*op_dw./(pi*op_D)))*2.*op_ayaw(:,1).*...
+r = 1 - (0.5 + atan(2*dw./(pi*op_D)))*2.*op_ayaw(:,1).*...
     (op_D./(op_D + 2*k_e*m_u.*op_dw)).^2;
 r(m_u==0) = 1; % (1 = no influence)
 end
