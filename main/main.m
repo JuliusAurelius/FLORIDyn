@@ -16,16 +16,18 @@ chainLength     = randi(20,NumChains*NumTurbines,1)+1;
 timeStep        = 5;   % in s
 SimDuration     = 100; % in s
 
+Dim = 2;
+
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
 
 % Create the list of turbines with their properties
-[tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(NumTurbines);               % TODO should call layout
+[tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(NumTurbines,'Dim',Dim);               % TODO should call layout
 
 %% Create starting OPs and build opList
 [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] =...
-    assembleOPList(NumChains,chainLength,tl_D,'sunflower');
+    assembleOPList(NumChains,chainLength,tl_D,'sunflower',Dim);
 
 %% Start simulation
 
@@ -118,7 +120,7 @@ title(['Proof of concept: wind speed and direction change, '...
     num2str(length(tl_D)) ' turbines'])
 xlabel('east - west [m]')
 ylabel('south - north [m]')
-
+grid on
 end
 
 %% TICKETS
@@ -135,4 +137,4 @@ end
 % [ ] Visulization / Video
 % [ ] Power Output
 % [ ] Get one version of r_f working
-% [~] 2D implementation?
+% [x] 2D implementation

@@ -17,7 +17,7 @@ function [tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(layout,varargin)
 Dim = 3;             %<--- 2D / 3D change
 
 %% Code to use varargin values
-% function(*normal in*,'var1','val1','var2',val2[numeric])
+% function(*normal in*,'var1','val1','var2',val2[numeric]
 if nargin>1
     %varargin is used
     for i=1:2:length(varargin)

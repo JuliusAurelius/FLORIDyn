@@ -1,4 +1,4 @@
-function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = assembleOPList(NumChains,chainLength,tl_D,distr_method)
+function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = assembleOPList(NumChains,chainLength,tl_D,distr_method,Dim)
 % assembleOPList creates a list of OPs with entries for the starting points 
 % and the rest being 0
 % 
@@ -28,7 +28,6 @@ function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = ass
 %   cl_dstr     := [n x 1] vec; Distribution relative to the wake width
 %
 
-Dim = 3;             %<--- 2D / 3D change
 
 % ==== Constants ==== %
 NumTurb         = length(tl_D);

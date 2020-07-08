@@ -15,8 +15,5 @@ function r = getR(op_dw, op_ayaw, op_t_id, tl_D, chainList, cl_dstr)
 % Turbine Data
 %   tl_D        := [n x 1] vec; Turbine diameter
 
-% ==================== !!!!DUMMY METHOD!!!! ====================== % 
-% ================= should link to wake models =================== %
-
 r = ones(size(op_dw)); % (1 = no influence)
 end
