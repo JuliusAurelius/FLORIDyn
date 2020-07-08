@@ -26,3 +26,6 @@ This code is part of the master thesis of Marcus Becker.
 
 Picture of the wakes currently produced. The Proof-Of-Concept shows multiple turbines, changing wind directions and speed, various chain lengths and the 3D representation of the field. Like mentioned before, wake effects are not included yet, this is meant as a demonstration of the core code.
 ![Proof of concept](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/Proof_of_concept_WindDirSpe_change_05.png?raw=true)
+
+### .graphml files
+The .graphml files can be opened with the free software [yEd](https://www.yworks.com/products/yed#yed-support-resources) from yWorks. It is a graphing editor which can automatically layout graphs in various ways.
