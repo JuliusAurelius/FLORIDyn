@@ -78,7 +78,7 @@ switch distr_method
         else
             % 2 Dimentional field: 1D rotor plane
             y = linspace(-0.5,.5,NumChains)';
-            cl_dstr(:) = repmat(y,NumTurb,1).*0.5;
+            cl_dstr(:) = repmat(y,NumTurb,1);
         end
 end
 

@@ -19,7 +19,7 @@ function U = getWindVec(pos)
 U = zeros(size(pos,1),2);
 
 MaxSpeed = 8;
-phi = 0/180*pi;
+phi = 30/180*pi;
 
 
 U_tmp = ([cos(phi) -sin(phi);sin(phi),cos(phi)]*[MaxSpeed;0])';

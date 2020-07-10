@@ -6,17 +6,17 @@ addpath('./ObservationPoints')
 addpath('./WakeModel')
 
 %% Test Variables
-NumChains       = 60;
+NumChains       = 20;
 NumTurbines     = 1;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = 100;   
+chainLength = 1;   
 
-timeStep        = 5;   % in s
+timeStep        = 3;   % in s
 SimDuration     = 1000; % in s
 
-Dim = 3;
+Dim = 2;
 
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
@@ -114,20 +114,14 @@ end
 % World coordinates
 figure(1)
 if size(op_pos,2) == 3 % Dimentions
-    subplot(2,1,1)
     scatter3(op_pos(:,1),op_pos(:,2),op_pos(:,3),...
     ones(size(op_t_id))*10,sqrt(sum((op_U.*op_r(:,1)).^2,2)),...
     'filled');
     zlabel('height [m]')
-    title(['3D wake with ' num2str(NumChains) ' chains with each ' ...
-        num2str(chainLength) ' observation points'])
 else
-    subplot(2,1,2)
     scatter(op_pos(:,1),op_pos(:,2),...
-    ones(size(op_t_id))*10,sqrt(sum((op_U.*op_r(:,1)).^2,2))+op_U(:,2)*0.5,...
+    ones(size(op_t_id))*20,sqrt(sum((op_U.*op_r(:,1)).^2,2))+op_U(:,2)*0.5,...
     'filled');
-    title(['2D wake with ' num2str(NumChains) ' chains with each ' ...
-        num2str(chainLength) ' observation points'])
 end
 
 axis equal
@@ -135,11 +129,9 @@ colormap parula
 c = colorbar;
 c.Label.String = 'Windspeed in m/s';
 %title(['Proof of concept: wind speed and direction change, ' num2str(length(tl_D)) ' turbines'])
-%title(['Proof of concept: Simple wake model, 60 chains with 80 observation points'])
+title(['Proof of concept: Simple wake model, 60 chains with 80 observation points'])
 xlabel('east - west [m]')
-%xlim([-50,3500])
 ylabel('south - north [m]')
-%ylim([-400,400])
 grid on
 end
 
