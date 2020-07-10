@@ -14,7 +14,7 @@ Additionally, the OPs interact with each other, so wakes influencing each other 
 This implementation extends the basic concept and implements changing wind speeds and directions. It also aims to be able to switch between different wake models and to generally be modular in order for users to add, modify and extend the code.
 
 ### Current state
-The code can simulate multiple wakes (tested with up to 6), heterogeneous wind conditions (direction and speed), uniform or varying chain lengths and numbers per turbine. The code is able to run 2D as well as 3D simulations. Currently there is a simple wake model implemented (FLORIS Gebraad 2014) but poorly tested, especially between 2D and 3D model, there seem to be differences.
+The code can simulate multiple wakes (tested with up to 6), heterogeneous wind conditions (direction and speed), uniform or varying chain lengths and numbers per turbine. The code is able to run 2D as well as 3D simulations. Currently there is a simple wake model implemented (FLORIS Gebraad 2014). The model has been adapted to work with 3D wakes for a proof-of-concept's sake, but it is designed for and validated with 2D simulation data.
 
 ### What is missing?
 * Validate the speed decrease in the wake, implement other forms and define an interface.
@@ -30,5 +30,7 @@ The first Proof-of-Concept shows multiple turbines, changing wind directions and
 The second Proof-of-Concept shows one turbine with the Gebraad FLORIS Wake Model (2014). The code is not validated but the output shows a recovery process of the wake with clearly visible near field characteristics.
 ![Proof of concept changing wind direction and speed](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/Proof_of_concept_Wake_02.png?raw=true)
 
+Here a plot of the 3D wake (on top) and the 2D wake (below) can be seen. Switching between the 2D/3D requires to change the flag `Dim = 2;` to `Dim = 3;` in main.m.
+![3D model next to a 2D model](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/2D_3D.png)
 ### .graphml files
 The .graphml files can be opened with the free software [yEd](https://www.yworks.com/products/yed#yed-support-resources) from yWorks. It is a graphing editor which can automatically layout graphs in various ways.
