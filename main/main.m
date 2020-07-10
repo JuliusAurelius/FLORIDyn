@@ -6,14 +6,14 @@ addpath('./ObservationPoints')
 addpath('./WakeModel')
 
 %% Test Variables
-NumChains       = 60;
+NumChains       = 6;
 NumTurbines     = 1;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = 80;   
+chainLength = 1;   
 
-timeStep        = 5;   % in s
+timeStep        = 20;   % in s
 SimDuration     = 1000; % in s
 
 Dim = 3;
@@ -63,17 +63,20 @@ for i = 1:NoTimeSteps
     %   ... in world coordinates
     op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
     %   ... in wake coordinates
+    % ------------------------ tmp fix start ---------------------------- %
     cw_old = tmp_get_cw(op_dw, op_ayaw, op_t_id, tl_D, cl_dstr, chainList);
     op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2); % NOT TMP
     cw_new = tmp_get_cw(op_dw, op_ayaw, op_t_id, tl_D, cl_dstr, chainList);
     
-    delta_cw = cw_new-cw_old;
+    %tmp fix for expansion
+    delta_cw = cw_new-cw_old; 
     ang = atan2(op_U(:,2),op_U(:,1));
     op_pos(:,1) = op_pos(:,1) - sin(ang).*delta_cw(:,1);
     op_pos(:,2) = op_pos(:,2) + cos(ang).*delta_cw(:,1);
     if Dim == 3
         op_pos(:,3) = op_pos(:,3) + delta_cw(:,2);
     end
+    % ------------------------ tmp fix END ------------------------------ %
     % FUNCTION TO IMPLEMENT
     % get cw out of relative distribution and dw position 
     %   -> Used here to update y_w and z_w and maybe by getR
