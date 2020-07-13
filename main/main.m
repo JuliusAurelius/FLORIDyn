@@ -6,17 +6,17 @@ addpath('./ObservationPoints')
 addpath('./WakeModel')
 
 %% Test Variables
-NumChains       = 60;
-NumTurbines     = 1;
+NumChains       = 20;
+NumTurbines     = 4;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = 100;   
+chainLength = 60;   
 
-timeStep        = 5;   % in s
-SimDuration     = 1000; % in s
+timeStep        = 8;   % in s
+SimDuration     = 2000; % in s
 
-Dim = 3;
+Dim = 2;
 
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
@@ -25,15 +25,30 @@ NoTimeSteps = length(timeSteps);
 % Create the list of turbines with their properties
 [tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(NumTurbines,'Dim',Dim);               % TODO should call layout
 
+%% Get Wind Vector
+U_sig = genU_sig(NoTimeSteps);
+
 %% Create starting OPs and build opList
 [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] =...
     assembleOPList(NumChains,chainLength,tl_D,'sunflower',Dim);
 
 %% Start simulation
+figure(1)
+scatter([0,1000,0],[0,2000,2000],50,[1,0,0;1,0,0;1,0,0],'filled')
+hold on
+axis equal
+xlim([-300,2100]);
+ylim([-100,2100]);
+%zlim([0,300]);
+grid on
+
 
 for i = 1:NoTimeSteps
+    if i>1
+        delete(p)
+    end
     % Update Turbine data to get controller input
-    tl_U    = getWindVec(tl_pos);
+    tl_U    = getWindVec(tl_pos,i,U_sig);
     %====================== CONTROLLER ===================================%
     tl_ayaw = controller(tl_pos,tl_D,tl_ayaw,tl_U);
     %=====================================================================%
@@ -46,7 +61,7 @@ for i = 1:NoTimeSteps
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
-    op_U    = getWindVec(op_pos);
+    op_U    = getWindVec(op_pos,i,U_sig);
     
     
     % Get r-> u=U*r (NOT u=U(1-r)!!!)
@@ -64,6 +79,10 @@ for i = 1:NoTimeSteps
     op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
     %   ... in wake coordinates
     % ------------------------ tmp fix start ---------------------------- %
+    % Fix to have the wake expand, previously, only down wind steps were
+    % applied, but no crosswind direction. The getR function should supply
+    % this information since it already calculates the crosswind position
+    % of each OP. The function can then also apply the deflection.
     cw_old = tmp_get_cw(op_dw, op_ayaw, op_t_id, tl_D, cl_dstr, chainList);
     op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2); % NOT TMP
     cw_new = tmp_get_cw(op_dw, op_ayaw, op_t_id, tl_D, cl_dstr, chainList);
@@ -88,7 +107,15 @@ for i = 1:NoTimeSteps
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     
+    p = scatter(op_pos(:,1),op_pos(:,2),...
+     ones(size(op_t_id))*10,sqrt(sum((op_U.*op_r(:,1)).^2,2))+op_U(:,2)*0.5,...
+     'filled');
+%     p = scatter3(op_pos(:,1),op_pos(:,2),op_pos(:,3),...
+%      ones(size(op_t_id))*10,sqrt(sum((op_U.*op_r(:,1)).^2,2)),...
+%      'filled');
+    pause(0.025)
 end
+hold off
 %% Variables
 
 % OP Data
@@ -112,35 +139,35 @@ end
 %% PLOT
 
 % World coordinates
-figure(1)
-if size(op_pos,2) == 3 % Dimentions
-    subplot(2,1,1)
-    scatter3(op_pos(:,1),op_pos(:,2),op_pos(:,3),...
-    ones(size(op_t_id))*10,sqrt(sum((op_U.*op_r(:,1)).^2,2)),...
-    'filled');
-    zlabel('height [m]')
-    title(['3D wake with ' num2str(NumChains) ' chains with each ' ...
-        num2str(chainLength) ' observation points'])
-else
-    subplot(2,1,2)
-    scatter(op_pos(:,1),op_pos(:,2),...
-    ones(size(op_t_id))*10,sqrt(sum((op_U.*op_r(:,1)).^2,2))+op_U(:,2)*0.5,...
-    'filled');
-    title(['2D wake with ' num2str(NumChains) ' chains with each ' ...
-        num2str(chainLength) ' observation points'])
-end
-
-axis equal
-colormap parula
-c = colorbar;
-c.Label.String = 'Windspeed in m/s';
-%title(['Proof of concept: wind speed and direction change, ' num2str(length(tl_D)) ' turbines'])
-%title(['Proof of concept: Simple wake model, 60 chains with 80 observation points'])
-xlabel('east - west [m]')
-%xlim([-50,3500])
-ylabel('south - north [m]')
-%ylim([-400,400])
-grid on
+% figure(1)
+% if size(op_pos,2) == 3 % Dimentions
+%     subplot(2,1,1)
+%     scatter3(op_pos(:,1),op_pos(:,2),op_pos(:,3),...
+%     ones(size(op_t_id))*10,sqrt(sum((op_U.*op_r(:,1)).^2,2)),...
+%     'filled');
+%     zlabel('height [m]')
+%     title(['3D wake with ' num2str(NumChains) ' chains with each ' ...
+%         num2str(chainLength) ' observation points'])
+% else
+%     subplot(2,1,2)
+%     scatter(op_pos(:,1),op_pos(:,2),...
+%     ones(size(op_t_id))*10,sqrt(sum((op_U.*op_r(:,1)).^2,2))+op_U(:,2)*0.5,...
+%     'filled');
+%     title(['2D wake with ' num2str(NumChains) ' chains with each ' ...
+%         num2str(chainLength) ' observation points'])
+% end
+% 
+% axis equal
+% colormap parula
+% c = colorbar;
+% c.Label.String = 'Windspeed in m/s';
+% %title(['Proof of concept: wind speed and direction change, ' num2str(length(tl_D)) ' turbines'])
+% %title(['Proof of concept: Simple wake model, 60 chains with 80 observation points'])
+% xlabel('east - west [m]')
+% %xlim([-50,3500])
+% ylabel('south - north [m]')
+% %ylim([-400,400])
+% grid on
 end
 
 %% Dummy to get the crosswind pos
@@ -197,7 +224,7 @@ end
 % [~] Implement the effective yaw calculation
 % [x] Which Information is needed to place new initial OPs?
 % [x] Add [word_coord. wake_coord. ...] system to OP list
-% [ ] Refine getR(), working alpha version (Park Model?) / define Interface
+% [~] Refine getR(), working alpha version (Park Model?) / define Interface
 % [x] Refactor code: Move functions to own files.
 % [ ] Calc / Set Chainlength (?)
 % [x] Set yaw in opList to wake coord.!
