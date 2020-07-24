@@ -179,17 +179,13 @@ c_lin = C_T.*(15*k_x_D.^4+C_T.^2)./((30*k_d*k_x_D.^5)./op_D)-...
     C_T.*op_D.*(15+C_T.^2)/(30*k_d) + a_d;
 end
 %% TICKETS
-% [x] Include all 3 linked lists: OP[... t_id], chain[OP_entry, start_ind,
-%       length, t_id], turbines[...] (chain currently missing)
-% [x] Implement shifting the pointers
-% [~] Implement the effective yaw calculation
-% [x] Which Information is needed to place new initial OPs?
-% [x] Add [word_coord. wake_coord. ...] system to OP list
-% [~] Refine getR(), working alpha version (Park Model?) / define Interface
-% [x] Refactor code: Move functions to own files.
-% [ ] Calc / Set Chainlength (?)
-% [x] Set yaw in opList to wake coord.!
-% [ ] Visulization / Video
-% [ ] Power Output
+% [ ] Get rid of temporary fix of the wake expansion
+% [ ] Implement Bastankhah
+% [ ] Implement a wind grid for nearest neighbour interpolation
+%       [ ] Test if own interpolation (coord. -> index) is faster
+% [ ] Implement wake interaction
+% [ ] Disable r_T
+% [ ] Calculate Power Output
+% [ ] See if it can be formulated as observer or similar
 % [ ] Get one version of r_f working
-% [x] 2D implementation
+% [ ] Calc / Set Chainlength (?)
