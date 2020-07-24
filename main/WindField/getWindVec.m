@@ -15,6 +15,7 @@ function U = getWindVec(pos,timeStep,U_sig)
 % ========================= TODO ========================= 
 % ///////////////////////// LINK Wind Dir  //////////
 
+persistent Fx Fy
 %windspeed = @(x) [x(1) 0;0 x(2)]*x;
 %U = windspeed(pos');
 
@@ -25,36 +26,42 @@ function U = getWindVec(pos,timeStep,U_sig)
 off = [0,0,0];
 x = [0, 1000, 0];
 y = [0, 2000,2000];
+R =@(p) [cos(p), -sin(p);sin(p),cos(p)];
+
 
 k = off+timeStep;
 k(k<2) = 2;         % Starts at 2 because the old value is used as well
 
 U_meas = PT1(k,U_sig);
 
-Fx = scatteredInterpolant(x',y',U_meas(:,1),'linear','nearest');
-Fy = scatteredInterpolant(x',y',U_meas(:,2),'linear','nearest');
+if k>0
+    U_meas = U_meas.*(0.5*cos(k(1)/(2*pi)*2)+0.8);
+end
+
+if isempty(Fx)
+    Fx = scatteredInterpolant(x',y',U_meas(:,1),'linear','linear');
+    Fy = scatteredInterpolant(x',y',U_meas(:,2),'linear','linear');
+    % 'nearest'
+else
+    Fx.Values = U_meas(:,1);
+    Fy.Values = U_meas(:,2);
+end
 
 U = zeros(size(pos,1),2);
 U(:,1) = Fx(pos(:,1:2));
 U(:,2) = Fy(pos(:,1:2));
-% MaxSpeed = 8;
-% phi = 30/180*pi;
-% 
-% 
-% U_tmp = ([cos(phi) -sin(phi);sin(phi),cos(phi)]*[MaxSpeed;0])';
-% U = repmat(U_tmp,size(pos,1),1);
+
 end
 
-% U(:,1) = MaxSpeed*(cos(pos(:,2)'*pi/9000))';
-% U(:,2) = MaxSpeed*(sin(pos(:,1)'*pi/600))';
-%{
-Maybe this should be coded object oriented...
-%}
 function U = PT1(timeStep,U_sig)
-
+persistent U_old
+if isempty(U_old)
+    U_old = zeros(size(U_sig(timeStep,:)));
+end
 deltaT  = 1;     % Hard coded fix
-T       = 80;
+T       = 1;
 K       = 1;
 
-U = 1/(T/deltaT + 1)*(K*U_sig(timeStep,:) + T/deltaT*U_sig(timeStep-1,:));
+U = 1/(T/deltaT + 1)*(K*U_sig(timeStep,:) + T/deltaT*U_old);
+U_old = U;
 end
