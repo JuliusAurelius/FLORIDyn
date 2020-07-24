@@ -15,7 +15,7 @@ function U = getWindVec(pos,timeStep,U_sig)
 % ========================= TODO ========================= 
 % ///////////////////////// LINK Wind Dir  //////////
 
-persistent Fx Fy
+persistent F
 %windspeed = @(x) [x(1) 0;0 x(2)]*x;
 %U = windspeed(pos');
 
@@ -38,18 +38,19 @@ if k>0
     U_meas = U_meas.*(0.5*cos(k(1)/(2*pi)*2)+0.8);
 end
 
-if isempty(Fx)
-    Fx = scatteredInterpolant(x',y',U_meas(:,1),'linear','linear');
-    Fy = scatteredInterpolant(x',y',U_meas(:,2),'linear','linear');
+if isempty(F)
+    F = scatteredInterpolant(x',y',U_meas(:,1),'linear','linear');
     % 'nearest'
 else
-    Fx.Values = U_meas(:,1);
-    Fy.Values = U_meas(:,2);
+    F.Values = U_meas(:,1);
 end
 
 U = zeros(size(pos,1),2);
-U(:,1) = Fx(pos(:,1:2));
-U(:,2) = Fy(pos(:,1:2));
+U(:,1) = F(pos(:,1:2));
+
+% Change values and interpolate for the same positions
+F.Values = U_meas(:,2);
+U(:,2) = F(pos(:,1:2));
 
 end
 
