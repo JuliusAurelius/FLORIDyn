@@ -57,7 +57,13 @@ for i = 1:NoTimeSteps
     % Update wind dir and speed
     op_U    = getWindVec(op_pos,i,U_sig);
     
+    % Calculate the down and crosswind steps along with the windspeed at
+    % the turbine rotor planes
+    [delta_dw, delta_cw, u_t]=makeStep(...
+        op_pos, op_dw, op_ayaw, op_t_id, op_U, chainList, cl_dstr, tl_pos, tl_D);
     
+    
+    %====================== REPLACED BY 'MAKESTEP' =======================%
     % Get r-> u=U*r (NOT u=U(1-r)!!!)
     op_r(:,1) = getR(op_dw, op_ayaw, op_t_id, tl_D, chainList, cl_dstr);
     
@@ -98,6 +104,11 @@ for i = 1:NoTimeSteps
     % set r_t = r_f for the chain starting points
     ind = chainList(:,1) + chainList(:,2);
     op_r(ind,2) = r_f(ind);
+    %=================== REPLACED BY 'MAKESTEP' END ======================%
+    
+    % Apply the calculated step changes
+    op_pos = applyStep(op_pos, op_U, delta_dw, delta_cw);
+    
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     
