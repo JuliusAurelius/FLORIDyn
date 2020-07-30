@@ -13,6 +13,6 @@ function tl_ayaw = controller(tl_pos,tl_D,tl_ayaw,tl_U)
 
 
 % Current implementation follows the wind angle and sets a to 0.3
-yaw = atan2(tl_U(:,2),tl_U(:,1));
+yaw = atan2(tl_U(:,2),tl_U(:,1))+30/180*pi;
 tl_ayaw = [ones(size(tl_D))*0.3, yaw]; % TODO Placeholder
 end

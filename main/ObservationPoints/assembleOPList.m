@@ -60,6 +60,7 @@ op_dw   = zeros(len_OPs,1);
 op_r    = zeros(len_OPs,2);
 op_U    = zeros(len_OPs,2);
 op_ayaw = zeros(len_OPs,2);
+op_ayaw(:,1) = 0.33;        %Otherwise the first points are init. wrong
 op_t_id = assignTIDs(chainList,len_OPs);
 
 cl_dstr = zeros(NumChainsTot,Dim-1);

@@ -17,7 +17,7 @@ chainLength = 100;
 timeStep        = 8;   % in s
 SimDuration     = 3000; % in s
 
-Dim = 2;
+Dim = 3;
 
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
@@ -35,11 +35,11 @@ U_sig = genU_sig(NoTimeSteps);
 
 %% Start simulation
 % Online visulization script (1/3)
-% OnlineVis_Start;
+OnlineVis_Start;
 
 for i = 1:NoTimeSteps
     % Online visulization script (2/3)
-    % OnlineVis_deletePoints;
+    OnlineVis_deletePoints;
     
     % Update Turbine data to get controller input
     tl_U    = getWindVec(tl_pos,i,U_sig);
@@ -59,58 +59,62 @@ for i = 1:NoTimeSteps
     
     % Calculate the down and crosswind steps along with the windspeed at
     % the turbine rotor planes
-    [delta_dw, delta_cw, u_t]=makeStep(...
-        op_pos, op_dw, op_ayaw, op_t_id, op_U, chainList, cl_dstr, tl_pos, tl_D);
+    [op_pos, op_dw, op_u, u_t]=makeStep(...
+        op_pos, op_dw, op_ayaw, op_t_id, op_U,...
+        chainList, cl_dstr, tl_pos, tl_D, timeStep);
     
     
-    %====================== REPLACED BY 'MAKESTEP' =======================%
-    % Get r-> u=U*r (NOT u=U(1-r)!!!)
-    op_r(:,1) = getR(op_dw, op_ayaw, op_t_id, tl_D, chainList, cl_dstr);
-    
-    % Get r_f, foreign influence / wake interaction u=U*r*r_f
-    r_f = getR_f(...
-        op_pos, op_dw, op_r, op_ayaw, op_t_id, chainList, cl_dstr, tl_pos, tl_D);
-    op_r(:,1) = op_r(:,1).*r_f;
-    
-    % Calculate effective windspeed and down wind step d_dw=U*r_g*r_t*t
-    dw_step = op_U.*op_r(:,1).*op_r(:,2)*timeStep;
-    
-    %   ... in world coordinates
-    op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
-    %   ... in wake coordinates
-    % ------------------------ tmp fix start ---------------------------- %
-    % Fix to have the wake expand, previously, only down wind steps were
-    % applied, but no crosswind direction. The getR function should supply
-    % this information since it already calculates the crosswind position
-    % of each OP. The function can then also apply the deflection.
-    cw_old = tmp_get_cw(op_dw, op_ayaw, op_t_id, tl_D, cl_dstr, chainList);
-    op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2); % NOT TMP
-    cw_new = tmp_get_cw(op_dw, op_ayaw, op_t_id, tl_D, cl_dstr, chainList);
-    
-    %tmp fix for expansion
-    delta_cw = cw_new-cw_old; 
-    ang = atan2(op_U(:,2),op_U(:,1));
-    op_pos(:,1) = op_pos(:,1) - sin(ang).*delta_cw(:,1);
-    op_pos(:,2) = op_pos(:,2) + cos(ang).*delta_cw(:,1);
-    if Dim == 3
-        op_pos(:,3) = op_pos(:,3) + delta_cw(:,2);
-    end
-    % ------------------------ tmp fix END ------------------------------ %
-    % FUNCTION TO IMPLEMENT
-    % get cw out of relative distribution and dw position 
-    %   -> Used here to update y_w and z_w and maybe by getR
-    
-    % Prepare next time step
-    % set r_t = r_f for the chain starting points
-    ind = chainList(:,1) + chainList(:,2);
-    op_r(ind,2) = r_f(ind);
-    
+%     %====================== REPLACED BY 'MAKESTEP' =======================%
+%     % Get r-> u=U*r (NOT u=U(1-r)!!!)
+%     op_r(:,1) = getR(op_dw, op_ayaw, op_t_id, tl_D, chainList, cl_dstr);
+%     
+%     % Get r_f, foreign influence / wake interaction u=U*r*r_f
+%     r_f = getR_f(...
+%         op_pos, op_dw, op_r, op_ayaw, op_t_id, chainList, cl_dstr, tl_pos, tl_D);
+%     op_r(:,1) = op_r(:,1).*r_f;
+%     
+%     % Calculate effective windspeed and down wind step d_dw=U*r_g*r_t*t
+%     dw_step = op_U.*op_r(:,1).*op_r(:,2)*timeStep;
+%     
+%     %   ... in world coordinates
+%     op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
+%     %   ... in wake coordinates
+%     % ------------------------ tmp fix start ---------------------------- %
+%     % Fix to have the wake expand, previously, only down wind steps were
+%     % applied, but no crosswind direction. The getR function should supply
+%     % this information since it already calculates the crosswind position
+%     % of each OP. The function can then also apply the deflection.
+%     cw_old = tmp_get_cw(op_dw, op_ayaw, op_t_id, tl_D, cl_dstr, chainList);
+%     op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2); % NOT TMP
+%     cw_new = tmp_get_cw(op_dw, op_ayaw, op_t_id, tl_D, cl_dstr, chainList);
+%     
+%     %tmp fix for expansion
+%     delta_cw = cw_new-cw_old; 
+%     ang = atan2(op_U(:,2),op_U(:,1));
+%     op_pos(:,1) = op_pos(:,1) - sin(ang).*delta_cw(:,1);
+%     op_pos(:,2) = op_pos(:,2) + cos(ang).*delta_cw(:,1);
+%     if Dim == 3
+%         op_pos(:,3) = op_pos(:,3) + delta_cw(:,2);
+%     end
+%     % ------------------------ tmp fix END ------------------------------ %
+%     % FUNCTION TO IMPLEMENT
+%     % get cw out of relative distribution and dw position 
+%     %   -> Used here to update y_w and z_w and maybe by getR
+%     
+%     % Prepare next time step
+%     % set r_t = r_f for the chain starting points
+%     ind = chainList(:,1) + chainList(:,2);
+%     op_r(ind,2) = r_f(ind);
+%     
+%     
+%     % Apply the calculated step changes
+%     op_pos = applyStep(op_pos, op_U, delta_dw, delta_cw);
     %=================== REPLACED BY 'MAKESTEP' END ======================%
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     
     % Online visulization script (3/3)
-    % OnlineVis_plot;
+    OnlineVis_plot;
 end
 hold off
 

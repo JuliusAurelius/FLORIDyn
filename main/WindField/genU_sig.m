@@ -1,10 +1,10 @@
 function U_sig = genU_sig(len)
 
 U_sig = zeros(len,2);
-U_sig(:,1) = 8;
+U_sig(:,1) = 13;
 
 off = 00;
-ang = 70;
+ang = 90;
 dur = 1;
 delta_phi = linspace(0,ang/180*pi,dur);
 

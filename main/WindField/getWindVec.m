@@ -34,9 +34,9 @@ k(k<2) = 2;         % Starts at 2 because the old value is used as well
 
 U_meas = PT1(k,U_sig);
 
-if k>0
-    U_meas = U_meas.*(0.5*cos(k(1)/(2*pi)*2)+0.8);
-end
+% if k>0
+%     U_meas = U_meas.*(0.5*cos(k(1)/(2*pi)*2)+0.8);
+% end
 
 if isempty(F)
     F = scatteredInterpolant(x',y',U_meas(:,1),'linear','linear');
