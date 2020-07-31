@@ -15,7 +15,7 @@ NumTurbines     = 1;
 chainLength = 60;   
 
 timeStep        = 4;   % in s
-SimDuration     = 4000; % in s
+SimDuration     = 400; % in s
 
 Dim = 2;
 
@@ -34,11 +34,11 @@ U_sig = genU_sig(NoTimeSteps);
     assembleOPList(NumChains,chainLength,tl_D,'sunflower',Dim);
 
 %% Start simulation
-% Online visulization script (1/3)
+% Online visulization script (1/4)
 %OnlineVis_Start;
 
 for i = 1:NoTimeSteps
-    % Online visulization script (2/3)
+    % Online visulization script (2/4)
     %OnlineVis_deletePoints;
     
     % Update Turbine data to get controller input
@@ -66,10 +66,11 @@ for i = 1:NoTimeSteps
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     
-    % Online visulization script (3/3)
+    % Online visulization script (3/4)
     %OnlineVis_plot;
 end
-hold off
+% Online visulization script (4/4)
+%hold off
 
 %% PLOT
 %PostSimVis;
@@ -95,57 +96,9 @@ end
 %   tl_ayaw     := [n x 2] vec; axial induction factor and yaw (world coord.)
 %   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)
 
-
-%% Dummy to get the crosswind pos
-function cw = tmp_get_cw(op_dw, op_ayaw, op_t_id, tl_D, cl_dstr, chainList)
-m_em = 1;
-k_e = 0.0963;
-
-op_D = tl_D(op_t_id);
-% Step 1: Calculate the filed width at any point in the wake
-% D+2*k_e*me_field
-fieldWidth = op_D + 2*k_e*m_em*op_dw;
-
-% Step 2: With the width, the crosswind position of the points can be
-% calculated
-op_c = getChainIDforOP(chainList);
-cw = fieldWidth .* cl_dstr(op_c,:); %independet from centerline
-
-% Add centerline. Unfortunately the architecture currently does not allow a
-% wake offset, so the wake is made bigger to contain the deflection part.
-% Downside of this is, that there are unneccesary points in the wake.
-centerline = c_line(op_dw,op_ayaw,op_D);
-cw(:,1) = cw(:,1) + ...
-    2*centerline.*cl_dstr(op_c,1);
-end
-
-function op_c = getChainIDforOP(chainList)
-% A for loop :(
-op_c = zeros(sum(chainList(:,3)),1);
-for i = 1:size(chainList,1)-1
-    op_c(chainList(i,2):chainList(i+1,2)-1) = i;
-end
-op_c(chainList(end,2):end)=size(chainList,1);
-end
-
-function c_lin = c_line(op_dw,op_ayaw,op_D)
-% CENTERLINE CALCULATION
-
-%========= Deflection Constants==============#
-k_d = 0.15;
-a_d = -4.5;
-xi_init = pi/180 * 1.5;
-
-C_T = xi_init + 0.5*cos(op_ayaw(:,2)).^2.*sin(op_ayaw(:,2))*4.*...
-    op_ayaw(:,1).*(1-op_ayaw(:,1));
-k_x_D = 2*k_d*op_dw./op_D+1;
-
-c_lin = C_T.*(15*k_x_D.^4+C_T.^2)./((30*k_d*k_x_D.^5)./op_D)-...
-    C_T.*op_D.*(15+C_T.^2)/(30*k_d) + a_d;
-end
 %% TICKETS
 % [ ] Get rid of temporary fix of the wake expansion
-% [ ] Implement Bastankhah
+% [~] Implement Bastankhah
 % [ ] Implement a wind grid for nearest neighbour interpolation
 %       [ ] Test if own interpolation (coord. -> index) is faster
 % [ ] Implement wake interaction
