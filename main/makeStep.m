@@ -36,7 +36,7 @@ function [op_pos, op_dw, op_u, u_t]=makeStep(op_pos, op_dw, op_ayaw, op_t_id, op
 %     J. King et al.
 %% Init Variables
 op_r = zeros(length(op_dw),1);
-op_I = ones(size(op_r))*1;               % NEEDS TO BE IMPLEMENTED AS STATE
+op_I = ones(size(op_r))*0.2;               % NEEDS TO BE IMPLEMENTED AS STATE
 op_D = tl_D(op_t_id);
 
 % Get variables from the Bastankhah model
@@ -62,7 +62,7 @@ threeDim = 1;
 
 % Multiplication with sig_y and sig_z for the point distribution, not
 % affecting the wake shape, only how much is described by the points
-width_factor = 3;
+width_factor = 6;
 
 if size(op_pos,2)==2
     threeDim = 0;
@@ -127,6 +127,9 @@ end
 % op_u has all speeds of the OPs, the speed of the first ones of the chains
 % need to be weighted summed by the area they represent.
 u_t = ones(size(tl_D));
+
+%% Apply own reduction to speed vector
+op_u = op_u.*(1-op_r);
 end
 
 function op_c = getChainIDforOP(chainList)
@@ -137,21 +140,3 @@ for i = 1:size(chainList,1)-1
 end
 op_c(chainList(end,2):end)=size(chainList,1);
 end
-
-% OP Data
-%   op_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
-%   op_dw       := [n x 1] vec; downwind position
-%   op_r        := [n x 2] vec; [r_own, r_turbine]
-%   op_ayaw     := [n x 2] vec; axial induction factor and yaw (wake coord.)
-%   op_t_id     := [n x 1] vec; Turbine op belongs to
-%   op_U        := [n x 2] vec; Uninfluenced wind vector at OP position
-%
-% Chain Data
-%   chainList   := [n x 1] vec; (see at the end of the function)
-%   cl_dstr     := [n x 1] vec; Distribution relative to the wake width
-%
-% Turbine Data
-%   tl_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
-%   tl_D        := [n x 1] vec; Turbine diameter
-%   tl_ayaw     := [n x 2] vec; axial induction factor and yaw (world coord.)
-%   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)

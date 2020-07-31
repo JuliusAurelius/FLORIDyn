@@ -106,7 +106,8 @@ end
 %   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)
 
 %% TICKETS
-% [ ] Get rid of temporary fix of the wake expansion
+% [x] Get rid of temporary fix of the wake expansion
+% [ ] Delete op_r in main (should only exist in makeStep)
 % [~] Implement Bastankhah
 % [ ] Implement a wind grid for nearest neighbour interpolation
 %       [ ] Test if own interpolation (coord. -> index) is faster
