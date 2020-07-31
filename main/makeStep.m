@@ -43,7 +43,7 @@ op_D = tl_D(op_t_id);
 [sig_y, sig_z, C_T, Theta, k_y, k_z, x_0] = getBastankhahVars(...
     op_dw, op_ayaw, op_I, op_D);
 
-% For better readability (lol)
+% For better readability
 yaw = op_ayaw(:,2);
 
 %[1] Eq. 7.4
@@ -59,7 +59,11 @@ delta = delta.*op_D;
 %% Calculate the crosswind position
 op_c = getChainIDforOP(chainList);
 threeDim = 1;
-width_factor = 1;
+
+% Multiplication with sig_y and sig_z for the point distribution, not
+% affecting the wake shape, only how much is described by the points
+width_factor = 3;
+
 if size(op_pos,2)==2
     threeDim = 0;
 end
@@ -70,44 +74,55 @@ else
     cw_z = zeros(size(cw_y));
 end
 
-
 %% Get the reduction factor
 % nearWake / far wake border
 nw = (op_dw-x_0)<0;
 fw = ~nw;
+%[1] Eq. 7.1
 op_r(fw) = (1-sqrt(1-C_T(fw).*cos(yaw(fw))./(8*(sig_y(fw).*sig_z(fw)./op_D(fw).^2)))).*...
     exp(-0.5*((cw_y(fw)-delta(fw))./sig_y(fw)).^2).*...
-    exp(-0.5*((cw_z(fw)-delta(fw))./sig_z(fw)).^2);     %[1] Eq. 7.1
+    exp(-0.5*((cw_z(fw)-delta(fw))./sig_z(fw)).^2);
+%[1] Eq. 6.7
 op_r(nw) = sqrt(1-C_T(nw));
-% Maybe u = (1-r)U
+
 %% Get the foreign influence
 %TODO
 r_f = ones(size(op_r));
 
 %% Calculate the downwind step
-% Windspeed at every OP (also needed for turbine windspeed)
-op_u = (1-op_r).*r_f.*op_U;
+% Windspeed at every OP WITHOUT own wake (needed for turbine windspeed)
+op_u = r_f.*op_U;
 
-dw_step = op_u*timeStep;
+% Calculate downwind step and add it to the real world coordinates and
+% downwind position
+dw_step = (1-op_r).*op_u*timeStep;
 op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
 op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
 %% Calculate the new crosswind position
+% Get new wake widths
 [sig_y, sig_z, ~, ~, ~, ~, ~] = getBastankhahVars(...
     op_dw, op_ayaw, op_I, op_D);
+
+% Apply ratio to get crosswind position
 cw_y_new = width_factor*sig_y .* cl_dstr(op_c,1);
 
+% Calculate the crosswind delta
 delta_cw_y = cw_y_new-cw_y;
 
+% Get wind angle 
 ang = atan2(op_U(:,2),op_U(:,1));
 
+% Apply y-crosswind step relative to the wind angle
 op_pos(:,1) = op_pos(:,1) - sin(ang).*delta_cw_y;
 op_pos(:,2) = op_pos(:,2) + cos(ang).*delta_cw_y;
 
 if size(op_pos,2)==3
+    % Apply z-crosswind step
     cw_z_new = width_factor*sig_z .* cl_dstr(op_c,2);
     delta_cw_z = cw_z_new-cw_z;
     op_pos(:,3) = op_pos(:,3) + delta_cw_z;
 end
+
 %% Extract the windspeed at the rotorplane
 % op_u has all speeds of the OPs, the speed of the first ones of the chains
 % need to be weighted summed by the area they represent.

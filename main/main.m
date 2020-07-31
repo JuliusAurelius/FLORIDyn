@@ -19,6 +19,7 @@ SimDuration     = 400; % in s
 
 Dim = 2;
 
+onlineVis = true;
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
@@ -31,15 +32,19 @@ U_sig = genU_sig(NoTimeSteps);
 
 %% Create starting OPs and build opList
 [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] =...
-    assembleOPList(NumChains,chainLength,tl_D,'sunflower',Dim);
+    assembleOPList(NumChains,chainLength,tl_D,tl_pos,'sunflower',Dim);
 
 %% Start simulation
 % Online visulization script (1/4)
-%OnlineVis_Start;
+if onlineVis
+    OnlineVis_Start;
+end
 
 for i = 1:NoTimeSteps
     % Online visulization script (2/4)
-    %OnlineVis_deletePoints;
+    if onlineVis
+    	OnlineVis_deletePoints;
+    end
     
     % Update Turbine data to get controller input
     tl_U    = getWindVec(tl_pos,i,U_sig);
@@ -67,11 +72,15 @@ for i = 1:NoTimeSteps
     chainList = shiftChainList(chainList);
     
     % Online visulization script (3/4)
-    %OnlineVis_plot;
+    if onlineVis
+        OnlineVis_plot;
+    end
 end
-% Online visulization script (4/4)
-%hold off
 
+% Online visulization script (4/4)
+if onlineVis
+    hold off
+end
 %% PLOT
 %PostSimVis;
 end
