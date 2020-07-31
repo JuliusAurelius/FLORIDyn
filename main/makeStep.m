@@ -39,12 +39,15 @@ op_r = zeros(length(op_dw),1);
 op_I = ones(size(op_r))*1;               % NEEDS TO BE IMPLEMENTED AS STATE
 op_D = tl_D(op_t_id);
 
+% Get variables from the Bastankhah model
 [sig_y, sig_z, C_T, Theta, k_y, k_z, x_0] = getBastankhahVars(...
     op_dw, op_ayaw, op_I, op_D);
 
+% For better readability (lol)
 yaw = op_ayaw(:,2);
 
-delta = Theta.*x_0./op_D+...            %[1] Eq. 7.4
+%[1] Eq. 7.4
+delta = Theta.*x_0./op_D+...            
     Theta/14.7.*sqrt(cos(yaw)./(k_y.*k_z.*C_T)).*...
     (2.9+1.3*sqrt(1-C_T)-C_T).*log(...
     ((1.6+sqrt(C_T)).*...
@@ -56,7 +59,7 @@ delta = delta.*op_D;
 %% Calculate the crosswind position
 op_c = getChainIDforOP(chainList);
 threeDim = 1;
-width_factor = 6;
+width_factor = 1;
 if size(op_pos,2)==2
     threeDim = 0;
 end
