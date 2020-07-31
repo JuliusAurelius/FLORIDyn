@@ -11,8 +11,14 @@ function tl_ayaw = controller(tl_pos,tl_D,tl_ayaw,tl_U)
 % OUTPUT
 %   tl_ayaw     := [n x 2] vec; new axial induction factor and yaw (world coord.)
 
+persistent k
+if isempty(k)
+    k = 0;
+else
+    k = k+1;
+end
 
 % Current implementation follows the wind angle and sets a to 0.3
-yaw = atan2(tl_U(:,2),tl_U(:,1));
+yaw = atan2(tl_U(:,2),tl_U(:,1))+sin(k/(2*pi)*1)*30/180*pi;
 tl_ayaw = [ones(size(tl_D))*0.3, yaw]; % TODO Placeholder
 end

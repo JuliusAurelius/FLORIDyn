@@ -1,4 +1,4 @@
-function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = assembleOPList(NumChains,chainLength,tl_D,distr_method,Dim)
+function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = assembleOPList(NumChains,chainLength,tl_D,tl_pos,distr_method,Dim)
 % assembleOPList creates a list of OPs with entries for the starting points 
 % and the rest being 0
 % 
@@ -9,7 +9,8 @@ function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = ass
 %   chainLength := [n x 1] vec; Individual length of each chain of each T
 %
 % Turbine Data
-%   tl_D        := [n x 1] vec; Turbine diameter
+%   tl_pos      := [m x 3] vec; [x,y,z] world coord. (can be mx2)
+%   tl_D        := [m x 1] vec; Turbine diameter
 %
 % distr_method  := String; Name of the strategy to distribute points across
 %                   the wake cross section
@@ -60,7 +61,10 @@ op_dw   = zeros(len_OPs,1);
 op_r    = zeros(len_OPs,2);
 op_U    = zeros(len_OPs,2);
 op_ayaw = zeros(len_OPs,2);
+op_ayaw(:,1) = 0.33;        %Otherwise the first points are init. wrong
 op_t_id = assignTIDs(chainList,len_OPs);
+
+op_pos(:,1:2) = tl_pos(op_t_id,1:2);
 
 cl_dstr = zeros(NumChainsTot,Dim-1);
 switch distr_method
