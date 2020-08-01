@@ -19,6 +19,6 @@ else
 end
 
 % Current implementation follows the wind angle and sets a to 0.3
-yaw = atan2(tl_U(:,2),tl_U(:,1))+sin(k/(2*pi)*1)*30/180*pi;
+yaw = atan2(tl_U(:,2),tl_U(:,1))+sin(k*1/(2*pi)*1)*30/180*pi;
 tl_ayaw = [ones(size(tl_D))*0.3, yaw]; % TODO Placeholder
 end

@@ -1,19 +1,29 @@
-function U_sig = genU_sig(len)
+function [U_x,U_y,pos] = genU_sig(len)
 
-U_sig = zeros(len,2);
-U_sig(:,1) = 13;
 
-off = 00;
-ang = 90;
-dur = 1;
-delta_phi = linspace(0,ang/180*pi,dur);
+U_free = 13;
+% In Deg
+phi = [110,110,60,65];
+pos = [...
+    -100,100;...
+    1000,100;...
+    -100,2000;...
+    1000,2000];
+
+numSensors = size(pos,1);
+
+
+
+phi = phi./180*pi;
+U_x = ones(len,numSensors).*U_free;
+U_y = zeros(len,numSensors);
 
 R =@(p) [cos(p), -sin(p);sin(p),cos(p)];
 
-for i = 1:length(delta_phi)
-    U_sig(off+i,:) = (R(delta_phi(i))*U_sig(off+i,:)')';
+for i = 1:numSensors
+    tmpU = R(phi(i))*[U_x(:,i),U_y(:,i)]';
+    U_x(:,i) = tmpU(1,:)';
+    U_y(:,i) = tmpU(2,:)';
 end
-U_sig(off+length(delta_phi):end,1)=U_sig(off+length(delta_phi),1);
-U_sig(off+length(delta_phi):end,2)=U_sig(off+length(delta_phi),2);
 end
 

@@ -15,11 +15,11 @@ NumTurbines     = 1;
 chainLength = 60;   
 
 timeStep        = 4;   % in s
-SimDuration     = 1000; % in s
+SimDuration     = 4000; % in s
 
 Dim = 2;
 
-onlineVis = true;
+onlineVis = false;
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
@@ -31,12 +31,13 @@ NoTimeSteps = length(timeSteps);
 [U_x,U_y,pos] = genU_sig(NoTimeSteps);
 
 % number of x and y points / resolution
-ufx_n = 10;
-ufy_n = 30;
-uf_n = [ufx_n,ufy_n];
+ufx_n = 60;
+ufy_n = 200;
+uf_n = [n_ufx,ufy_n];
 uf_lims = ...
     [max(pos(:,1))-min(pos(:,1)),max(pos(:,2))-min(pos(:,2));...
-    min(pos(:,1)),min(pos(:,2))];
+    ];
+
 
 [ufieldx,ufieldy] = meshgrid(...
     linspace(min(pos(:,1)),max(pos(:,1)),ufx_n),...
@@ -61,7 +62,8 @@ for i = 1:NoTimeSteps
     end
     
     % Update Turbine data to get controller input
-    tl_U = getWindVec2(tl_pos,IR, U_x(i,:), U_y(i,:), uf_n, uf_lims);
+    tl_U    = getWindVec(tl_pos,i,U_sig);
+    U = getWindVec2(pos,IR, U_meas_x, U_meas_y, uf_n, uf_lims);
     %====================== CONTROLLER ===================================%
     tl_ayaw = controller(tl_pos,tl_D,tl_ayaw,tl_U);
     %=====================================================================%
@@ -74,7 +76,7 @@ for i = 1:NoTimeSteps
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
-    op_U = getWindVec2(op_pos,IR, U_x(i,:), U_y(i,:), uf_n, uf_lims);
+    op_U    = getWindVec(op_pos,i,U_sig);
     
     % Calculate the down and crosswind steps along with the windspeed at
     % the turbine rotor planes

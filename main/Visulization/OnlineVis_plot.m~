@@ -9,5 +9,6 @@ else
         ones(size(op_t_id(:)))*10,sqrt(sum(op_u.^2,2)),...
         'filled');
 end
-
-pause(0.1)
+U = getWindVec2([ufieldx(:),ufieldy(:)],IR, U_meas_x, U_meas_y, n_uf, lims)
+q = quiver(ufieldx(:),ufieldy(:),
+pause(0.025)

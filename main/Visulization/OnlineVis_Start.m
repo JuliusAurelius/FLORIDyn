@@ -2,10 +2,15 @@
 % Step (1/3)
 
 figure(1)
+pos = [...
+    -100,100;...
+    1000,100;...
+    -100,2000;...
+    1000,2000];
 if Dim == 2
-    scatter([0,1000,0],[0,2000,2000],50,[1,0,0;1,0,0;1,0,0],'filled')
+    scatter(pos(:,1),pos(:,2),50,[1,0,0;1,0,0;1,0,0;1,0,0],'filled')
 else
-    scatter3([0,1000,0],[0,2000,2000],[300,300,300],50,[1,0,0;1,0,0;1,0,0],'filled')
+    scatter3(pos(:,1),pos(:,2),[300,300,300],50,[1,0,0;1,0,0;1,0,0;1,0,0],'filled')
 end
 hold on
 axis equal
@@ -21,3 +26,7 @@ if Dim == 3
     zlim([-300,500]);
 end
 grid on
+clear pos
+
+Uq = getWindVec2([ufieldx(:),ufieldy(:)],IR,U_x(1,:),U_y(1,:),uf_n,uf_lims);
+q = quiver(ufieldx(:),ufieldy(:),Uq(:,1),Uq(:,2));
