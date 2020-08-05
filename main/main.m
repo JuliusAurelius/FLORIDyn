@@ -15,7 +15,7 @@ NumTurbines     = 1;
 chainLength = 60;   
 
 timeStep        = 4;   % in s
-SimDuration     = 1000; % in s
+SimDuration     = 300; % in s
 
 Dim = 2;
 
@@ -31,8 +31,8 @@ NoTimeSteps = length(timeSteps);
 [U_x,U_y,pos] = genU_sig(NoTimeSteps);
 
 % number of x and y points / resolution
-ufx_n = 10;
-ufy_n = 30;
+ufx_n = 30;
+ufy_n = 20;
 uf_n = [ufx_n,ufy_n];
 uf_lims = ...
     [max(pos(:,1))-min(pos(:,1)),max(pos(:,2))-min(pos(:,2));...
@@ -42,7 +42,7 @@ uf_lims = ...
     linspace(min(pos(:,1)),max(pos(:,1)),ufx_n),...
     linspace(min(pos(:,2)),max(pos(:,2)),ufy_n));
 
-IR = createIRMatrix(pos,[ufieldx(:),ufieldy(:)],'linear');
+IR = createIRMatrix(pos,[ufieldx(:),ufieldy(:)],'natural');
 
 %% Create starting OPs and build opList
 [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] =...
@@ -62,14 +62,15 @@ for i = 1:NoTimeSteps
     
     % Update Turbine data to get controller input
     tl_U = getWindVec2(tl_pos,IR, U_x(i,:), U_y(i,:), uf_n, uf_lims);
+    
     %====================== CONTROLLER ===================================%
     tl_ayaw = controller(tl_pos,tl_D,tl_ayaw,tl_U);
     %=====================================================================%
     
     % Insert new points
-    [op_pos, op_dw, op_r, op_ayaw] = ...
+    [op_pos, op_dw, op_ayaw] = ...
         initAtRotorPlane(...
-        op_pos, op_dw, op_ayaw, op_r, op_t_id, chainList,...
+        op_pos, op_dw, op_ayaw, op_t_id, chainList,...
         cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U);
     
     % _____________________ Increment ____________________________________%

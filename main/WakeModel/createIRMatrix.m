@@ -14,6 +14,7 @@ function [IR, n_uf] = createIRMatrix(meas_xy,goal_xy,interpMethod,extrapMethod)
 switch nargin
     case 2
         interpMethod = 'linear';
+        extrapMethod = 'linear';
     case 3
         extrapMethod = 'linear';
 end

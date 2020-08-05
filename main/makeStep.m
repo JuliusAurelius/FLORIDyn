@@ -67,7 +67,7 @@ width_factor = 6;
 if size(op_pos,2)==2
     threeDim = 0;
 end
-cw_y = width_factor*sig_y .* cl_dstr(op_c,1);
+cw_y = width_factor*sig_y .* cl_dstr(op_c,1)+delta;
 if threeDim ==1
     cw_z = width_factor*sig_z .* cl_dstr(op_c,2);
 else
@@ -100,11 +100,21 @@ op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
 op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
 %% Calculate the new crosswind position
 % Get new wake widths
-[sig_y, sig_z, ~, ~, ~, ~, ~] = getBastankhahVars(...
+[sig_y, sig_z, C_T, Theta, k_y, k_z, x_0] = getBastankhahVars(...
     op_dw, op_ayaw, op_I, op_D);
 
+delta = Theta.*x_0./op_D+...            
+    Theta/14.7.*sqrt(cos(yaw)./(k_y.*k_z.*C_T)).*...
+    (2.9+1.3*sqrt(1-C_T)-C_T).*log(...
+    ((1.6+sqrt(C_T)).*...
+    (1.6*sqrt((8*sig_y.*sig_z)./(op_D.^2.*cos(yaw))))-sqrt(C_T))./...
+    ((1.6-sqrt(C_T)).*...
+    (1.6*sqrt((8*sig_y.*sig_z)./(op_D.^2.*cos(yaw))))+sqrt(C_T))...
+    );
+delta = delta.*op_D;
+
 % Apply ratio to get crosswind position
-cw_y_new = width_factor*sig_y .* cl_dstr(op_c,1);
+cw_y_new = width_factor*sig_y .* cl_dstr(op_c,1) + delta;
 
 % Calculate the crosswind delta
 delta_cw_y = cw_y_new-cw_y;
