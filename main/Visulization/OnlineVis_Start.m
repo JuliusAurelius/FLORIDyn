@@ -28,5 +28,5 @@ end
 grid on
 clear pos
 
-Uq = getWindVec2([ufieldx(:),ufieldy(:)],IR,U_x(1,:),U_y(1,:),uf_n,uf_lims);
+Uq = getWindVec3([ufieldx(:),ufieldy(:)],IR, U_abs(1,:), U_ang(1,:), uf_n, uf_lims);
 q = quiver(ufieldx(:),ufieldy(:),Uq(:,1),Uq(:,2));

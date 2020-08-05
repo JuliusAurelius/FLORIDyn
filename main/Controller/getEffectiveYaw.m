@@ -17,7 +17,6 @@ function yaw_t = getEffectiveYaw(t_orientation, U)
 % get effective angle
 ang_wind = atan2(U(:,2),U(:,1));
 yaw_t = mod((ang_wind-t_orientation) + pi/2,pi)-pi/2;
-
 % Eq. based on
 % https://stackoverflow.com/questions/1878907/the-smallest-difference-between-2-angles
 end

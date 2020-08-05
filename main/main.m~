@@ -62,7 +62,10 @@ for i = 1:NoTimeSteps
     end
     
     % Update Turbine data to get controller input
-    tl_U = getWindVec3(tl_pos, IR, U_abs(i,:), U_ang(i,:), uf_n, uf_lims);
+    tl_U = getWindVec3(tl_pos,IR,...
+        sqrt(U_x(i,:).^2 + U_y(i,:).^2),...
+        atan2(U_y(i,:),U_x(i,:)),...
+        uf_n, uf_lims);
     
     %====================== CONTROLLER ===================================%
     tl_ayaw = controller(tl_pos,tl_D,tl_ayaw,tl_U);
@@ -76,7 +79,10 @@ for i = 1:NoTimeSteps
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed
-    op_U = getWindVec3(op_pos, IR, U_abs(i,:), U_ang(i,:), uf_n, uf_lims);
+    op_U = getWindVec3(op_pos,IR,...
+        sqrt(U_x(i,:).^2 + U_y(i,:).^2),...
+        atan2(U_y(i,:),U_x(i,:)),...
+        uf_n, uf_lims);
     
     
     
