@@ -19,16 +19,15 @@ function [op_pos, op_dw, op_ayaw] = initAtRotorPlane(op_pos, op_dw, op_ayaw, op_
 %   tl_ayaw     := [n x 2] vec; axial induction factor and yaw (world coord.)
 %   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)
 %
-% Method        := string; selects the distribution method SHOULD NOT BE INPUT!!! MOVE TO assembleOPList.m
+% wf            := float >0;    width factor, multiplied with the
+%                               wake width.
 %
 % OUTPUT
 % OP Data
 %   op_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
 %   op_dw       := [n x 1] vec; downwind position
-%
-% Chain Data
-%   cl_dstr     := [n x 1] vec; Distribution relative to the wake width SHOULD NOT BE OUTPUT!!! MOVE TO assembleOPList.m 
-%   
+%   op_ayaw     := [n x 2] vec; axial induction factor and yaw (wake coord.)
+
 
 %%
 
@@ -54,18 +53,18 @@ op_dw(ind) = 0;
 % -> plane is always perpenducular to the wind dir, yaw is only
 % used for the model
 ang_U = atan2(tl_U(:,2),tl_U(:,1));
-% x_w = D*(-sin(phi))*distribution_cw_y + t_x_w
+% x_w = D*(-sin(phi))*distribution_cw_y*wf + t_x_w
 op_pos(ind,1) = ...
     -tl_D(op_t_id(ind)).*sin(ang_U(op_t_id(ind))).*cl_dstr(:,1) +...
     tl_pos(op_t_id(ind),1);
 
-% y_w = D*(cos(phi))*distribution_cw_y + t_x_w
+% y_w = D*(cos(phi))*distribution_cw_y*wf + t_x_w
 op_pos(ind,2) = ...
     tl_D(op_t_id(ind)).*cos(ang_U(op_t_id(ind))).*cl_dstr(:,1) +...
     tl_pos(op_t_id(ind),2);
 
 if Dim == 3
-    % z_w = D*distribution_cw_z + t_z
+    % z_w = D*distribution_cw_z*wf + t_z
     op_pos(ind,3) = tl_D(op_t_id(ind)).*cl_dstr(:,2) +...
         tl_pos(op_t_id(ind),3);
 end

@@ -7,7 +7,7 @@ addpath('./WakeModel')
 addpath('./Visulization')
 
 %% Test Variables
-NumChains       = 150;
+NumChains       = 160;
 NumTurbines     = 1;
 
 % Uniform chain length or individual chainlength
@@ -17,7 +17,7 @@ chainLength = 60;
 timeStep        = 4;   % in s
 SimDuration     = 300; % in s
 
-Dim = 2;
+Dim = 3;
 
 onlineVis = true;
 %% Derived Variables
@@ -125,13 +125,12 @@ end
 
 %% TICKETS
 % [x] Get rid of temporary fix of the wake expansion
-% [ ] Delete op_r in main (should only exist in makeStep)
+% [x] Delete op_r in main (should only exist in makeStep)
 % [~] Implement Bastankhah
-% [ ] Implement a wind grid for nearest neighbour interpolation
-%       [ ] Test if own interpolation (coord. -> index) is faster
+% [x] Implement a wind grid for nearest neighbour interpolation
+%       [x] Test if own interpolation (coord. -> index) is faster
 % [ ] Implement wake interaction
 % [ ] Disable r_T
 % [ ] Calculate Power Output
-% [ ] See if it can be formulated as observer or similar
-% [ ] Get one version of r_f working
+% [x] See if it can be formulated as observer or similar
 % [ ] Calc / Set Chainlength (?)

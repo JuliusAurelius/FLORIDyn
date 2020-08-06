@@ -11,9 +11,9 @@ function [U_abs,U_ang,pos] = genU_sig2(len)
 % pos   := [m x 2] vec; m (x,y) positions of the measurements
 %
 
-U_free = 13;
+U_free = 8;
 % In Deg
-phi = [110,105,85,105];
+phi = [110,105,90,90];
 pos = [...
     -100,100;...
     1000,100;...

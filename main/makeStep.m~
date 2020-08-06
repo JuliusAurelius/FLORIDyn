@@ -99,8 +99,18 @@ end
 % Potential core border
 phi_pc = atan2(cw_z(nw),cw_y(nw));
 r_pc = sqrt(...
-    (cos(phi_pc).*op_D(nw)/2).^2 + ...
-    (sin(phi_pc).*op_D(nw)/2).^2) .* (1-op_dw(nw)./x_0(nw));
+    (cos(phi_pc).*nw_width_y/2).^2 + ...
+    (sin(phi_pc).*nw_width_z/2).^2) .* (1-op_dw(nw)./x_0(nw));
+
+p = false;
+if p
+    figure();
+    scatter(op_dw(nw),cw_y(nw));
+    hold on
+    plot(op_dw(nw),r_pc)
+    plot(op_dw(nw),-r_pc)
+    plot(op_dw(nw),nw_width_y/2)
+end
 % within potential core with wake center line offset
 nw_c = or(sqrt((cw_y(nw)-delta(nw)).^2 + cw_z(nw).^2) < r_pc,op_dw(nw)==0); 
 %   stretch to fit whole array and not just selection
@@ -109,24 +119,6 @@ nw_c_tall(nw) = nw_c;
 
 %   Not in the core
 nw_nc = and(nw,~nw_c_tall);
-
-% ==================== DEBUGGING PLOTTING =============================== %
-p = false;
-if p
-    figure();
-    scatter(op_dw(nw),cw_y(nw)-delta(nw_c_tall));
-    hold on
-    plot(op_dw(nw),r_pc)
-    plot(op_dw(nw),-r_pc)
-    plot(op_dw(nw),nw_width_y/2)
-    plot(op_dw(nw),-nw_width_y/2)
-    scatter(op_dw(nw_c_tall),cw_y(nw_c_tall)-delta(nw_c_tall),'filled')
-    title('Near field Bastankhah')
-    xlabel('Downwind')
-    ylabel('Crosswind')
-end
-% ======================================================================= %
-
 
 % width of the transition zone
 %   Change here from the paper:
@@ -145,8 +137,9 @@ op_r(nw_c_tall) = sqrt(1-C_T(nw_c_tall));
 % Outside of the core with recovering speed and wake center line offset
 op_r(nw_nc) = sqrt(1-C_T(nw_nc)).*...
     exp(-(...
-    sqrt((cw_y(nw_nc)-delta(nw_nc)).^2 + cw_z(nw_nc).^2)...
+    sqrt(cw_z(nw_nc).^2 + (cw_y(nw_nc)-delta(nw_nc)).^2)...
     -r_pc(~nw_c)).^2./(2*s.^2));
+
 %% Get the foreign influence
 %TODO
 r_f = ones(size(op_r));

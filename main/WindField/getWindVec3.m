@@ -48,7 +48,7 @@ Ang_interp = reshape(IR*tmp_ang',[nx,ny]);
 %   Add offset again and match to range [0,2pi]
 Ang_interp = mod(U_meas_ang(1)+Ang_interp,2*pi);
 
-% Polar coordinates to cartesian coordinates
+% Polar coordinates to cartesian coordinatess
 U(:,1) = cos(Ang_interp(i)).*Abs_interp(i);
 U(:,2) = sin(Ang_interp(i)).*Abs_interp(i);
 end
