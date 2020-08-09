@@ -7,17 +7,17 @@ addpath('./WakeModel')
 addpath('./Visulization')
 
 %% Test Variables
-NumChains       = 160;
+NumChains       = 100;
 NumTurbines     = 1;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = 60;   
+chainLength = 100;   
 
 timeStep        = 4;   % in s
 SimDuration     = 300; % in s
 
-Dim = 3;
+Dim = 2;
 
 onlineVis = true;
 %% Derived Variables

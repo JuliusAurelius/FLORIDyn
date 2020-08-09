@@ -6,14 +6,15 @@ function [U_abs,U_ang,pos] = genU_sig2(len)
 % len   := int; Number of time steps
 %
 % OUTPUT
-% U_x   := [n x m] vec; n Measurements at m places of the x wind velocity 
-% U_y   := [n x m] vec; n Measurements at m places of the y wind velocity 
+% U_abs := [n x m] vec; n Measurements at m places of the wind velocity 
+% U_ang := [n x m] vec; n Measurements at m places of the wind angle 
 % pos   := [m x 2] vec; m (x,y) positions of the measurements
 %
 
 U_free = 8;
 % In Deg
-phi = [110,105,90,90];
+%phi = [90,95,110,105];
+phi = [90,90,90,90];
 pos = [...
     -100,100;...
     1000,100;...
@@ -26,6 +27,7 @@ phi = phi./180*pi;
 
 % Save absolute values and angle
 U_abs = ones(len,numSensors).*U_free;
+%U_abs(:,1:2:3) = U_abs(:,1:2:3).*1.5;
 U_ang = repmat(phi,len,1);
 
 end
