@@ -7,8 +7,8 @@ addpath('./WakeModel')
 addpath('./Visulization')
 
 %% Test Variables
-NumChains       = 100;
-NumTurbines     = 1;
+NumChains       = 20;
+NumTurbines     = 2;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
@@ -58,7 +58,7 @@ end
 for i = 1:NoTimeSteps
     % Online visulization script (2/4)
     if onlineVis
-    	OnlineVis_deletePoints;
+    	%OnlineVis_deletePoints;
     end
     
     % Update Turbine data to get controller input
@@ -91,6 +91,7 @@ for i = 1:NoTimeSteps
     
     % Online visulization script (3/4)
     if onlineVis
+        OnlineVis_deletePoints;
         OnlineVis_plot;
     end
 end
