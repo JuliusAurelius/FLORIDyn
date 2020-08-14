@@ -76,7 +76,9 @@ nw = (op_dw-x_0)<0;
 fw = ~nw;
 % far wake
 %[1] Eq. 7.1
-op_r(fw) = (1-sqrt(1-C_T(fw).*cos(yaw(fw))./(8*(sig_y(fw).*sig_z(fw)./op_D(fw).^2)))).*...
+op_r(fw) = ...
+    (1-sqrt(...
+    1-C_T(fw).*cos(yaw(fw))./(8*(sig_y(fw).*sig_z(fw)./op_D(fw).^2)))).*...
     exp(-0.5*((cw_y(fw)-delta(fw))./sig_y(fw)).^2).*...
     exp(-0.5*((cw_z(fw))./sig_z(fw)).^2);
 
@@ -140,10 +142,13 @@ s = sqrt(...
 % calculate their reduction with [1] Eq.6.13, which divides by s -> NaN
 
 %[1] Eq. 6.13 sqrt(1-C_T) = 1-C_0
+%   Altered the equation to work like [1] Eq. 7.1 and give the ratio to the
+%   speed drop, rater than the ratio to the effective wind speed
 % Core with constant speed
-op_r(nw_c_tall) = sqrt(1-C_T(nw_c_tall));
+op_r(nw_c_tall) = 1-sqrt(1-C_T(nw_c_tall));
 % Outside of the core with recovering speed and wake center line offset
-op_r(nw_nc) = sqrt(1-C_T(nw_nc)).*...
+C_0 = 1-sqrt(1-C_T(nw_nc));
+op_r(nw_nc) = C_0.*...
     exp(-(...
     sqrt((cw_y(nw_nc)-delta(nw_nc)).^2 + cw_z(nw_nc).^2)...
     -r_pc(~nw_c)).^2./(2*s.^2));
@@ -156,9 +161,6 @@ for t = 1:length(tl_D)
     % influenced
     t_points = op_t_id == t;
     
-    warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
-    warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
-    
     F = scatteredInterpolant(...
         op_pos(t_points,1),...
         op_pos(t_points,2),...
@@ -170,12 +172,15 @@ for t = 1:length(tl_D)
     end
     r_f_tmp(isnan(r_f_tmp)) = 0;
     r_f(~t_points) = r_f(~t_points).*(1-r_f_tmp);
-    
-%     scatter3(op_pos(~t_points,1),op_pos(~t_points,2),r_f_tmp)
-%     ind = chainList((chainList(:,4)==1),1) + chainList((chainList(:,4)==1),2);
-%     plot(op_pos(ind,1),op_pos(ind,2))
-end
 
+    % Debug testing
+%     figure
+%     scatter3(op_pos(~t_points,1),op_pos(~t_points,2),r_f_tmp,40,r_f_tmp,'filled')
+%     hold on
+%     ind = chainList((chainList(:,4)==1),1) + chainList((chainList(:,4)==1),2);
+%     plot(op_pos(ind,1),op_pos(ind,2),'k','LineWidth',2)
+%     grid on
+end
 
 %% Calculate the downwind step
 % Windspeed at every OP WITHOUT own wake (needed for turbine windspeed)

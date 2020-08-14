@@ -6,6 +6,9 @@ addpath('./ObservationPoints')
 addpath('./WakeModel')
 addpath('./Visulization')
 
+warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
+warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
+
 %% Test Variables
 NumChains       = 20;
 NumTurbines     = 2;
@@ -50,16 +53,12 @@ IR = createIRMatrix(pos,[ufieldx(:),ufieldy(:)],'natural');
     assembleOPList(NumChains,chainLength,tl_D,tl_pos,'sunflower',Dim);
 
 %% Start simulation
-% Online visulization script (1/4)
+% Online visulization script (1/3)
 if onlineVis
     OnlineVis_Start;
 end
 
 for i = 1:NoTimeSteps
-    % Online visulization script (2/4)
-    if onlineVis
-    	%OnlineVis_deletePoints;
-    end
     
     % Update Turbine data to get controller input
     tl_U = getWindVec3(tl_pos, IR, U_abs(i,:), U_ang(i,:), uf_n, uf_lims);
@@ -78,8 +77,6 @@ for i = 1:NoTimeSteps
     % Update wind dir and speed
     op_U = getWindVec3(op_pos, IR, U_abs(i,:), U_ang(i,:), uf_n, uf_lims);
     
-    
-    
     % Calculate the down and crosswind steps along with the windspeed at
     % the turbine rotor planes
     [op_pos, op_dw, op_u, u_t]=makeStep(...
@@ -89,14 +86,14 @@ for i = 1:NoTimeSteps
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     
-    % Online visulization script (3/4)
+    % Online visulization script (2/3)
     if onlineVis
         OnlineVis_deletePoints;
         OnlineVis_plot;
     end
 end
 
-% Online visulization script (4/4)
+% Online visulization script (1/3)
 if onlineVis
     hold off
 end
