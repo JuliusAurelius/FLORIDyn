@@ -30,3 +30,6 @@ if Dim == 3
 end
 grid on
 clear pos
+
+Uq = getWindVec3([ufieldx(:),ufieldy(:)],IR, U_abs(1,:), U_ang(1,:), uf_n, uf_lims);
+q = quiver(ufieldx(:),ufieldy(:),Uq(:,1),Uq(:,2));

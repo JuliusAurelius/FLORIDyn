@@ -18,7 +18,7 @@ NumTurbines     = 2;
 chainLength = 100;   
 
 timeStep        = 4;   % in s
-SimDuration     = 300; % in s
+SimDuration     = 600; % in s
 
 Dim = 2;
 
