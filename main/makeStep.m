@@ -233,4 +233,5 @@ u_t = ones(size(tl_D));
 
 %% Apply own reduction to speed vector
 op_u = op_u.*(1-op_r);
+
 end

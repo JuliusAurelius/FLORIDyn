@@ -11,14 +11,14 @@ warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 
 %% Test Variables
 NumChains       = 20;
-NumTurbines     = 2;
+NumTurbines     = 3;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
 chainLength = 100;   
 
 timeStep        = 4;   % in s
-SimDuration     = 600; % in s
+SimDuration     = 1000; % in s
 
 Dim = 2;
 
@@ -88,7 +88,7 @@ for i = 1:NoTimeSteps
     
     % Online visulization script (2/3)
     if onlineVis
-        OnlineVis_deletePoints;
+        %OnlineVis_deletePoints;
         OnlineVis_plot;
     end
 end
@@ -98,7 +98,7 @@ if onlineVis
     hold off
 end
 %% PLOT
-%PostSimVis;
+PostSimVis;
 end
 
 %% Variables

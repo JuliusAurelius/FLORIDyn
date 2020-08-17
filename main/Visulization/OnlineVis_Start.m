@@ -1,8 +1,12 @@
 % Start Online visulization
 % Step (1/3)
 
-fieldLimits_x = [-300,2100];
-fieldLimits_y = [-100,2100];
+% Field Limits
+fLim_x = [-300,2100];
+fLim_y = [-100,2100];
+
+[u_grid_x,u_grid_y] = meshgrid(fLim_x(1):10:fLim_x(2),fLim_y(1):10:fLim_y(2));
+u_grid_z = zeros(size(u_grid_x));
 
 figure(1)
 pos = [...
@@ -22,8 +26,8 @@ c.Label.String ='Windspeed [m/s]';
 c.Limits = [0,10];
 xlabel('West-East [m]')
 ylabel('South-North [m]')
-xlim(fieldLimits_x);
-ylim(fieldLimits_y);
+xlim(fLim_x);
+ylim(fLim_y);
 if Dim == 3
     zlabel('Height [m]')
     zlim([-300,500]);
