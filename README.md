@@ -14,27 +14,22 @@ Additionally, the OPs interact with each other, so wakes influencing each other 
 This implementation extends the basic concept and implements changing wind speeds and directions. It also aims to be modular in order for users to add, modify and extend the code. It is meant to bridge the gap between computationally cheap but non-dynamic models and computationally expensive CFD simulations.
 
 ### Current state
-The code can simulate multiple wakes (tested with up to 6), heterogeneous wind conditions (direction and speed), uniform or varying chain lengths and numbers per turbine. The code is able to run 2D as well as 3D simulations. The implemented wake model is based on *Experimental and theoretical study of wind turbine wakes in yawed conditions* by *M. Bastankhah and F. Porté-Agel* (2016). The equations for the ambient turbulence intensity are taken from *Design and analysis of a spatially heterogeneous wake* by *A. Farrell, J. King et al.* (Wind Energy Science Discussions, 2020).
+The code can simulate multiple wakes (tested with up to 6), heterogeneous wind conditions (direction and speed), uniform or varying chain lengths and numbers per turbine. The code is able to run 2D as well as 3D simulations. The implemented wake model is based on *Experimental and theoretical study of wind turbine wakes in yawed conditions* by *M. Bastankhah and F. Porté-Agel* (2016). The equations for the ambient turbulence intensity are taken from *Design and analysis of a spatially heterogeneous wake* by *A. Farrell, J. King et al.* (Wind Energy Science Discussions, 2020). The wake interaction is currently based on a simple nearest neighbour interpolation since the differences between single points are assumed to be marginal in the closer neighbourhood.
 
 ### What is missing?
 * Validate the speed decrease in the wake, implement other forms and define an interface.
-* There is no wake interaction implemented yet.
 * No controller is implemented
 * No (proper) visualization is implemented
 
 This code is part of the master thesis of Marcus Becker.
 
-The first Proof-of-Concept shows multiple turbines, changing wind directions and speed, various chain lengths and the 3D representation of the field. Wake effects are not included yet, this is meant as a demonstration of the core code.
-![Proof of concept changing wind direction and speed](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/Proof_of_concept_WindDirSpe_change_05.png?raw=true)
+#### Alpha version of a contour plot
+Currently the Observation Points calculate their speed, update their position and are then plotted with the speed they had at their last location. As a result, there are points of high velocity in areas of low velocity. Since transforming the Observation Point data into a grid with which 'contour' can work is a computationally expensive task, the plot is only created at the end of the simulation.
+![Contour plot of three wind turbines](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/contour_interpolation_04.png)
 
-The second Proof-of-Concept shows one turbine with the Gebraad FLORIS Wake Model (2014). The code is not validated but the output shows a recovery process of the wake with clearly visible near field characteristics.
-![Proof of concept changing wind direction and speed](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/Proof_of_concept_Wake_02.png?raw=true)
-
-Here a plot of the 3D wake (on top) and the 2D wake (below) can be seen. Switching between the 2D/3D requires to change the flag `Dim = 2;` to `Dim = 3;` in main.m.
-![3D model next to a 2D model](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/2D_3D.png)
-
-This is a plot of the Bastankhah model implementation. Note that the near field characteristics are currently ignored and the speed is assumed to be constant. The wake shape starts at the end of the core, when self-simiarity is applicable. The snake shape is due to the controller swinging between yaw = -30° and +30° to visualize the dynamics.
-![First FLORIS (Bastankhah) implementation](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/bastankhah04.png)
+#### Observation Point plot of the Bastankhah model
+Now with added near-wake features the model is almost complete. Currently the ambient turbulence intesity is filled in by a dummy-constant which remains to be changed. But the near-far wake transition is smooth and it lines up with what is shown in the paper. This is the same setup as the one used for the contour plot which the flaw of the old wind speed at the new position. In the background four red points indicate the points of wind speed measurements, the grey arrows indicate the interpolated wind speed.
+![Bastankhah model with near wake characteristics](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/bastankhah11.png)
 
 ### .graphml files
 The .graphml files can be opened with the free software [yEd](https://www.yworks.com/products/yed#yed-support-resources) from yWorks. It is a graphing editor which can automatically layout graphs in various ways.
