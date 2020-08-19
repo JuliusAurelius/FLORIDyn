@@ -34,3 +34,4 @@ if Dim == 3
 end
 grid on
 clear pos
+rotors = cell(length(tl_D),1);

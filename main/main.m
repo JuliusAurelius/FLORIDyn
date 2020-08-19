@@ -79,6 +79,7 @@ for i = 1:NoTimeSteps
     
     % Calculate the down and crosswind steps along with the windspeed at
     % the turbine rotor planes
+    op_pos_old = op_pos;
     [op_pos, op_dw, op_u, u_t]=makeStep(...
         op_pos, op_dw, op_ayaw, op_t_id, op_U,...
         chainList, cl_dstr, tl_pos, tl_D, timeStep);
@@ -88,17 +89,13 @@ for i = 1:NoTimeSteps
     
     % Online visulization script (2/3)
     if onlineVis
-        %OnlineVis_deletePoints;
         OnlineVis_plot;
+        if i == NoTimeSteps
+            hold off
+            PostSimVis;
+        end
     end
 end
-
-% Online visulization script (1/3)
-if onlineVis
-    hold off
-end
-%% PLOT
-PostSimVis;
 end
 
 %% Variables
@@ -127,8 +124,8 @@ end
 % [~] Implement Bastankhah
 % [x] Implement a wind grid for nearest neighbour interpolation
 %       [x] Test if own interpolation (coord. -> index) is faster
-% [ ] Implement wake interaction
-% [ ] Disable r_T
+% [~] Implement wake interaction
+% [x] Disable r_T
 % [ ] Calculate Power Output
 % [x] See if it can be formulated as observer or similar
 % [ ] Calc / Set Chainlength (?)

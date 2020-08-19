@@ -24,7 +24,7 @@ q = quiver(ufieldx(:),ufieldy(:),Uq(:,1),Uq(:,2),'Color',[0.5,0.5,0.5]);
 for i_T = 1:length(tl_D)
     
     if i>1
-        delete(rotors{i_T});
+        delete(rotors{i_T})
     end
     % Get start and end of the turbine rotor
     rot_pos = ...
@@ -32,7 +32,7 @@ for i_T = 1:length(tl_D)
         sin(tl_ayaw(i_T,2)), cos(tl_ayaw(i_T,2))] * ...
         [0,0;tl_D(i_T)/2,-tl_D(i_T)/2];
     rot_pos = rot_pos + tl_pos(i_T,1:2)';
-    rotors{i_T} = plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
+    rotors{i_T} = plot(rot_pos(1,:),rot_pos(2,:),'k','LineWidth',20);
 end
 pause(0.1)
 
