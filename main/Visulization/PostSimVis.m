@@ -17,7 +17,7 @@ u_grid_z = reshape(u_grid_z_tmp,size(u_grid_z));
 
 %% Plot contour
 figure(2)
-contourf(u_grid_x,u_grid_y,u_grid_z);
+contourf(u_grid_x,u_grid_y,u_grid_z,30,'LineColor','none');
 hold on
 for i_T = 1:length(tl_D)
     % Get start and end of the turbine rotor
@@ -26,7 +26,7 @@ for i_T = 1:length(tl_D)
         sin(tl_ayaw(i_T,2)), cos(tl_ayaw(i_T,2))] * ...
         [0,0;tl_D(i_T)/2,-tl_D(i_T)/2];
     rot_pos = rot_pos + tl_pos(i_T,1:2)';
-    plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
+    plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',5);
 end
 title('Filled contour plot')
 axis equal
