@@ -24,8 +24,8 @@ The code can simulate multiple wakes (tested with up to 6), heterogeneous wind c
 This code is part of the master thesis of Marcus Becker.
 
 #### Alpha version of a contour plot
-Since transforming the Observation Point data into a grid with which 'contour' can work is a computationally expensive task, the plot is only created at the end of the simulation.
-![Contour plot of three wind turbines](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/contour_interpolation_05.png)
+Since transforming the Observation Point data into a grid with which 'contourf' can work is a computationally expensive task, the plot is only created at the end of the simulation. Shown here with 30 levels of speed.
+![Contour plot of three wind turbines](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/contour_interpolation_06.png)
 
 #### Observation Point plot of the Bastankhah model
 Now with added near-wake features the model is almost complete. Currently the ambient turbulence intesity is filled in by a dummy-constant which remains to be changed. But the near-far wake transition is smooth and it lines up with what is shown in the paper. This is the same setup as the one used for the contour plot. In the background four red points indicate the points of wind speed measurements, the grey arrows indicate the interpolated wind speed.
