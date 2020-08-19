@@ -24,12 +24,12 @@ The code can simulate multiple wakes (tested with up to 6), heterogeneous wind c
 This code is part of the master thesis of Marcus Becker.
 
 #### Alpha version of a contour plot
-Currently the Observation Points calculate their speed, update their position and are then plotted with the speed they had at their last location. As a result, there are points of high velocity in areas of low velocity. Since transforming the Observation Point data into a grid with which 'contour' can work is a computationally expensive task, the plot is only created at the end of the simulation.
-![Contour plot of three wind turbines](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/contour_interpolation_04.png)
+Since transforming the Observation Point data into a grid with which 'contour' can work is a computationally expensive task, the plot is only created at the end of the simulation.
+![Contour plot of three wind turbines](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/contour_interpolation_05.png)
 
 #### Observation Point plot of the Bastankhah model
-Now with added near-wake features the model is almost complete. Currently the ambient turbulence intesity is filled in by a dummy-constant which remains to be changed. But the near-far wake transition is smooth and it lines up with what is shown in the paper. This is the same setup as the one used for the contour plot which the flaw of the old wind speed at the new position. In the background four red points indicate the points of wind speed measurements, the grey arrows indicate the interpolated wind speed.
-![Bastankhah model with near wake characteristics](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/bastankhah11.png)
+Now with added near-wake features the model is almost complete. Currently the ambient turbulence intesity is filled in by a dummy-constant which remains to be changed. But the near-far wake transition is smooth and it lines up with what is shown in the paper. This is the same setup as the one used for the contour plot. In the background four red points indicate the points of wind speed measurements, the grey arrows indicate the interpolated wind speed.
+![Bastankhah model with near wake characteristics](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/bastankhah12.png)
 
 ### .graphml files
 The .graphml files can be opened with the free software [yEd](https://www.yworks.com/products/yed#yed-support-resources) from yWorks. It is a graphing editor which can automatically layout graphs in various ways.
