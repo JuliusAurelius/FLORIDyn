@@ -27,10 +27,6 @@ phi = phi./180*pi;
 
 % Save absolute values and angle
 U_abs = ones(len,numSensors).*U_free;
-% U_abs(:,1) = 1;
-% U_abs(:,2) = 2;
-% U_abs(:,3) = 3;
-% U_abs(:,4) = 4;
 U_ang = zeros(size(U_abs));
 u_change = linspace(90,82,3)';
 offset = 2;
