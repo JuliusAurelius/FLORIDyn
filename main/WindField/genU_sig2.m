@@ -14,7 +14,7 @@ function [U_abs,U_ang,pos] = genU_sig2(len)
 U_free = 13;
 % In Deg
 %phi = [90,95,110,105];
-phi = [90,90,90,90];
+phi = [90,100,90,90];
 pos = [...
     -100,100;...
     1000,100;...
@@ -27,6 +27,10 @@ phi = phi./180*pi;
 
 % Save absolute values and angle
 U_abs = ones(len,numSensors).*U_free;
+% U_abs(:,1) = 1;
+% U_abs(:,2) = 2;
+% U_abs(:,3) = 3;
+% U_abs(:,4) = 4;
 U_ang = zeros(size(U_abs));
 u_change = linspace(90,82,3)';
 offset = 2;
@@ -36,5 +40,5 @@ for i = 1:4
     U_ang(101+length(u_change)-1+i*offset:end,i)=u_change(end);
 end
 U_ang = U_ang./180.*pi;
-%U_ang = repmat(phi,len,1);
+U_ang = repmat(phi,len,1);
 end

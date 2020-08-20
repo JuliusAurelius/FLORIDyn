@@ -103,32 +103,16 @@ phi_pc = atan2(cw_z(nw),cw_y(nw));
 r_pc = sqrt(...
     (cos(phi_pc).*op_D(nw)/2).^2 + ...
     (sin(phi_pc).*op_D(nw)/2).^2) .* (1-op_dw(nw)./x_0(nw));
+
 % within potential core with wake center line offset
-nw_c = or(sqrt((cw_y(nw)-delta(nw)).^2 + cw_z(nw).^2) < r_pc,op_dw(nw)==0); 
+nw_c = or(sqrt((cw_y(nw)-delta(nw)).^2 + cw_z(nw).^2) < r_pc,op_dw(nw)==0);
+
 %   stretch to fit whole array and not just selection
 nw_c_tall = false(size(nw));
 nw_c_tall(nw) = nw_c;
 
 %   Not in the core
 nw_nc = and(nw,~nw_c_tall);
-
-% ==================== DEBUGGING PLOTTING =============================== %
-p = false;
-if p
-    figure();
-    scatter(op_dw(nw),cw_y(nw)-delta(nw_c_tall));
-    hold on
-    plot(op_dw(nw),r_pc)
-    plot(op_dw(nw),-r_pc)
-    plot(op_dw(nw),nw_width_y/2)
-    plot(op_dw(nw),-nw_width_y/2)
-    scatter(op_dw(nw_c_tall),cw_y(nw_c_tall)-delta(nw_c_tall),'filled')
-    title('Near field Bastankhah')
-    xlabel('Downwind')
-    ylabel('Crosswind')
-end
-% ======================================================================= %
-
 
 % width of the transition zone
 %   Change here from the paper:
@@ -146,12 +130,14 @@ s = sqrt(...
 %   speed drop, rater than the ratio to the effective wind speed
 % Core with constant speed
 op_r(nw_c_tall) = 1-sqrt(1-C_T(nw_c_tall));
+
 % Outside of the core with recovering speed and wake center line offset
 C_0 = 1-sqrt(1-C_T(nw_nc));
 op_r(nw_nc) = C_0.*...
     exp(-(...
     sqrt((cw_y(nw_nc)-delta(nw_nc)).^2 + cw_z(nw_nc).^2)...
     -r_pc(~nw_c)).^2./(2*s.^2));
+
 %% Get the foreign influence
 % Go through all turbines and use their points in scattered interpolant
 r_f = ones(size(op_r)); % == prod((1-r)(1-r)...)
@@ -172,14 +158,6 @@ for t = 1:length(tl_D)
     end
     r_f_tmp(isnan(r_f_tmp)) = 0;
     r_f(~t_points) = r_f(~t_points).*(1-r_f_tmp);
-
-    % Debug testing
-%     figure
-%     scatter3(op_pos(~t_points,1),op_pos(~t_points,2),r_f_tmp,40,r_f_tmp,'filled')
-%     hold on
-%     ind = chainList((chainList(:,4)==1),1) + chainList((chainList(:,4)==1),2);
-%     plot(op_pos(ind,1),op_pos(ind,2),'k','LineWidth',2)
-%     grid on
 end
 
 %% Calculate the downwind step

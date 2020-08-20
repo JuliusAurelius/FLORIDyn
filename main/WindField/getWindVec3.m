@@ -20,8 +20,9 @@ ny = n_uf(2);
 % that the position is automatically matched to an entry in the matrix.
 n_pos = pos(:,1:2)-lims(2,:);
 
+% This way the points actually get the windspeeds from the right source
 n_pos(:,1) = (1-n_pos(:,1)./lims(1,1));
-n_pos(:,2) = n_pos(:,2)./lims(1,2);
+n_pos(:,2) = (1-n_pos(:,2)./lims(1,2));
 
 % match outliers to closest edge
 n_pos(n_pos>1) = 1;
