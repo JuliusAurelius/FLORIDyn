@@ -35,3 +35,7 @@ c.Label.String ='Windspeed [m/s]';
 xlabel('West-East [m]')
 ylabel('South-North [m]')
 hold off
+
+%% CHANGES to Contour
+% Fill grid with turbine data one-by-one turbine -> avoid triangulation
+% effects with other turbines.

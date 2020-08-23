@@ -198,6 +198,7 @@ nw_width_z = (op_D(nw)+(6*sig_z0-op_D(nw)).*op_dw(nw)./x_0(nw));
 cw_y_new = 6*sig_y .* cl_dstr(op_c,1) + delta*1;
 cw_y_new(nw) = nw_width_y.*cl_dstr(op_c(nw),1) + delta(nw);
 
+
 % Calculate the crosswind delta
 delta_cw_y = cw_y_new-cw_y;
 
@@ -213,7 +214,7 @@ if size(op_pos,2)==3
     cw_z_new = 6*sig_z .* cl_dstr(op_c,2);
     cw_z_new(nw) = nw_width_z.*cl_dstr(op_c(nw),2);
     
-    % Get difference and apply directly to real world coordinates
+    % Get d
     delta_cw_z = cw_z_new-cw_z;
     op_pos(:,3) = op_pos(:,3) + delta_cw_z;
 end

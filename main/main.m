@@ -10,15 +10,15 @@ warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 
 %% Test Variables
-NumChains       = 6;
+NumChains       = 30;
 NumTurbines     = 3;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = 5;   
+chainLength = 100;   
 
 timeStep        = 4;   % in s
-SimDuration     = 1000; % in s
+SimDuration     = 1200; % in s
 
 Dim = 2;
 
@@ -53,7 +53,7 @@ IR = createIRMatrix(pos,[fliplr(ufieldx(:)')',fliplr(ufieldy(:)')'],'natural');
     assembleOPList(NumChains,chainLength,tl_D,tl_pos,'sunflower',Dim);
 
 %% Start simulation
-% Online visulization script (1/3)
+% Online visulization script (1/2)
 if onlineVis
     OnlineVis_Start;
 end
@@ -87,7 +87,7 @@ for i = 1:NoTimeSteps
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     
-    % Online visulization script (2/3)
+    % Online visulization script (2/2)
     if onlineVis
         OnlineVis_plot;
         if i == NoTimeSteps

@@ -18,7 +18,7 @@ else
     scatter3(pos(:,1),pos(:,2),[300,300,300,300],50,[1,0,0;1,0,0;1,0,0;1,0,0],'filled')
 end
 hold on
-axis equal
+%axis equal
 c = colorbar;
 c.Label.String ='Windspeed [m/s]';
 c.Limits = [0,10];
