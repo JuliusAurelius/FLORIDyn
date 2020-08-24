@@ -23,3 +23,8 @@ theta = 2*pi*k/gr^2;
 y = (r.*cos(theta))';
 z = (r.*sin(theta))';
 end
+
+%% Get area of voronoi diagram
+% https://www.mathworks.com/matlabcentral/answers/446168-how-can-i-get-the-area-of-each-polygon-of-a-voronoi-diagram
+%
+% Only issue are the outer points on the rim.

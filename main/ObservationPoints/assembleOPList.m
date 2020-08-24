@@ -34,7 +34,7 @@ function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = ass
 % ==== Constants ==== %
 NumTurb         = length(tl_D);
 NumChainsTot    = NumChains*NumTurb; % Total number of chains across all t.
-chainList       = zeros(NumChainsTot,4);
+chainList       = zeros(NumChainsTot,5);
 chainList(:,4)  = reshape(repmat(1:NumTurb,NumChains,1),NumChainsTot,1);
 
 % ==== Build Chains ==== %
@@ -67,6 +67,10 @@ op_t_id = assignTIDs(chainList,len_OPs);
 op_pos(:,1:2) = tl_pos(op_t_id,1:2);
 
 cl_dstr = zeros(NumChainsTot,Dim-1);
+
+% Relative area the OPs are representing
+cl_relA = zeros(NumChainsTot,1);
+
 switch distr_method
     case 'sunflower'
         % Distribute the n chains with r = sqrt(n) approach. The angle
@@ -83,9 +87,46 @@ switch distr_method
             % 2 Dimentional field: 1D rotor plane
             y = linspace(-0.5,.5,NumChains)';
             cl_dstr(:) = repmat(y,NumTurb,1);
+            
+            
+            % Calculate the represened Area by the observation point
+            % assuming a circular rotor plane with r=0.5.
+            
+            % A(d) calculates the area given by a circular segment with the
+            % distance d to the circle center
+            A =@(d) 0.25*acos(d/0.5)-d.*0.5.*sqrt(1-d.^2/0.25);
+            
+            % repArea contains the area from the center to the outside
+            
+            %d = zeros(floor(NumChains/2),1);
+            if mod(NumChains,2)==0
+                % Even
+                d = 1/NumChains*(0:(NumChains-1)/2);
+                repArea = A(d);
+                repArea(1:end-1) = repArea(1:end-1)-repArea(2:end);
+                
+                % Combine halves and normalize
+                repArea_all = [repArea(end:-1:1),repArea];
+                repArea_all = repArea_all/sum(repArea_all);
+                cl_relA = repmat(repArea_all',NumTurb,1);
+            else
+                % Uneven
+                d = [0,1/(NumChains-1)*(0.5:(NumChains-1)/2)];
+                repArea = A(d);
+                repArea(1:end-1) = repArea(1:end-1)-repArea(2:end);
+                
+                % Center area is split in two
+                repArea(1) = repArea(1)*2;
+                
+                % Combine halves and normalize
+                repArea_all = [repArea(end:-1:2),repArea];
+                repArea_all = repArea_all/sum(repArea_all);
+                cl_relA = repmat(repArea_all',NumTurb,1);
+            end
+            
         end
 end
-
+chainList(:,5) = cl_relA;
 end
 
 function t_id = assignTIDs(chainList,len_OPs)
@@ -105,4 +146,4 @@ end
 end
 
 % chainList
-% [ off, start_id, length, t_id]
+% [ off, start_id, length, t_id, relArea]
