@@ -12,28 +12,12 @@ function U = getWindVec3(pos,IR, U_meas_abs, U_meas_ang, n_uf, lims)
 %
 % ======================================================================= %
 
+% Get the index of the grid matrix the position is matching to
+%   Relates to the output of the IR multiplication
+i = pos2ind(pos,n_uf,lims);
+
 nx = n_uf(1);
 ny = n_uf(2);
-
-%% Nearest neighbour interpolation
-% Transform the (x,y) coordinates into the indeces of the wind field, so
-% that the position is automatically matched to an entry in the matrix.
-n_pos = pos(:,1:2)-lims(2,:);
-
-% This way the points actually get the windspeeds from the right source
-n_pos(:,1) = (1-n_pos(:,1)./lims(1,1));
-n_pos(:,2) = (1-n_pos(:,2)./lims(1,2));
-
-% match outliers to closest edge
-n_pos(n_pos>1) = 1;
-n_pos(n_pos<0) = 0;
-
-% round to index-space [1:n]
-n_pos(:,1) = round(n_pos(:,1) * (nx-1))+1;
-n_pos(:,2) = round(n_pos(:,2) * (ny-1))+1;
-
-n_uf2 = [n_uf(2),n_uf(1)];
-i = sub2ind(n_uf2,n_pos(:,2),n_pos(:,1));
 
 U = zeros(size(pos(:,1:2)));
 

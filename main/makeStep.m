@@ -218,12 +218,12 @@ if size(op_pos,2)==3
     op_pos(:,3) = op_pos(:,3) + delta_cw_z;
 end
 
+%% Apply own reduction to speed vector
+op_u = op_u.*(1-op_r);
+
 %% Extract the windspeed at the rotorplane
 % op_u has all speeds of the OPs, the speed of the first ones of the chains
 % need to be weighted summed by the area they represent.
-u_t = ones(size(tl_D));
-
-%% Apply own reduction to speed vector
-op_u = op_u.*(1-op_r);
+u_t = getTurbineWindSpeed(op_u,chainList,tl_D);
 
 end

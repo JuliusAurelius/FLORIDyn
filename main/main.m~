@@ -10,7 +10,7 @@ warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 
 %% Test Variables
-NumChains       = 5;
+NumChains       = 50;
 NumTurbines     = 3;
 
 % Uniform chain length or individual chainlength
@@ -18,7 +18,7 @@ NumTurbines     = 3;
 chainLength = 100;   
 
 timeStep        = 4;   % in s
-SimDuration     = 1200; % in s
+SimDuration     = 600; % in s
 
 Dim = 2;
 
@@ -83,12 +83,12 @@ for i = 1:NoTimeSteps
     % Calculate the down and crosswind steps along with the windspeed at
     % the turbine rotor planes
     op_pos_old = op_pos;
-    [op_pos, op_dw, op_u, u_t]=makeStep(...
+    [op_pos, op_dw, op_u, tl_u]=makeStep(...
         op_pos, op_dw, op_ayaw, op_t_id, op_U,...
         chainList, cl_dstr, tl_pos, tl_D, timeStep);
     
-    tl_u = getTurbineWindSpeed(op_u,chainList,tl_D);
     powerHist(:,i)=tl_u;
+    
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
     
@@ -135,5 +135,4 @@ end
 % [~] Implement wake interaction
 % [x] Disable r_T
 % [ ] Calculate Power Output
-% [x] See if it can be formulated as observer or similar
-% [ ] Calc / Set Chainlength (?)
+% [~] See if it can be formulated as observer or similar
