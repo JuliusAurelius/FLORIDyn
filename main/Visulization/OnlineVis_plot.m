@@ -55,8 +55,8 @@ end
 subplot(2,1,2)
 plot(powerHist(1,:),'LineWidth',2);
 hold on
-for i = 2:NumTurbines
-    plot(powerHist(i,:),'LineWidth',2);
+for ii = 2:NumTurbines
+    plot(powerHist(ii,:),'LineWidth',2);
 end
 title('Power Output')
 ylabel('Power output in W')
