@@ -39,17 +39,17 @@ hold off
 
 %% Power Hist
 
-figure(3)
-plot(powerHist(1,:));
-hold on
-for i = 2:NumTurbines
-    plot(powerHist(i,:));
-end
-title('Effective wind speed at the rotor plane')
-ylabel('Wind speed in m/s')
-xlabel('time step')
-grid on
-hold off
+% figure(3)
+% plot(powerHist(1,:));
+% hold on
+% for i = 2:NumTurbines
+%     plot(powerHist(i,:));
+% end
+% title('Effective wind speed at the rotor plane')
+% ylabel('Wind speed in m/s')
+% xlabel('time step')
+% grid on
+% hold off
 %% CHANGES to Contour
 % Fill grid with turbine data one-by-one turbine -> avoid triangulation
 % effects with other turbines.

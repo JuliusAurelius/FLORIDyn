@@ -19,18 +19,18 @@ else
 end
 hold on
 %axis equal
-c = colorbar;
-c.Label.String ='Windspeed [m/s]';
-c.Limits = [0,10];
-xlabel('West-East [m]')
-ylabel('South-North [m]')
-xlim(fLim_x);
-ylim(fLim_y);
-if Dim == 3
-    zlabel('Height [m]')
-    zlim([-300,500]);
-end
-grid on
+% c = colorbar;
+% c.Label.String ='Windspeed [m/s]';
+% c.Limits = [0,13];
+% xlabel('West-East [m]')
+% ylabel('South-North [m]')
+% xlim(fLim_x);
+% ylim(fLim_y);
+% if Dim == 3
+%     zlabel('Height [m]')
+%     zlim([-300,500]);
+% end
+% grid on
 
 %% creating a cell array to store the rotor graphics
 % since the number of rotors changes, there is not one object to delete but

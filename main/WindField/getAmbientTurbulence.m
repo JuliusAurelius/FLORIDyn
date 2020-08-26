@@ -1,4 +1,4 @@
-function U = getWindVec3(pos,IR, U_meas_abs, U_meas_ang, n_uf, lims)
+function I_0 = getAmbientTurbulence(pos, IR, I, n_uf, lims)
 %GETWINDVEC3 returns a wind vector related to the desired position
 %
 % INPUTS
@@ -11,9 +11,8 @@ function U = getWindVec3(pos,IR, U_meas_abs, U_meas_ang, n_uf, lims)
 % lims      := [2 x 2] mat; [delta x, delta y; (x,y) bottom left]
 %
 % OUTPUT
-% U         := [n x 2] vec; Wind vector at the position
-%
-%%
+% I_0       := [n x 1] vec; Ambient turbulence intensity at the position
+
 % Get the index of the grid matrix the position is matching to
 %   Relates to the output of the IR multiplication
 i = pos2ind(pos,n_uf,lims);
@@ -21,22 +20,8 @@ i = pos2ind(pos,n_uf,lims);
 nx = n_uf(1);
 ny = n_uf(2);
 
-U = zeros(size(pos(:,1:2)));
-
 %% Interpolate
 % Interpolate absolute value
-Abs_interp = reshape(IR*U_meas_abs',[nx,ny]);
-
-% Interpolate angle
-%   get angles relative to first one as offset
-tmp_ang = mod((U_meas_ang-U_meas_ang(1))+pi/2,pi)-pi/2;
-%   Interpolate the differences
-Ang_interp = reshape(IR*tmp_ang',[nx,ny]);
-%   Add offset again and match to range [0,2pi]
-Ang_interp = mod(U_meas_ang(1)+Ang_interp,2*pi);
-
-% Polar coordinates to cartesian coordinatess
-U(:,1) = cos(Ang_interp(i)).*Abs_interp(i);
-U(:,2) = sin(Ang_interp(i)).*Abs_interp(i);
+I_interp = reshape(IR*I',[nx,ny]);
+I_0 = I_interp(i);
 end
-

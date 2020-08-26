@@ -79,10 +79,11 @@ switch distr_method
         % [-.5,0.5] 
         if Dim == 3
             % 3 Dimentional field: 2D rotor plane
-            [y,z] = sunflower(NumChains, 2);
+            [y,z,repArea] = sunflower(NumChains, 2);
             
             cl_dstr(:,1) = repmat(y,NumTurb,1).*0.5;
             cl_dstr(:,2) = repmat(z,NumTurb,1).*0.5;
+            cl_relA = repmat(repArea,NumTurb,1);
         else
             % 2 Dimentional field: 1D rotor plane
             y = linspace(-0.5,.5,NumChains)';

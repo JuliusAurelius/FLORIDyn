@@ -4,7 +4,9 @@ if i>1
     delete(q)
 end
 
-
+%% Plot the OPs
+subplot(2,1,1)
+hold on
 u_l = min(sqrt(sum(op_u.^2,2)));
 %ff = sqrt(sum(op_u.^2,2))>(u_l*1.2)*0;
 if Dim==2
@@ -21,8 +23,22 @@ end
 Uq = getWindVec3([ufieldx(:),ufieldy(:)],IR, U_abs(i,:), U_ang(i,:), uf_n, uf_lims);
 q = quiver(ufieldx(:),ufieldy(:),Uq(:,1),Uq(:,2),'Color',[0.5,0.5,0.5]);
 
+
+c = colorbar;
+c.Label.String ='Windspeed [m/s]';
+c.Limits = [0,13];
+xlabel('West-East [m]')
+ylabel('South-North [m]')
+xlim(fLim_x);
+ylim(fLim_y);
+if Dim == 3
+    zlabel('Height [m]')
+    zlim([-300,500]);
+end
+grid on
+
+%% Plot the rotors
 for i_T = 1:length(tl_D)
-    
     if i>1
         delete(rotors{i_T});
     end
@@ -34,6 +50,21 @@ for i_T = 1:length(tl_D)
     rot_pos = rot_pos + tl_pos(i_T,1:2)';
     rotors{i_T} = plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
 end
+
+%% Plot the Power Output
+subplot(2,1,2)
+plot(powerHist(1,:),'LineWidth',2);
+hold on
+for i = 2:NumTurbines
+    plot(powerHist(i,:),'LineWidth',2);
+end
+title('Power Output')
+ylabel('Power output in W')
+xlabel('time step')
+xlim([0,NoTimeSteps])
+grid on
+hold off
+
 pause(0.1)
 
 % Turbine Data

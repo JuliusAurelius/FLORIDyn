@@ -31,8 +31,9 @@ NoTimeSteps = length(timeSteps);
 [tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(NumTurbines,'Dim',Dim);               % TODO should call layout
 
 %% Get Wind Field
-%[U_x,U_y,pos] = genU_sig(NoTimeSteps);
+% Ambient turbulence intensity and wind speed
 [U_abs,U_ang,pos] = genU_sig2(NoTimeSteps);
+I = ones(size(U_abs(1,:)))*0.06;
 
 % number of x and y points / resolution
 ufx_n = 30;
@@ -77,18 +78,26 @@ for i = 1:NoTimeSteps
         cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U);
     
     % _____________________ Increment ____________________________________%
-    % Update wind dir and speed
+    % Update wind dir and speed along with amb. turbulence intensity
     op_U = getWindVec3(op_pos, IR, U_abs(i,:), U_ang(i,:), uf_n, uf_lims);
+    op_I = getAmbientTurbulence(op_pos, IR, I, uf_n, uf_lims);
     
     % Calculate the down and crosswind steps along with the windspeed at
     % the turbine rotor planes
     op_pos_old = op_pos;
     [op_pos, op_dw, op_u, tl_u]=makeStep(...
-        op_pos, op_dw, op_ayaw, op_t_id, op_U,...
+        op_pos, op_dw, op_ayaw, op_t_id, op_U, op_I,...
         chainList, cl_dstr, tl_pos, tl_D, timeStep);
     
     % Save power output for plotting
-    powerHist(:,i)=tl_u;
+    % 1/2*airdensity*AreaRotor*C_P(a,yaw)*U_eff^3
+    airDen  = 1.172; %kg/m^3
+    eta     = 0.768;
+    p_p     = 1.88;
+    powerHist(:,i)=...
+        0.5*airDen*tl_D.^2.*0.25.*tl_u.^3.*...
+        4.*tl_ayaw(:,1).*(1-tl_ayaw(:,1)).*eta.*...
+        cos(tl_ayaw(:,2)-atan2(tl_U(:,2),tl_U(:,1))).^p_p;
     
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);

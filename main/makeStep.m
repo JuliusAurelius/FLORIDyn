@@ -1,4 +1,4 @@
-function [op_pos, op_dw, op_u, u_t]=makeStep(op_pos, op_dw, op_ayaw, op_t_id, op_U, chainList, cl_dstr, tl_pos, tl_D, timeStep)
+function [op_pos, op_dw, op_u, u_t]=makeStep(op_pos, op_dw, op_ayaw, op_t_id, op_U, op_I, chainList, cl_dstr, tl_pos, tl_D, timeStep)
 % MAKESTEP calculates all values necessary to propagate the wind field.
 %   It calculates the crosswind position of the OPs, the reduction and the
 %   foreign influence. With that information the downwind step can be
@@ -36,8 +36,6 @@ function [op_pos, op_dw, op_u, u_t]=makeStep(op_pos, op_dw, op_ayaw, op_t_id, op
 %     J. King et al.
 %% Init Variables
 op_r = zeros(length(op_dw),1);
-% Amalia on Average 6%, generally 4%-10%, 
-op_I = ones(size(op_r))*0.06;               % NEEDS TO BE IMPLEMENTED AS STATE
 op_D = tl_D(op_t_id);
 
 % Get variables from the Bastankhah model
@@ -148,6 +146,9 @@ for t = 1:length(tl_D)
     % influenced
     t_points = op_t_id == t;
     
+    % DOES NOT WORK PROPERLY WITH 3D WAKES 
+    %   (interpolation based on 2D plane)
+    
     F = scatteredInterpolant(...
         op_pos(t_points,1),...
         op_pos(t_points,2),...
@@ -218,12 +219,14 @@ if size(op_pos,2)==3
     op_pos(:,3) = op_pos(:,3) + delta_cw_z;
 end
 
-%% Apply own reduction to speed vector
-op_u = op_u.*(1-op_r);
-
 %% Extract the windspeed at the rotorplane
 % op_u has all speeds of the OPs, the speed of the first ones of the chains
 % need to be weighted summed by the area they represent.
+%   Needs to happen BEFORE own reduction is applied. For the down wind step
+%   it was applied seperately
 u_t = getTurbineWindSpeed(op_u,chainList,tl_D);
+
+%% Apply own reduction to speed vector
+op_u = op_u.*(1-op_r);
 
 end
