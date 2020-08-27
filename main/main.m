@@ -11,14 +11,14 @@ warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 
 %% Test Variables
 NumChains       = 50;
-NumTurbines     = 3;
+NumTurbines     = 6;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = 100;   
+chainLength = 150;   
 
 timeStep        = 4;   % in s
-SimDuration     = 600; % in s
+SimDuration     = 480; % in s
 
 Dim = 2;
 
@@ -31,13 +31,17 @@ NoTimeSteps = length(timeSteps);
 [tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(NumTurbines,'Dim',Dim);               % TODO should call layout
 
 %% Get Wind Field
-% Ambient turbulence intensity and wind speed
+% Generate wind field
 [U_abs,U_ang,pos] = genU_sig2(NoTimeSteps);
-I = ones(size(U_abs(1,:)))*0.06;
+
+% Ambient turbulence intensity
+I = ones(size(U_abs(1,:))); % Constant
+I(1:4) = I(1:4)*0.05;
+I(5:end) = I(5:end)*0.15;
 
 % number of x and y points / resolution
-ufx_n = 30;
-ufy_n = 20;
+ufx_n = 60;
+ufy_n = 30;
 uf_n = [ufx_n,ufy_n];
 uf_lims = ...
     [max(pos(:,1))-min(pos(:,1)),max(pos(:,2))-min(pos(:,2));...
