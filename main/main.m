@@ -10,7 +10,7 @@ warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 
 %% Test Variables
-NumChains       = 8;
+NumChains       = 2;
 NumTurbines     = 1;
 
 % Uniform chain length or individual chainlength

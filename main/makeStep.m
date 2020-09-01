@@ -38,6 +38,9 @@ function [op_pos, op_dw, op_u, u_t]=makeStep(op_pos, op_dw, op_ayaw, op_t_id, op
 op_r = zeros(length(op_dw),1);
 op_D = tl_D(op_t_id);
 
+% field width
+w = 1;
+
 % Get variables from the Bastankhah model
 [sig_y, sig_z, C_T, Theta, k_y, k_z, x_0] = getBastankhahVars(...
     op_dw, op_ayaw, op_I, op_D);
@@ -70,9 +73,9 @@ threeDim = 1;
 if size(op_pos,2)==2
     threeDim = 0;
 end
-cw_y = 6*sig_y .* cl_dstr(op_c,1)+delta*1;
+cw_y = w*sig_y .* cl_dstr(op_c,1)+delta*1;
 if threeDim ==1
-    cw_z = 6*sig_z .* cl_dstr(op_c,2);
+    cw_z = w*sig_z .* cl_dstr(op_c,2);
 else
     cw_z = zeros(size(cw_y));
 end
@@ -104,8 +107,11 @@ pc_0_y = op_D(nw).*cos(yaw(nw)).*sqrt(u_r_0);
 pc_0_z = op_D(nw).*sqrt(u_r_0);
 
 %   Calculate the near field with, transitioning from pc_0 to sig*6
-nw_width_y = (pc_0_y+(6*sig_y0-pc_0_y).*op_dw(nw)./x_0(nw));
-nw_width_z = (pc_0_z+(6*sig_z0-pc_0_z).*op_dw(nw)./x_0(nw));
+% ================ BUG! Sould be pc_0_y*dw/x0+w*s ======================= %
+% s_y goes from 0 to sig_y
+nw_width_y = (pc_0_y+(w*sig_y0-pc_0_y).*op_dw(nw)./x_0(nw));
+nw_width_z = (pc_0_z+(w*sig_z0-pc_0_z).*op_dw(nw)./x_0(nw));
+% ======================================================================= %
 
 % Get the OP position within the wake
 cw_y(nw) = nw_width_y.*cl_dstr(op_c(nw),1) + delta(nw);
@@ -234,11 +240,12 @@ pc_0_y = op_D(nw).*cos(yaw(nw)).*sqrt(u_r_0);
 pc_0_z = op_D(nw).*sqrt(u_r_0);
 
 %   Calculate the near field with, transitioning from pc_0 to sig*6
-nw_width_y = (pc_0_y+(6*sig_y0-pc_0_y).*op_dw(nw)./x_0(nw));
-nw_width_z = (pc_0_z+(6*sig_z0-pc_0_z).*op_dw(nw)./x_0(nw));
+% SAME BUG AS ABOVE, NEEDS REFACTORING
+nw_width_y = (pc_0_y+(w*sig_y0-pc_0_y).*op_dw(nw)./x_0(nw));
+nw_width_z = (pc_0_z+(w*sig_z0-pc_0_z).*op_dw(nw)./x_0(nw));
 
 % Apply ratio to get crosswind position (far & near wake)
-cw_y_new = 6*sig_y .* cl_dstr(op_c,1) + delta*1;
+cw_y_new = w*sig_y .* cl_dstr(op_c,1) + delta*1;
 cw_y_new(nw) = nw_width_y.*cl_dstr(op_c(nw),1) + delta(nw);
 
 % Calculate the crosswind delta
@@ -253,7 +260,7 @@ op_pos(:,2) = op_pos(:,2) + cos(ang).*delta_cw_y;
 
 if size(op_pos,2)==3
     % Apply z-crosswind step (far & near wake)
-    cw_z_new = 6*sig_z .* cl_dstr(op_c,2);
+    cw_z_new = w*sig_z .* cl_dstr(op_c,2);
     cw_z_new(nw) = nw_width_z.*cl_dstr(op_c(nw),2);
     
     % Get difference and apply directly to real world coordinates
