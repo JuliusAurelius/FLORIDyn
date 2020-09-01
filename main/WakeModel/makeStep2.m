@@ -71,16 +71,14 @@ end
 % OPs are in the core or not
 phi_cw  = atan2(cw_z,cw_y);
 r_cw    = sqrt(cw_y.^2+cw_z.^2);
-core    = or(r_cw < abs(cos(phi_cw).*pc_y + sin(phi_cw).*pc_z),op_dw==0);
+core    = or(...
+    r_cw < abs(cos(phi_cw).*pc_y*0.5 + sin(phi_cw).*pc_z*0.5),...
+    op_dw==0);
 
-% if sum(~core)>1
-%     disp('jetzt gehts schief')
-% end
 %% Get speed reduction
 op_r(core) = 1-sqrt(1-C_T(core));
 
 % Remove core from crosswind pos and calculate speed reduction
-%   
 nw = op_dw<x_0;
 fw = ~nw;
 gaussAbs = zeros(size(core));
@@ -89,8 +87,8 @@ gaussAbs(nw) = 1-sqrt(1-C_T(nw));
 gaussAbs(fw) = 1-sqrt(1-C_T(fw)...
     .*cos(yaw(fw))./(8*(sig_y(fw).*sig_z(fw)./op_D(fw).^2)));
 op_r(~core) = gaussAbs(~core).*...
-    exp(-0.5.*((cw_y(~core)-cos(phi_cw(~core)).*pc_y(~core))./sig_y(~core)).^2).*...
-    exp(-0.5.*((cw_z(~core)-sin(phi_cw(~core)).*pc_z(~core))./sig_z(~core)).^2);
+    exp(-0.5.*((cw_y(~core)-cos(phi_cw(~core)).*pc_y(~core)*0.5)./sig_y(~core)).^2).*...
+    exp(-0.5.*((cw_z(~core)-sin(phi_cw(~core)).*pc_z(~core)*0.5)./sig_z(~core)).^2);
 
 %% Get forgeign influence
 % Go through all turbines and use their points in scattered interpolant
