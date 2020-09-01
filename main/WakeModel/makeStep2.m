@@ -42,6 +42,10 @@ function [op_pos, op_dw, op_u, u_t]=makeStep2(op_pos, op_dw, op_ayaw, op_t_id, o
 %% Vars
 % Factor for sig of gaussian function
 w = 1;
+
+op_r = zeros(length(op_dw),1);
+op_D = tl_D(op_t_id);
+
 %% Get wake width
 
 %% Get the distribution of the OPs
@@ -63,3 +67,7 @@ w = 1;
 %% Apply step to the world coordinates
 end
 
+function width = getWakeWidth()
+% GETWAKEWIDTH calculates the width of the near and far wake at the given
+% down wind positions
+end
