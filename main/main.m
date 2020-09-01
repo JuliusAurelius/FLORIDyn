@@ -35,7 +35,7 @@ NoTimeSteps = length(timeSteps);
 [U_abs,U_ang,pos] = genU_sig2(NoTimeSteps);
 
 % Ambient turbulence intensity
-I = ones(size(U_abs(1,:)))*0.06; % Constant
+I = ones(size(U_abs(1,:)))*0.04; % Constant
 
 % number of x and y points / resolution
 ufx_n = 60;

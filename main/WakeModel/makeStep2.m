@@ -94,7 +94,36 @@ op_r(~core) = gaussAbs(~core).*...
 % Go through all turbines and use their points in scattered interpolant
 r_f = ones(size(op_r)); % == prod((1-r)(1-r)...)
 
-
+for t = 1:length(tl_D)
+    % extract points which belong to the turbine and which are potentially
+    % influenced
+    t_points = op_t_id == t;
+    
+    % DOES NOT WORK PROPERLY WITH 3D WAKES 
+    %   (interpolation based on 2D plane)
+    if threeDim == 1
+        F = scatteredInterpolant(...
+            op_pos(t_points,1),...
+            op_pos(t_points,2),...
+            op_pos(t_points,3),...
+            op_r(t_points),'nearest','none');
+    
+        r_f_tmp = F(op_pos(~t_points,1:3));
+    else
+        F = scatteredInterpolant(...
+            op_pos(t_points,1),...
+            op_pos(t_points,2),...
+            op_r(t_points),'nearest','none');
+    
+        r_f_tmp = F(op_pos(~t_points,1:2));
+    end
+    
+    if isempty(r_f_tmp)
+        break;
+    end
+    r_f_tmp(isnan(r_f_tmp)) = 0;
+    r_f(~t_points) = r_f(~t_points).*(1-r_f_tmp);
+end
 
 %% Calculate speed
 % Windspeed at every OP WITHOUT own wake (needed for turbine windspeed)
@@ -152,9 +181,4 @@ u_t = getTurbineWindSpeed(op_u,chainList,tl_D);
 
 %% Apply own reduction to speed vector
 op_u = op_u.*(1-op_r);
-end
-
-function width = getWakeWidth()
-% GETWAKEWIDTH calculates the width of the near and far wake at the given
-% down wind positions
 end
