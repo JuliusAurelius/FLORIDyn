@@ -22,6 +22,8 @@ end
 %yaw = atan2(tl_U(:,2),tl_U(:,1))- 0/180*pi + sin(k*1/(2*pi)*0)*30/180*pi;
 
 
-yaw = atan2(tl_U(:,2),tl_U(:,1));% + [0;0;0]./180*pi;
-tl_ayaw = [ones(size(tl_D))*0.3, yaw]; % TODO Placeholder
+% yaw = atan2(tl_U(:,2),tl_U(:,1)) + [0;0;0]./180*pi;
+% tl_ayaw = [ones(size(tl_D)).*[0.31; 0.32; 0.33], yaw]; % TODO Placeholder
+yaw = atan2(tl_U(:,2),tl_U(:,1));
+tl_ayaw = [ones(size(tl_D))*0.33, yaw]; % TODO Placeholder
 end

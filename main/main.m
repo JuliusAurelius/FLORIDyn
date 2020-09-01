@@ -10,15 +10,15 @@ warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 
 %% Test Variables
-NumChains       = 50;
-NumTurbines     = 6;
+NumChains       = 8;
+NumTurbines     = 1;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = 150;   
+chainLength = 100;   
 
 timeStep        = 4;   % in s
-SimDuration     = 480; % in s
+SimDuration     = 100*4; % in s
 
 Dim = 2;
 
@@ -35,9 +35,7 @@ NoTimeSteps = length(timeSteps);
 [U_abs,U_ang,pos] = genU_sig2(NoTimeSteps);
 
 % Ambient turbulence intensity
-I = ones(size(U_abs(1,:))); % Constant
-I(1:4) = I(1:4)*0.05;
-I(5:end) = I(5:end)*0.15;
+I = ones(size(U_abs(1,:)))*0.06; % Constant
 
 % number of x and y points / resolution
 ufx_n = 60;

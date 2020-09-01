@@ -1,23 +1,36 @@
 %% Post-Sim Visulization
 %   Contour Plot of the wind field
 %% Interpolate the values of the grid in the wakes
-F = scatteredInterpolant(...
-    op_pos_old(:,1),...
-    op_pos_old(:,2),...
-    sqrt(sum(op_u.^2,2)),'nearest','none');
-u_grid_z_tmp = F(u_grid_x(:),u_grid_y(:));
+u_grid_z = NaN(size(u_grid_x(:)));
+for wakes = 1:length(tl_D)
+    % Use wake of turbine "wakes" to triangulate
+    F = scatteredInterpolant(...
+        op_pos_old(op_t_id==wakes,1),...
+        op_pos_old(op_t_id==wakes,2),...
+    sqrt(sum(op_u(op_t_id==wakes,:).^2,2)),'nearest','none');
+
+    % Get grid values within the wake, outside nan
+    u_grid_z_tmp = F(u_grid_x(:),u_grid_y(:));
+    
+    % Find grid values which are nan and are not nan in the interpolated
+    % data
+    writeGridZ = and(~isnan(u_grid_z_tmp),isnan(u_grid_z));
+    
+    % Fill these entries with the aquired data
+    u_grid_z(writeGridZ)=F(u_grid_x(writeGridZ),u_grid_y(writeGridZ));
+end
 
 %% Fill up the values outside of the wakes with free windspeed measurements
-nan_z = isnan(u_grid_z_tmp);
+nan_z = isnan(u_grid_z);
 u_grid_z_tmp2 = getWindVec3(...
     [u_grid_x(nan_z),u_grid_y(nan_z)],...
     IR, U_abs(i,:), U_ang(i,:), uf_n, uf_lims);
-u_grid_z_tmp(nan_z) = sqrt(sum(u_grid_z_tmp2.^2,2));
-u_grid_z = reshape(u_grid_z_tmp,size(u_grid_z));
+u_grid_z(nan_z) = sqrt(sum(u_grid_z_tmp2.^2,2));
+u_grid_z = reshape(u_grid_z,size(u_grid_x));
 
 %% Plot contour
 figure(2)
-contourf(u_grid_x,u_grid_y,u_grid_z,30,'LineColor','none');
+contourf(u_grid_x,u_grid_y,u_grid_z,8,'LineColor','none');
 hold on
 for i_T = 1:length(tl_D)
     % Get start and end of the turbine rotor
