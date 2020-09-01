@@ -75,10 +75,10 @@ delta = Theta.*x_0+...
 %% Potential core
 % Potential core at rotor plane
 %   Ratio u_r/u_0 [1] Eq.6.4 & 6.7
-u_r_0 = (C_T(nw).*cos(yaw(nw)))./(...
-    2*(1-sqrt(1-C_T(nw).*cos(yaw(nw)))).*sqrt(1-C_T(nw)));
+u_r_0 = (C_T.*cos(yaw))./(...
+    2*(1-sqrt(1-C_T.*cos(yaw))).*sqrt(1-C_T));
 
 %   Ellypitcal boundaries [1] P.530, L.7f
-pc_y = op_D.*cos(yaw(nw)).*sqrt(u_r_0).*max([op_dw./x_0,zs],[],2);
-pc_z = op_D.*sqrt(u_r_0).*max([op_dw./x_0,zs],[],2);
+pc_y = op_D.*cos(yaw).*sqrt(u_r_0).*max([1-op_dw./x_0,zs],[],2);
+pc_z = op_D.*sqrt(u_r_0).*max([1-op_dw./x_0,zs],[],2);
 end
