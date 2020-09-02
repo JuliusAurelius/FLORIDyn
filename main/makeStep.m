@@ -220,7 +220,7 @@ delta = Theta.*x_0./op_D+...
     );
 
 % [1] (P.532, L.12) Assumed to be constant in near wake region
-delta(nw) = Theta(nw).*x_0(nw)./op_D(nw);
+delta(nw) = Theta(nw).*x_0(nw)./op_D(nw); % FALSE
 
 delta = delta.*op_D;
 

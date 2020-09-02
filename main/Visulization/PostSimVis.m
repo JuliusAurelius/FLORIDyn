@@ -30,7 +30,7 @@ u_grid_z = reshape(u_grid_z,size(u_grid_x));
 
 %% Plot contour
 figure(2)
-contourf(u_grid_x,u_grid_y,u_grid_z,8,'LineColor','none');
+contourf(u_grid_x,u_grid_y,u_grid_z,30,'LineColor','none');
 hold on
 for i_T = 1:length(tl_D)
     % Get start and end of the turbine rotor

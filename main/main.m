@@ -15,7 +15,7 @@ NumTurbines     = 1;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = 100;   
+chainLength = 150;   
 
 timeStep        = 4;   % in s
 SimDuration     = 100*4; % in s
@@ -35,7 +35,7 @@ NoTimeSteps = length(timeSteps);
 [U_abs,U_ang,pos] = genU_sig2(NoTimeSteps);
 
 % Ambient turbulence intensity
-I = ones(size(U_abs(1,:)))*0.04; % Constant
+I = ones(size(U_abs(1,:)))*0.06; % Constant
 
 % number of x and y points / resolution
 ufx_n = 60;
