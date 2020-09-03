@@ -10,15 +10,15 @@ warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 
 %% Test Variables
-NumChains       = 8;
-NumTurbines     = 1;
+NumChains       = 80;
+NumTurbines     = 2;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = 100;   
+chainLength = 120;   
 
 timeStep        = 4;   % in s
-SimDuration     = 100*4; % in s
+SimDuration     = 80*timeStep; % in s
 
 Dim = 2;
 
@@ -87,7 +87,7 @@ for i = 1:NoTimeSteps
     % Calculate the down and crosswind steps along with the windspeed at
     % the turbine rotor planes
     op_pos_old = op_pos;
-    [op_pos, op_dw, op_u, tl_u]=makeStep(...
+    [op_pos, op_dw, op_u, tl_u]=makeStep2(...
         op_pos, op_dw, op_ayaw, op_t_id, op_U, op_I,...
         chainList, cl_dstr, tl_pos, tl_D, timeStep);
     

@@ -2,12 +2,18 @@
 %   Contour Plot of the wind field
 %% Interpolate the values of the grid in the wakes
 u_grid_z = NaN(size(u_grid_x(:)));
+narc_height = true(size(op_t_id));
+
+if size(op_pos_old,2)==3
+    narc_height = op_pos_old(:,3)<mean(tl_pos(:,3))*1.3;
+    narc_height = and(op_pos_old(:,3)>mean(tl_pos(:,3))*0.7,narc_height);
+end
 for wakes = 1:length(tl_D)
     % Use wake of turbine "wakes" to triangulate
     F = scatteredInterpolant(...
-        op_pos_old(op_t_id==wakes,1),...
-        op_pos_old(op_t_id==wakes,2),...
-    sqrt(sum(op_u(op_t_id==wakes,:).^2,2)),'nearest','none');
+        op_pos_old(and(op_t_id==wakes,narc_height),1),...
+        op_pos_old(and(op_t_id==wakes,narc_height),2),...
+    sqrt(sum(op_u(and(op_t_id==wakes,narc_height),:).^2,2)),'nearest','none');
 
     % Get grid values within the wake, outside nan
     u_grid_z_tmp = F(u_grid_x(:),u_grid_y(:));
@@ -30,7 +36,7 @@ u_grid_z = reshape(u_grid_z,size(u_grid_x));
 
 %% Plot contour
 figure(2)
-contourf(u_grid_x,u_grid_y,u_grid_z,8,'LineColor','none');
+contourf(u_grid_x,u_grid_y,u_grid_z,30,'LineColor','none');
 hold on
 for i_T = 1:length(tl_D)
     % Get start and end of the turbine rotor
