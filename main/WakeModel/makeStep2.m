@@ -48,38 +48,20 @@ op_D = tl_D(op_t_id);
 op_c = getChainIDforOP(chainList);
 yaw  = op_ayaw(:,2);
 % 1 if three dimentions, 0 if only 2
-threeDim = mod(size(op_pos,2),2);
+
+
 %% Get wake width
 [sig_y, sig_z, C_T, x_0, delta, pc_y, pc_z] = ...
-    getBastankhahVars2(op_dw, op_ayaw, op_I, op_D);
-
-% Sigma of Gauss functions + Potential core
-%   both values are already adapted to near/far field
-width_y = w*sig_y + pc_y;
-width_z = w*sig_z + pc_z;
-
-%% Get the distribution of the OPs
-cw_y = width_y.*cl_dstr(op_c,1);
-
-if threeDim
-    cw_z= width_z.*cl_dstr(op_c,2);
-else
-    cw_z = zeros(size(cw_y));
-end
-
-% create an radius value of the core and cw values and figure out if the
-% OPs are in the core or not
-phi_cw  = atan2(cw_z,cw_y);
-r_cw    = sqrt(cw_y.^2+cw_z.^2);
-core    = or(...
-    r_cw < abs(cos(phi_cw).*pc_y*0.5 + sin(phi_cw).*pc_z*0.5),...
-    op_dw==0);
+     getBastankhahVars2(op_dw, op_ayaw, op_I, op_D);
+ 
+[nw, cw_y, cw_z, core, phi_cw]=...
+     getCWPosition(op_dw, w, cl_dstr, op_c, sig_y, sig_z, pc_y, pc_z, x_0);
 
 %% Get speed reduction
 op_r(core) = 1-sqrt(1-C_T(core));
 
 % Remove core from crosswind pos and calculate speed reduction
-nw = op_dw<x_0;
+%nw = op_dw<x_0;
 fw = ~nw;
 gaussAbs = zeros(size(core));
 
@@ -112,33 +94,12 @@ cw_z_old  = cw_z;
 [sig_y, sig_z, ~, ~, delta, pc_y, pc_z] = ...
     getBastankhahVars2(op_dw, op_ayaw, op_I, op_D);
 
-% Sigma of Gauss functions + Potential core
-%   both values are already adapted to near/far field
-width_y = w*sig_y + pc_y;
-width_z = w*sig_z + pc_z;
-%% Get new distribution of the OPs
-cw_y = width_y.*cl_dstr(op_c,1);
-
-if threeDim
-    cw_z= width_z.*cl_dstr(op_c,2);
-else
-    cw_z = zeros(size(cw_y));
-end
+[~, cw_y, cw_z, ~, ~]=...
+    getCWPosition(op_dw, w, cl_dstr, op_c, sig_y, sig_z, pc_y, pc_z, x_0);
+ 
 %% Calculate difference and apply step to the world coordinates
-% Get wind angle 
-ang = atan2(op_U(:,2),op_U(:,1));
-
-% Now also add the deflection offset
-diff_cw_y = cw_y + delta - cw_y_old - delta_old;
-
-% Apply y-crosswind step relative to the wind angle
-op_pos(:,1) = op_pos(:,1) - sin(ang).*diff_cw_y;
-op_pos(:,2) = op_pos(:,2) + cos(ang).*diff_cw_y;
-
-if threeDim
-    diff_cw_z = cw_z - cw_z_old;
-    op_pos(:,3) = op_pos(:,3) + diff_cw_z;
-end
+op_pos = updatePosition(...
+    op_pos, op_U, cw_y, cw_z, cw_y_old, cw_z_old, delta, delta_old);
 
 %% Extract the windspeed at the rotorplane
 % op_u has all speeds of the OPs, the speed of the first ones of the chains
