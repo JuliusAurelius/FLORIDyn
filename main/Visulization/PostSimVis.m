@@ -5,8 +5,8 @@ u_grid_z = NaN(size(u_grid_x(:)));
 narc_height = true(size(op_t_id));
 
 if size(op_pos_old,2)==3
-    narc_height = op_pos_old(:,3)<mean(tl_pos(:,3))*1.3;
-    narc_height = and(op_pos_old(:,3)>mean(tl_pos(:,3))*0.7,narc_height);
+    narc_height = op_pos_old(:,3)<mean(tl_pos(:,3))*1.2;
+    narc_height = and(op_pos_old(:,3)>mean(tl_pos(:,3))*0.8,narc_height);
 end
 for wakes = 1:length(tl_D)
     % Use wake of turbine "wakes" to triangulate
@@ -45,7 +45,7 @@ for i_T = 1:length(tl_D)
         sin(tl_ayaw(i_T,2)), cos(tl_ayaw(i_T,2))] * ...
         [0,0;tl_D(i_T)/2,-tl_D(i_T)/2];
     rot_pos = rot_pos + tl_pos(i_T,1:2)';
-    plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',5);
+    plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
 end
 title('Filled contour plot')
 axis equal
