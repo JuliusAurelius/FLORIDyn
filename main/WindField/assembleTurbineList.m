@@ -15,7 +15,7 @@ function [tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(layout,varargin)
 %   tl_U        := [n x 2] vec; Wind vector [Ux,Uy] (world coord.)
 
 Dim = 3;             %<--- 2D / 3D change
-
+layout = 'twoDTU10MW';
 %% Code to use varargin values
 % function(*normal in*,'var1','val1','var2',val2[numeric])
 if nargin>1
@@ -37,24 +37,41 @@ if nargin>1
     end
 end
 %%
-T_num = 6;
-D=160;
+T_Pos = [];
+switch layout
+    case 'twoDTU10MW'
+        T_Pos = [400 500 119 178.4;...
+            1300 500 119 178.4];
+    case 'nineDTU10MW'
+        T_Pos = [...
+            600  600  119 178.4;...     % T0
+            1500 600  119 178.4;...     % T1
+            2400 600  119 178.4;...     % T2
+            600  1500 119 178.4;...     % T3
+            1500 1500 119 178.4;...     % T4
+            2400 1500 119 178.4;...     % T5
+            600  2400 119 178.4;...     % T6
+            1500 2400 119 178.4;...     % T7
+            2400 2400 119 178.4;...     % T8
+            ]; 
+    otherwise
+        T_Pos = [400 0 119 178.4;...
+            1300 0 119 178.4];
+end
 
-tmp_phi = 90/180*pi;
+% T_Pos = [...
+%                 1000-4*D 0*D 90 D;... % tmp change
+%                 1000 0*D 0 D;...
+%                 1000+4*D 0*D 90 D;...
+%                 1600 0 90 D;...
+%                 1600+cos(tmp_phi)*5*D sin(tmp_phi)*5*D 90 D;...
+%                 1600+cos(tmp_phi)*10*D sin(tmp_phi)*10*D 90 D];
+% T_D = ones(T_num,1)*D;
 
-T_Pos = [...
-                1000-4*D 0*D 90 D;... % tmp change
-                1000 0*D 0 D;...
-                1000+4*D 0*D 90 D;...
-                1600 0 90 D;...
-                1600+cos(tmp_phi)*5*D sin(tmp_phi)*5*D 90 D;...
-                1600+cos(tmp_phi)*10*D sin(tmp_phi)*10*D 90 D];
-T_D = ones(T_num,1)*D;
-
-tl_pos  = T_Pos(1:layout,1:Dim);
-tl_D    = T_D(1:layout,:);
-tl_ayaw = zeros(layout,2);
-tl_U    = ones(layout,2);
+tl_pos  = T_Pos(:,1:Dim);
+tl_D    = T_Pos(:,end);
+tl_ayaw = zeros(length(tl_D),2);
+tl_U    = ones(length(tl_D),2);
 
 end
 

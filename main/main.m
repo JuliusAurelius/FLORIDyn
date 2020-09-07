@@ -10,15 +10,15 @@ warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 
 %% Test Variables
-NumChains       = 180;
-NumTurbines     = 1;
+NumChains       = 200;
+NumTurbines     = 2;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = 120;   
+chainLength = [ones(NumChains,1)*120;ones(NumChains,1)*3];   
 
 timeStep        = 8;   % in s
-SimDuration     = 101*timeStep; % in s
+SimDuration     = 49*timeStep; % in s
 
 Dim = 3;
 
@@ -28,14 +28,14 @@ timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
 
 % Create the list of turbines with their properties
-[tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList(NumTurbines,'Dim',Dim);               % TODO should call layout
+[tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList('twoDTU10MW','Dim',Dim);
 
 %% Get Wind Field
 % Generate wind field
 [U_abs,U_ang,pos] = genU_sig2(NoTimeSteps);
 
 % Ambient turbulence intensity
-I = ones(size(U_abs(1,:)))*0.06; % Constant
+I = ones(size(U_abs(1,:)))*0.0; % Constant
 
 % number of x and y points / resolution
 ufx_n = 60;
@@ -93,13 +93,16 @@ for i = 1:NoTimeSteps
     
     % Save power output for plotting
     % 1/2*airdensity*AreaRotor*C_P(a,yaw)*U_eff^3
-    airDen  = 1.172; %kg/m^3
-    eta     = 0.768;
-    p_p     = 1.88;
+    airDen  = 1.1716; %kg/m^3
+    eta     = 1.08;     %Def. DTU 10MW
+    p_p     = 1.50;     %Def. DTU 10MW
     powerHist(:,i)=...
-        0.5*airDen*tl_D.^2.*0.25.*tl_u.^3.*...
-        4.*tl_ayaw(:,1).*(1-tl_ayaw(:,1)).*eta.*...
-        cos(tl_ayaw(:,2)-atan2(tl_U(:,2),tl_U(:,1))).^p_p;
+        0.5*airDen*(tl_D/2).^2.*pi.*... %1/2*rho*A
+        4.*tl_ayaw(:,1).*(1-tl_ayaw(:,1)).^2 ... % C_P w/o yaw
+        .*tl_u.^3.* eta.*... % u^3*eta
+        cos(tl_ayaw(:,2)-atan2(tl_U(:,2),tl_U(:,1))).^p_p; %C_P to yaw adj
+    
+    % 0.5*1.1716*pi*(tl_D/2).^2.*tl_u.^3.*1.08*4.*tl_ayaw(:,1).*(1-tl_ayaw(:,1))
     
     % Increment the index of the chain starting entry
     chainList = shiftChainList(chainList);
