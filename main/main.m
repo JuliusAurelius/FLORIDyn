@@ -1,4 +1,4 @@
-function [] = main()
+function [powerHist] = main()
 
 addpath('./WindField')
 addpath('./Controller')
@@ -10,15 +10,14 @@ warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 
 %% Test Variables
-NumChains       = 200;
-NumTurbines     = 2;
+NumChains       = 100;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-chainLength = [ones(NumChains,1)*120;ones(NumChains,1)*3];   
+chainLength = [ones(NumChains,1)*120;ones(NumChains,1)*80];   
 
-timeStep        = 8;   % in s
-SimDuration     = 49*timeStep; % in s
+timeStep        = 4;   % in s
+SimDuration     = 250*timeStep; % in s
 
 Dim = 3;
 
@@ -28,14 +27,14 @@ timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
 
 % Create the list of turbines with their properties
-[tl_pos,tl_D,tl_ayaw,tl_U] = assembleTurbineList('twoDTU10MW','Dim',Dim);
+[tl_pos,tl_D,tl_ayaw,fieldLims] = assembleTurbineList('twoDTU10MW','Dim',Dim);
 
 %% Get Wind Field
 % Generate wind field
 [U_abs,U_ang,pos] = genU_sig2(NoTimeSteps);
 
 % Ambient turbulence intensity
-I = ones(size(U_abs(1,:)))*0.0; % Constant
+I = ones(size(U_abs(1,:)))*0.06; % Constant
 
 % number of x and y points / resolution
 ufx_n = 60;
@@ -61,7 +60,7 @@ if onlineVis
     OnlineVis_Start;
 end
 
-powerHist = zeros(NumTurbines,NoTimeSteps);
+powerHist = zeros(length(tl_D),NoTimeSteps);
 
 
 for i = 1:NoTimeSteps
@@ -93,7 +92,8 @@ for i = 1:NoTimeSteps
     
     % Save power output for plotting
     % 1/2*airdensity*AreaRotor*C_P(a,yaw)*U_eff^3
-    airDen  = 1.1716; %kg/m^3
+    %airDen  = 1.1716; %kg/m^3
+    airDen  = 1.225;    % SOWFA
     eta     = 1.08;     %Def. DTU 10MW
     p_p     = 1.50;     %Def. DTU 10MW
     powerHist(:,i)=...
@@ -116,6 +116,7 @@ for i = 1:NoTimeSteps
         end
     end
 end
+powerHist = [timeSteps',powerHist'./airDen];
 end
 
 %% Variables

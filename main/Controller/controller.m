@@ -27,5 +27,5 @@ yaw = atan2(tl_U(:,2),tl_U(:,1));% + [0;0;0]./180*pi;
 
 % n turbines
 % yaw = atan2(tl_U(:,2),tl_U(:,1))+ones(size(tl_U(:,1)))*0/180*pi;
-tl_ayaw = [ones(size(tl_D))*0.33, yaw]; % TODO Placeholder
+tl_ayaw = [ones(size(tl_D))*0.22, yaw]; % TODO Placeholder
 end

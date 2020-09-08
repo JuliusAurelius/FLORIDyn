@@ -26,7 +26,7 @@ q = quiver(ufieldx(:),ufieldy(:),Uq(:,1),Uq(:,2),'Color',[0.5,0.5,0.5]);
 
 c = colorbar;
 c.Label.String ='Windspeed [m/s]';
-c.Limits = [0,13];
+c.Limits = [0,8];
 xlabel('West-East [m]')
 ylabel('South-North [m]')
 xlim(fLim_x);
@@ -53,15 +53,16 @@ end
 
 %% Plot the Power Output
 subplot(2,1,2)
-plot(powerHist(1,:),'LineWidth',2);
+plot(timeSteps,powerHist(1,:),'LineWidth',2);
 hold on
-for ii = 2:NumTurbines
-    plot(powerHist(ii,:),'LineWidth',2);
+for ii = 2:length(tl_D)
+    plot(timeSteps,powerHist(ii,:),'LineWidth',2);
 end
 title('Power Output')
 ylabel('Power output in W')
-xlabel('time step')
-xlim([0,NoTimeSteps])
+xlabel('Time [s]')
+xlim([0,timeSteps(end)])
+ylim([0 inf])
 grid on
 hold off
 

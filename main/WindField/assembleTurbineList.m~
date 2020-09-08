@@ -53,16 +53,15 @@ switch layout
             1500 2400 119 178.4;...     % T7
             2400 2400 119 178.4;...     % T8
             ]; 
-        fieldLims = [0 0; 3000 3000];
     otherwise
         T_Pos = [400 0 119 178.4;...
             1300 0 119 178.4];
-        fieldLims = [0 0; 2000 1000];
 end
 
 tl_pos  = T_Pos(:,1:Dim);
 tl_D    = T_Pos(:,end);
 tl_ayaw = zeros(length(tl_D),2);
+tl_U    = ones(length(tl_D),2);
 
 end
 
