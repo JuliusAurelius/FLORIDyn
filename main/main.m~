@@ -14,15 +14,14 @@ NumChains       = 100;
 
 % Uniform chain length or individual chainlength
 %chainLength     = randi(20,NumChains*NumTurbines,1)+1;
-%chainLength = [ones(NumChains,1)*120;ones(NumChains,1)*80];   
-chainLength = 200;
+chainLength = [ones(NumChains,1)*120;ones(NumChains,1)*80];   
 
 timeStep        = 4;   % in s
 SimDuration     = 250*timeStep; % in s
 
 Dim = 3;
 
-onlineVis = false;
+onlineVis = true;
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);

@@ -18,12 +18,13 @@ for wakes = 1:length(tl_D)
     % Get grid values within the wake, outside nan
     u_grid_z_tmp = F(u_grid_x(:),u_grid_y(:));
     
-    % Find grid values which are nan and are not nan in the interpolated
-    % data
-    writeGridZ = and(~isnan(u_grid_z_tmp),isnan(u_grid_z));
-    
-    % Fill these entries with the aquired data
-    u_grid_z(writeGridZ)=F(u_grid_x(writeGridZ),u_grid_y(writeGridZ));
+    u_grid_z = min([u_grid_z, u_grid_z_tmp],[],2);
+%     % Find grid values which are nan and are not nan in the interpolated
+%     % data
+%     writeGridZ = and(~isnan(u_grid_z_tmp),isnan(u_grid_z));
+%     
+%     % Fill these entries with the aquired data
+%     u_grid_z(writeGridZ)=F(u_grid_x(writeGridZ),u_grid_y(writeGridZ));
 end
 
 %% Fill up the values outside of the wakes with free windspeed measurements
