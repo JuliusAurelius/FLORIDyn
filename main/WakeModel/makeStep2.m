@@ -80,7 +80,12 @@ r_f = getForeignInfluence(op_pos, op_r, op_t_id, tl_D);
 op_u = r_f.*op_U;
 % Calculate downwind step and add it to the real world coordinates and
 % downwind position
-dw_step = (1-op_r).*op_u*timeStep;
+% ================ REPLACED BY FREE SPEED VELOCITY ====================== %
+%dw_step = (1-op_r).*op_u*timeStep;
+dw_step = op_U*timeStep;
+% ======================================================================= %
+
+
 op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
 op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
 

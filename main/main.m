@@ -5,6 +5,7 @@ addpath('./Controller')
 addpath('./ObservationPoints')
 addpath('./WakeModel')
 addpath('./Visulization')
+addpath('./TurbineData')
 
 warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
@@ -22,7 +23,7 @@ SimDuration     = 250*timeStep; % in s
 
 Dim = 3;
 
-onlineVis = false;
+onlineVis = true;
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
@@ -46,8 +47,8 @@ uf_lims = ...
     min(pos(:,1)),min(pos(:,2))];
 
 [ufieldx,ufieldy] = meshgrid(...
-    linspace(min(pos(:,1)),max(pos(:,1)),ufx_n),...
-    linspace(min(pos(:,2)),max(pos(:,2)),ufy_n));
+    linspace(min(pos(:,1)),max(pos(:,1)),uf_n(1)),...
+    linspace(min(pos(:,2)),max(pos(:,2)),uf_n(2)));
 
 IR = createIRMatrix(pos,[fliplr(ufieldx(:)')',fliplr(ufieldy(:)')'],'natural');
 
@@ -142,12 +143,14 @@ end
 % [ off, start_id, length, t_id, relArea]
 
 %% TICKETS
+% [ ] Optimized wake interaction
+% [ ] Add atmospheric stability factor (min(z,z_h)/z_h)^alpha
 % [x] Get rid of temporary fix of the wake expansion
 % [x] Delete op_r in main (should only exist in makeStep)
-% [~] Implement Bastankhah
+% [x] Implement Bastankhah
 % [x] Implement a wind grid for nearest neighbour interpolation
 %       [x] Test if own interpolation (coord. -> index) is faster
 % [~] Implement wake interaction
 % [x] Disable r_T
-% [ ] Calculate Power Output
+% [x] Calculate Power Output
 % [~] See if it can be formulated as observer or similar
