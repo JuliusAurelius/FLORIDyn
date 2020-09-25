@@ -1,4 +1,4 @@
-function [T,fieldLims,Pow,VCtCp,chain] = loadLayout(layout, varargin)
+function [T,fieldLims,Pow,VCtCp,chain] = loadLayout(layout)
 % Observation Point data
 ChainLength     = 100;      % OPs per chain
 NumChains       = 80;       % Chains per turbine
@@ -63,12 +63,12 @@ switch layout
     otherwise
         error('Unknown scenario, no simulation started')
 end
-T.pos  = T_Pos(:,1:3); % 1:Dim
-T.D    = T_Pos(:,end);
-T.ayaw = zeros(length(T.D),2);
+T.tl_pos  = T_Pos(:,1:Dim);
+T.tl_D    = T_Pos(:,end);
+T.tl_ayaw = zeros(length(tl_D),2);
 
 %% Store chain configuration
 chain.NumChains     = NumChains;
-chain.Length   = ChainLength;
+chain.ChainLength   = ChainLength;
 end
 

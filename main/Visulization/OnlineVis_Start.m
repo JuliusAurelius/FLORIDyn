@@ -16,7 +16,7 @@ clf
 %% creating a cell array to store the rotor graphics
 % since the number of rotors changes, there is not one object to delete but
 % a varying number.
-rotors = cell(length(tl_D),1);
+rotors = cell(length(T.D),1);
 
 %% Clean up
 clear pos res

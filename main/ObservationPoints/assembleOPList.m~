@@ -32,7 +32,7 @@ function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = ass
 
 
 % ==== Constants ==== %
-Dim             = 3; % Since the model is defined in 3D
+Dim             = 3;            
 NumTurb         = length(tl_D);
 NumChainsTot    = NumChains*NumTurb; % Total number of chains across all t.
 chainList       = zeros(NumChainsTot,5);
