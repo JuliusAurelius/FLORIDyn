@@ -32,7 +32,7 @@ if nargin>1
     end
 end
 %%
-measPoints  = size(pos,1);
+measPoints  = size(posMeas,1);
 timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
 %%
@@ -44,12 +44,14 @@ switch fieldScenario
         U.ang = ones(measPoints,1)*windAngle/180*pi;
         U.alpha_z = alpha_z;
         % Constant ambient turbulence
-        I = ones(measPoints,1)*ambTurbulence;
+        I.val = ones(measPoints,1)*ambTurbulence;
         
+        U.pos = posMeas;
+        I.pos = posMeas;
     case '+60DegChange'
         % +60 Deg Change after 300s over the next 300s.
         % Two DTU 10MW Turbines 
-        U.abs = ones(NoTimeSteps,numSensors).*windSpeed;
+        U.abs = ones(NoTimeSteps,measPoints).*windSpeed;
         U.ang = ones(size(U.abs)).*windAngle;
         startI = round(300/timeStep);
         changeAng = linspace(0,60/180*pi,startI);
@@ -60,13 +62,15 @@ switch fieldScenario
                 )
         end
         
-        U.ang(startI:2*startI,:) = U.ang(startI:2*startI,:) + changeAng;
-        U.ang(2*startI:end,:) = U.ang(2*startI:end,:) + changeAng(end);
+        U.ang(startI+1:2*startI,:) = U.ang(startI+1:2*startI,:) + changeAng';
+        U.ang(2*startI+1:end,:) = U.ang(2*startI+1:end,:) + changeAng(end);
         U.ang = mod(U.ang,2*pi);
         U.alpha_z = alpha_z;
         % Constant ambient turbulence
-        I = ones(measPoints,1)*ambTurbulence;
+        I.val = ones(measPoints,1)*ambTurbulence;
         
+        U.pos = posMeas;
+        I.pos = posMeas;
     otherwise
         error('Unknown wind conditions, no simulation started')
 end
