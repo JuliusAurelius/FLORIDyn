@@ -1,4 +1,4 @@
-function [tl_pos,tl_D,tl_ayaw,fieldLims,Pow,VCtCp] = loadLayout(layout)
+function [T,fieldLims,Pow,VCtCp] = loadLayout(layout)
 
 switch layout
     case 'nineDTU10MW_Maatren'
@@ -36,8 +36,8 @@ switch layout
     otherwise
         error('Unknown scenario, no simulation started')
 end
-tl_pos  = T_Pos(:,1:Dim);
-tl_D    = T_Pos(:,end);
-tl_ayaw = zeros(length(tl_D),2);
+T.tl_pos  = T_Pos(:,1:Dim);
+T.tl_D    = T_Pos(:,end);
+T.tl_ayaw = zeros(length(tl_D),2);
 end
 
