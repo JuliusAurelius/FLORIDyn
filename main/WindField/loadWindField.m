@@ -1,4 +1,83 @@
 function [U, I, UF, Sim] = loadWindField(fieldScenario,varargin)
+% LOADWINDFIELD Creates the data necessary for the environment
+%   Wind variables like speed and direction are set here, as well as air
+%   density, resolution of the interpolation grid. The location of the
+%   measurement points are set here, ideally they are in a rectangle.
+%
+% INPUT
+%   fieldScenario   := String; Name of the Scenario used for the switch
+%                               case below.
+%                       'const': Constant wind from an constant angle
+%                       '+60DegChange': 60 degree wind direction change 
+%                                       after 300s for another 300s.
+%
+%   varargin        := String,Value: Option to change the value of the 
+%                                    default variables.
+% --- Var Name -|- Default -|- Explenation ------------------------------ %
+% windSpeed     | 8 m/s     | Free wind speed/ starting wind speed
+% windAngle     | 0 deg     | Wind direction/ starting wind direction
+%               |           | 0  = direction of the x axis
+%               |           | 90 = direction of the y axis
+% ambTurbulence | 0.06 = 6% | Ambient turbulence intensity
+% posMeas       | [0,0; ... | Position of the measurements of the wind
+%               | 3000,0;...| speed, angle etc., used for interpolation
+%               | 0,3000;...|
+%               | 3000,3000]|
+% uf_res        | [60,60]   | Grid resolution of the field interpolation,
+%               |           | first in x direction, then y direction
+% alpha_z       | 0         | factor for atmospheric stability, for values
+%               |           | >0 the wind speed closer to the ground is
+%               |           | reduced. Diabeled for 0.
+%               |           | alpha < 0.2 unstable conditions (turbulent)
+%               |           | alpha > 0.2 stable conditions (laminar)
+% airDen        |1.225kg/m^3| Air density, for SOWFA at 1.225, can be
+%               |           | disabled by setting to 1.
+% interpMethod  | 'natural' | Method used for field interpolation. other 
+%               |           | Options: 'nearest', 'linear'
+% SimDuration   | 1000s     | Duration of the Simulation
+% TimeStep      | 4s        | Duration of one time step
+% FreeSpeed     | true      | Determines if the OPs travel at free speed or
+%               |           | at their own effective wind speed.
+% WidthFactor   | 6         | Multiplication factor for the sig_y and sig_z
+%               |           | of the gaussian function describing the
+%               |           | field. 6 -> the OPs get distributed on 6*sig
+% ======================================================================= %
+% OUTPUT
+%   U           := Struct;    All data related to the wind
+%    .abs       := [txn] mat; Absolute value of the wind vector at the n
+%                             measurement points for t time steps. If t=1,
+%                             the wind speed is constant.
+%    .ang       := [txn] mat; Same as .abs, but for the angle of the vector
+%    .alpha_z   := double;    Atmospheric stability (see above)
+%    .pos       := [nx2] mat; Measurement positions
+%    .airDen    := double;    AirDensity
+%
+%   I           := Struct;    All data connected to the ambient turbulence
+%    .val       := [txn] mat; Same as U.abs, but for the turbulence
+%                             intensity
+%    .pos       := [nx2] mat; Measurement positions (same as wind!)
+%
+%   UF          := Struct;    Data connected to the (wind) field
+%    .lims      := [2x2] mat; Interpolation area
+%    .IR        := [mxn] mat; Maps the n measurements to the m grid points
+%                             of the interpolated mesh
+%    .Res       := [1x2] mat; x and y resolution of the interpolation mesh
+%
+%   Sim
+%    .Duration  := double;    Duration of the Simulation in seconds
+%    .TimeStep  := double;    Duration of one time step
+%    .TimeSteps := [1xt] vec; All time steps
+%    .NoTimeSteps= int;       Number of time steps
+%    .FreeSpeed := bool;      OPs traveling with free wind speed or own
+%                             speed
+%    .WidthFactor= double;    Multiplication factor for the field width
+% ======================================================================= %
+% = Reviewed: 2020.09.27 (yyyy.mm.dd)                                   = %
+% === Author: Marcus Becker                                             = %
+% == Contact: marcus.becker.mail@gmail.com                              = %
+% ======================================================================= %
+
+%% Default variables
 % Wind field data
 windSpeed       = 8;        % m/s
 windAngle       = 0;        % Degree, will be converted in rad
@@ -11,8 +90,8 @@ alpha_z         = 0;        % factor for height decrease due to
                             %   0.2 > a unstable conditions (turbulent)
                             %   0.2 < a stable conditions (laminar)
 airDen          = 1.225;    % Air density kg/m^3 (SOWFA)
-%airDen  = 1.1716; %kg/m^3
-                        
+                            % airDen  = 1.1716; %kg/m^3
+interpMethod    = 'natural';% Interpolation method for the wind field
 % Simulation data
 SimDuration     = 1000;     % in s
 TimeStep        = 4;        % in s
@@ -61,7 +140,8 @@ UF.lims = ...
     linspace(min(posMeas(:,1)),max(posMeas(:,1)),uf_res(1)),...
     linspace(min(posMeas(:,2)),max(posMeas(:,2)),uf_res(2)));
 
-UF.IR = createIRMatrix(posMeas,[fliplr(ufieldx(:)')',fliplr(ufieldy(:)')'],'natural');
+UF.IR = createIRMatrix(posMeas,...
+    [fliplr(ufieldx(:)')',fliplr(ufieldy(:)')'],interpMethod);
 UF.Res = uf_res;
 
 %%

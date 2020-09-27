@@ -11,7 +11,7 @@ warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 
 %% Load Layout
-[T,fieldLims,Pow,VCtCp,chain] = loadLayout('twoDTU10MW_Maarten');
+[T,fieldLims,Pow,VCtCp,chain] = loadLayout('twoDTU10MW_Maarten'); %#ok<ASGLU>
 
 %% Load the environment
 [U, I, UF, Sim] = loadWindField('const',... %'+60DegChange'
@@ -58,10 +58,11 @@ for i = 1:Sim.NoTimeSteps
     T.U = getWindVec3(T.pos, UF.IR, U_abs, U_ang, UF.Res, UF.lims);
     
     %====================== CONTROLLER ===================================%
-    %T.ayaw = controller(T.pos,T.D,T.ayaw,T.U);
     ControllerScript;
     % Save power output for plotting
     % 1/2*airdensity*AreaRotor*C_P(a,yaw)*U_eff^3
+    T.P = 0.5*U.airDen*(T.D/2).^2.*pi.*T.Cp.*T.u.^3.* Pow.eta.*...
+        cos(T.yaw-atan2(T.U(:,2),T.U(:,1))).^Pow.p_p;
     powerHist(:,i)=...
         0.5*U.airDen*(T.D/2).^2.*pi.*... %1/2*rho*A
         T.Cp ... % Cp w/o yaw
@@ -78,7 +79,7 @@ for i = 1:Sim.NoTimeSteps
     OP.I = getAmbientTurbulence(OP.pos, UF.IR, I_val, UF.Res, UF.lims);
     
     % Save old position for plotting if needed
-    if onlineVis; OP_pos_old = OP.pos;end
+    if onlineVis; OP_pos_old = OP.pos;end %#ok<NASGU>
     
     % Calculate the down and crosswind steps along with the windspeed at
     % the turbine rotor planes
