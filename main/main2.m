@@ -1,4 +1,4 @@
-function [powerHist,OP,T] = main2()
+function [powerHist,OP,T,UF,Sim] = main2()
 
 addpath('./WindField')
 addpath('./Controller')
@@ -16,7 +16,7 @@ warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 %% Load the environment
 [U, I, UF, Sim] = loadWindField('const',... %'+60DegChange'
     'SimDuration',300,...
-    'FreeSpeed',false);
+    'FreeSpeed',true);
 
 onlineVis = true;
 
