@@ -23,13 +23,13 @@ SimDuration     = 250*timeStep; % in s
 
 Dim = 3;
 
-onlineVis = true;
+onlineVis = false;
 %% Derived Variables
 timeSteps   = 0:timeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
 
 % Create the list of turbines with their properties
-[tl_pos,tl_D,tl_ayaw,fieldLims] = assembleTurbineList('nineDTU10MW','Dim',Dim);
+[tl_pos,tl_D,tl_ayaw,fieldLims] = assembleTurbineList('twoDTU10MW','Dim',Dim);
 
 %% Get Wind Field
 % Generate wind field
@@ -76,7 +76,7 @@ for i = 1:NoTimeSteps
     
     % Insert new points
     [op_pos, op_dw, op_ayaw] = ...
-        initAtRotorPlane(...
+        initAtRotorPlaneOLD(...
         op_pos, op_dw, op_ayaw, op_t_id, chainList,...
         cl_dstr, tl_pos, tl_D, tl_ayaw, tl_U);
     

@@ -50,10 +50,11 @@ for i = 1:Sim.NoTimeSteps
     %=====================================================================%
     
     % Insert new points
-    [OP.pos, OP.dw, OP.ayaw] = ...
-        initAtRotorPlane(...
-        OP.pos, OP.dw, OP.ayaw, OP.t_id, chain.List,...
-        chain.dstr, T.pos, T.D, T.ayaw, T.U);
+    OP = initAtRotorPlane(OP, chain, T);
+%     [OP.pos, OP.dw, OP.ayaw] = ...
+%         initAtRotorPlane(...
+%         OP.pos, OP.dw, OP.ayaw, OP.t_id, chain.List,...
+%         chain.dstr, T.pos, T.D, T.ayaw, T.U);
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed along with amb. turbulence intensity
@@ -69,9 +70,11 @@ for i = 1:Sim.NoTimeSteps
     
     % Save power output for plotting
     % 1/2*airdensity*AreaRotor*C_P(a,yaw)*U_eff^3
+    %C_Pa = 4.*T.ayaw(:,1).*(1-T.ayaw(:,1)).^2;
+    C_P = interp1(VCtCp(:,1),VCtCp(:,3),T.u);
     powerHist(:,i)=...
         0.5*U.airDen*(T.D/2).^2.*pi.*... %1/2*rho*A
-        4.*T.ayaw(:,1).*(1-T.ayaw(:,1)).^2 ... % C_P w/o yaw
+        C_P ... % C_P w/o yaw
         .*T.u.^3.* Pow.eta.*... % u^3*eta
         cos(T.ayaw(:,2)-atan2(T.U(:,2),T.U(:,1))).^Pow.p_p; %C_P to yaw adj
     

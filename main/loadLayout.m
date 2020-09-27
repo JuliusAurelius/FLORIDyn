@@ -1,7 +1,7 @@
 function [T,fieldLims,Pow,VCtCp,chain] = loadLayout(layout, varargin)
 % Observation Point data
-ChainLength     = 100;      % OPs per chain
-NumChains       = 80;       % Chains per turbine
+ChainLength     = 200;      % OPs per chain
+NumChains       = 100;       % Chains per turbine
 
 %% Code to use varargin values
 % function(*normal in*,'var1','val1','var2',val2[numeric])
@@ -46,7 +46,8 @@ switch layout
         Pow.eta     = 1.08;     %Def. DTU 10MW
         Pow.p_p     = 1.50;     %Def. DTU 10MW
         
-        VCtCp = load('./TurbineData/VCtCp_10MW.mat');
+        % Get VCtCp
+        load('./TurbineData/VCtCp_10MW.mat');
     case 'twoDTU10MW_Maarten'
         % Two DTU 10MW Turbines 
         T_Pos = [400 500 119 178.4;...
@@ -57,7 +58,8 @@ switch layout
         Pow.eta     = 1.08;     %Def. DTU 10MW
         Pow.p_p     = 1.50;     %Def. DTU 10MW
         
-        VCtCp = load('./TurbineData/VCtCp_10MW.mat');
+        % Get VCtCp
+        load('./TurbineData/VCtCp_10MW.mat');
         
         ChainLength = [ones(NumChains,1)*120;ones(NumChains,1)*10];   
     otherwise
