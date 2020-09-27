@@ -18,5 +18,10 @@ clf
 % a varying number.
 rotors = cell(length(T.D),1);
 
+%% Meshgrid of field variables interpolation 
+[UF.ufieldx,UF.ufieldy] = meshgrid(...
+    linspace(min(UF.lims(:,1)),max(UF.lims(:,1)),UF.Res(1)),...
+    linspace(min(UF.lims(:,2)),max(UF.lims(:,2)),UF.Res(2)));
+
 %% Clean up
 clear pos res

@@ -2,18 +2,18 @@
 %   Contour Plot of the wind field
 %% Interpolate the values of the grid in the wakes
 u_grid_z = NaN(size(u_grid_x(:)));
-narc_height = true(size(op_t_id));
+narc_height = true(size(OP.t_id));
 
-if size(op_pos_old,2)==3
-    narc_height = op_pos_old(:,3)<mean(tl_pos(:,3))*1.2;
-    narc_height = and(op_pos_old(:,3)>mean(tl_pos(:,3))*0.8,narc_height);
+if size(OP.pos_old,2)==3
+    narc_height = OP.pos_old(:,3)<mean(T.pos(:,3))*1.2;
+    narc_height = and(OP.pos_old(:,3)>mean(T.pos(:,3))*0.8,narc_height);
 end
-for wakes = 1:length(tl_D)
+for wakes = 1:length(T.D)
     % Use wake of turbine "wakes" to triangulate
     F = scatteredInterpolant(...
-        op_pos_old(and(op_t_id==wakes,narc_height),1),...
-        op_pos_old(and(op_t_id==wakes,narc_height),2),...
-    sqrt(sum(op_u(and(op_t_id==wakes,narc_height),:).^2,2)),'nearest','none');
+        OP.pos_old(and(OP.t_id==wakes,narc_height),1),...
+        OP.pos_old(and(OP.t_id==wakes,narc_height),2),...
+    sqrt(sum(OP.u(and(OP.t_id==wakes,narc_height),:).^2,2)),'nearest','none');
 
     % Get grid values within the wake, outside nan
     u_grid_z_tmp = F(u_grid_x(:),u_grid_y(:));
@@ -31,7 +31,7 @@ end
 nan_z = isnan(u_grid_z);
 u_grid_z_tmp2 = getWindVec3(...
     [u_grid_x(nan_z),u_grid_y(nan_z)],...
-    IR, U_abs(i,:), U_ang(i,:), uf_n, uf_lims);
+    UF.IR, U_abs, U_ang, UF.Res, UF.lims);
 u_grid_z(nan_z) = sqrt(sum(u_grid_z_tmp2.^2,2));
 u_grid_z = reshape(u_grid_z,size(u_grid_x));
 
@@ -39,13 +39,13 @@ u_grid_z = reshape(u_grid_z,size(u_grid_x));
 figure(2)
 contourf(u_grid_x,u_grid_y,u_grid_z,30,'LineColor','none');
 hold on
-for i_T = 1:length(tl_D)
+for i_T = 1:length(T.D)
     % Get start and end of the turbine rotor
     rot_pos = ...
-        [cos(tl_ayaw(i_T,2)), -sin(tl_ayaw(i_T,2));...
-        sin(tl_ayaw(i_T,2)), cos(tl_ayaw(i_T,2))] * ...
-        [0,0;tl_D(i_T)/2,-tl_D(i_T)/2];
-    rot_pos = rot_pos + tl_pos(i_T,1:2)';
+        [cos(T.ayaw(i_T,2)), -sin(T.ayaw(i_T,2));...
+        sin(T.ayaw(i_T,2)), cos(T.ayaw(i_T,2))] * ...
+        [0,0;T.D(i_T)/2,-T.D(i_T)/2];
+    rot_pos = rot_pos + T.pos(i_T,1:2)';
     plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
 end
 title('Filled contour plot')

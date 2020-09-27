@@ -15,9 +15,9 @@ airDen          = 1.225;    % Air density kg/m^3 (SOWFA)
                         
 % Simulation data
 SimDuration     = 1000;     % in s
-timeStep        = 4;        % in s
-
-
+TimeStep        = 4;        % in s
+FreeSpeed       = true;
+WidthFactor     = 6;
 %% Code to use varargin values
 % function(*normal in*,'var1','val1','var2',val2[numeric])
 if nargin>1
@@ -41,14 +41,16 @@ end
 
 %% Derived variables
 measPoints  = size(posMeas,1);
-timeSteps   = 0:timeStep:SimDuration;
+timeSteps   = 0:TimeStep:SimDuration;
 NoTimeSteps = length(timeSteps);
 
 %% Simulation constants
 Sim.Duration    = SimDuration;
-Sim.TimeStep    = timeStep;
+Sim.TimeStep    = TimeStep;
 Sim.TimeSteps   = timeSteps;
 Sim.NoTimeSteps = NoTimeSteps;
+Sim.FreeSpeed   = FreeSpeed;
+Sim.WidthFactor = WidthFactor;
 
 %% Wind field
 UF.lims = ...
@@ -80,12 +82,12 @@ switch fieldScenario
         % Two DTU 10MW Turbines 
         U.abs = ones(NoTimeSteps,measPoints).*windSpeed;
         U.ang = ones(size(U.abs)).*windAngle;
-        startI = round(300/timeStep);
+        startI = round(300/TimeStep);
         changeAng = linspace(0,60/180*pi,startI);
         
         if 2*startI>NoTimeSteps
             error(['simulation is too short, set SimDuration'...
-                ' at least to ' num2str(2*startI*timeStep) 's.'] ...
+                ' at least to ' num2str(2*startI*TimeStep) 's.'] ...
                 )
         end
         

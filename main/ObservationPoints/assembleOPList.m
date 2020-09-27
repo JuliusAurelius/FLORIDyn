@@ -1,4 +1,4 @@
-function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = assembleOPList(NumChains,chainLength,tl_D,tl_pos,distr_method,Dim)
+function [OP, chain] = assembleOPList(chain,T,distr_method)
 % assembleOPList creates a list of OPs with entries for the starting points 
 % and the rest being 0
 % 
@@ -30,28 +30,29 @@ function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = ass
 %
 
 
+% chain.NumChains,chain.Length
 
 % ==== Constants ==== %
 Dim             = 3; % Since the model is defined in 3D
-NumTurb         = length(tl_D);
-NumChainsTot    = NumChains*NumTurb; % Total number of chains across all t.
+NumTurb         = length(T.D);
+NumChainsTot    = chain.NumChains*NumTurb; % Total number of chains across all t.
 chainList       = zeros(NumChainsTot,5);
-chainList(:,4)  = reshape(repmat(1:NumTurb,NumChains,1),NumChainsTot,1);
+chainList(:,4)  = reshape(repmat(1:NumTurb,chain.NumChains,1),NumChainsTot,1);
 
 % ==== Build Chains ==== %
-if length(chainLength)==NumChainsTot
+if length(chain.Length)==NumChainsTot
     % diverse length, for every chain there is a length.
     
     % Get starting indeces
-    chainList(:,2) = cumsum(chainLength')'-chainLength+1;
+    chainList(:,2) = cumsum(chain.Length')'-chain.Length+1;
 else
     % Starting points
-    chainList(:,2) = cumsum(ones(1,NumChainsTot)*chainLength(1))'...
-        -chainLength(1)+1;
+    chainList(:,2) = cumsum(ones(1,NumChainsTot)*chain.Length(1))'...
+        -chain.Length(1)+1;
 end
 
 % Store chain length
-chainList(:,3) = chainLength;
+chainList(:,3) = chain.Length;
     
 % Allocate opList
 len_OPs = sum(chainList(:,3));
@@ -61,11 +62,11 @@ op_pos  = zeros(len_OPs,Dim);
 op_dw   = zeros(len_OPs,1);
 op_r    = zeros(len_OPs,2);
 op_U    = zeros(len_OPs,2);
-op_ayaw = zeros(len_OPs,2);
-op_ayaw(:,1) = 0.33;        %Otherwise the first points are init. wrong
+op_yaw  = zeros(len_OPs,1);
+op_Ct   = zeros(len_OPs,1);        %Otherwise the first points are init. wrong
 op_t_id = assignTIDs(chainList,len_OPs);
 
-op_pos(:,1:2) = tl_pos(op_t_id,1:2);
+op_pos(:,1:2) = T.pos(op_t_id,1:2);
 
 cl_dstr = zeros(NumChainsTot,Dim-1);
 
@@ -80,14 +81,14 @@ switch distr_method
         % [-.5,0.5] 
         if Dim == 3
             % 3 Dimentional field: 2D rotor plane
-            [y,z,repArea] = sunflower(NumChains, 2);
+            [y,z,repArea] = sunflower(chain.NumChains, 2);
             
             cl_dstr(:,1) = repmat(y,NumTurb,1).*0.5;
             cl_dstr(:,2) = repmat(z,NumTurb,1).*0.5;
             cl_relA = repmat(repArea,NumTurb,1);
         else
             % 2 Dimentional field: 1D rotor plane
-            y = linspace(-0.5,.5,NumChains)';
+            y = linspace(-0.5,.5,chain.NumChains)';
             cl_dstr(:) = repmat(y,NumTurb,1);
             
             
@@ -100,10 +101,10 @@ switch distr_method
             
             % repArea contains the area from the center to the outside
             
-            %d = zeros(floor(NumChains/2),1);
-            if mod(NumChains,2)==0
+            %d = zeros(floor(chain.NumChains/2),1);
+            if mod(chain.NumChains,2)==0
                 % Even
-                d = 1/NumChains*(0:(NumChains-1)/2);
+                d = 1/chain.NumChains*(0:(chain.NumChains-1)/2);
                 repArea = A(d);
                 repArea(1:end-1) = repArea(1:end-1)-repArea(2:end);
                 
@@ -113,7 +114,7 @@ switch distr_method
                 cl_relA = repmat(repArea_all',NumTurb,1);
             else
                 % Uneven
-                d = [0,1/(NumChains-1)*(0.5:(NumChains-1)/2)];
+                d = [0,1/(chain.NumChains-1)*(0.5:(chain.NumChains-1)/2)];
                 repArea = A(d);
                 repArea(1:end-1) = repArea(1:end-1)-repArea(2:end);
                 
@@ -129,6 +130,17 @@ switch distr_method
         end
 end
 chainList(:,5) = cl_relA;
+
+OP.pos  = op_pos;
+OP.dw   = op_dw;
+OP.r    = op_r;
+OP.U    = op_U;
+OP.yaw  = op_yaw;
+OP.Ct   = op_Ct;
+OP.t_id = op_t_id;
+
+chain.List = chainList;
+chain.dstr = cl_dstr;
 end
 
 function t_id = assignTIDs(chainList,len_OPs)

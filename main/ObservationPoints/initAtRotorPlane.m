@@ -41,9 +41,9 @@ Dim = size(OP.pos,2);    %<- Switch between dimentions
 ind = chain.List(:,1) + chain.List(:,2);
 
 % Assign a and yaw values of the turbines, together with coordinates
-OP.ayaw(ind,1) = T.ayaw(OP.t_id(ind),1);   % a
-OP.ayaw(ind,2) = getEffectiveYaw(...
-    T.ayaw(OP.t_id(ind),2), T.U(OP.t_id(ind),:));
+OP.Ct(ind) = T.Ct(OP.t_id(ind),1);   % a
+OP.yaw(ind) = getEffectiveYaw(...
+    T.yaw(OP.t_id(ind)), T.U(OP.t_id(ind),:));
 
 % Set downwind position to 0 (at the rotor plane)
 OP.dw(ind) = 0;
@@ -54,9 +54,8 @@ OP.dw(ind) = 0;
 % used for the model
 ang_U = atan2(T.U(:,2),T.U(:,1));
 
-a   = OP.ayaw(ind,1);
-yaw = OP.ayaw(ind,2);
-C_T = 4*a.*(1-a.*cos(yaw));
+yaw = OP.yaw(ind);
+C_T = OP.Ct(ind);
 % Potential core at rotor plane
 %   Ratio u_r/u_0 [1] Eq.6.4 & 6.7
 u_r_0 = (C_T.*cos(yaw))./(...

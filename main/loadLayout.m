@@ -70,7 +70,7 @@ T.D    = T_Pos(:,end);
 T.ayaw = zeros(length(T.D),2);
 
 %% Store chain configuration
-chain.NumChains     = NumChains;
-chain.Length   = ChainLength;
+chain.NumChains = NumChains;
+chain.Length    = ChainLength;
 end
 
