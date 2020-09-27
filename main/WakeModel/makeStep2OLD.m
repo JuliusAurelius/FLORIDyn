@@ -1,4 +1,4 @@
-function [OP, u_t]=makeStep2(OP, chain, T, timeStep)
+function [op_pos, op_dw, op_u, u_t]=makeStep2OLD(op_pos, op_dw, op_ayaw, op_t_id, op_U, op_I, chainList, cl_dstr, tl_pos, tl_D, timeStep)
 % MAKESTEP2 calculates all values necessary to propagate the wind field.
 %   It calculates the crosswind position of the OPs, the reduction and the
 %   foreign influence. With that information the downwind step can be
@@ -43,51 +43,51 @@ function [OP, u_t]=makeStep2(OP, chain, T, timeStep)
 % Factor for sig of gaussian function
 w = 6;
 
-OP.r = zeros(length(OP.dw),1);
-OP.D = T.D(OP.t_id);
-OP.c = getChainIDforOP(chain.List);
-yaw  = OP.ayaw(:,2);
+op_r = zeros(length(op_dw),1);
+op_D = tl_D(op_t_id);
+op_c = getChainIDforOP(chainList);
+yaw  = op_ayaw(:,2);
 % 1 if three dimentions, 0 if only 2
 
 
 %% Get wake width
 [sig_y, sig_z, C_T, x_0, delta, pc_y, pc_z] = ...
-     getBastankhahVars2(OP.dw, OP.ayaw, OP.I, OP.D);
+     getBastankhahVars2(op_dw, op_ayaw, op_I, op_D);
  
 [nw, cw_y, cw_z, core, phi_cw]=...
-     getCWPosition(OP.dw, w, chain.dstr, OP.c, sig_y, sig_z, pc_y, pc_z, x_0);
+     getCWPosition(op_dw, w, cl_dstr, op_c, sig_y, sig_z, pc_y, pc_z, x_0);
 
 %% Get speed reduction
-OP.r(core) = 1-sqrt(1-C_T(core));
+op_r(core) = 1-sqrt(1-C_T(core));
 
 % Remove core from crosswind pos and calculate speed reduction
-%nw = OP.dw<x_0;
+%nw = op_dw<x_0;
 fw = ~nw;
 gaussAbs = zeros(size(core));
 
 gaussAbs(nw) = 1-sqrt(1-C_T(nw));
 gaussAbs(fw) = 1-sqrt(1-C_T(fw)...
-    .*cos(yaw(fw))./(8*(sig_y(fw).*sig_z(fw)./OP.D(fw).^2)));
-OP.r(~core) = gaussAbs(~core).*...
+    .*cos(yaw(fw))./(8*(sig_y(fw).*sig_z(fw)./op_D(fw).^2)));
+op_r(~core) = gaussAbs(~core).*...
     exp(-0.5.*((cw_y(~core)-cos(phi_cw(~core)).*pc_y(~core)*0.5)./sig_y(~core)).^2).*...
     exp(-0.5.*((cw_z(~core)-sin(phi_cw(~core)).*pc_z(~core)*0.5)./sig_z(~core)).^2);
 
 %% Get forgeign influence
-r_f = getForeignInfluence(OP.pos, OP.r, OP.t_id, T.D);
+r_f = getForeignInfluence(op_pos, op_r, op_t_id, tl_D);
 
 %% Calculate speed
 % Windspeed at every OP WITHOUT own wake (needed for turbine windspeed)
-OP.u = r_f.*OP.U;
+op_u = r_f.*op_U;
 % Calculate downwind step and add it to the real world coordinates and
 % downwind position
 % ================ REPLACED BY FREE SPEED VELOCITY ====================== %
-%dw_step = (1-OP.r).*OP.u*timeStep;
-dw_step = OP.U*timeStep;
+%dw_step = (1-op_r).*op_u*timeStep;
+dw_step = op_U*timeStep;
 % ======================================================================= %
 
 
-OP.pos(:,1:2) = OP.pos(:,1:2) + dw_step;
-OP.dw = OP.dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
+op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
+op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
 
 %% Get new wake width
 % Save old values
@@ -97,22 +97,22 @@ cw_z_old  = cw_z;
 
 % Get new values
 [sig_y, sig_z, ~, ~, delta, pc_y, pc_z] = ...
-    getBastankhahVars2(OP.dw, OP.ayaw, OP.I, OP.D);
+    getBastankhahVars2(op_dw, op_ayaw, op_I, op_D);
 
 [~, cw_y, cw_z, ~, ~]=...
-    getCWPosition(OP.dw, w, chain.dstr, OP.c, sig_y, sig_z, pc_y, pc_z, x_0);
+    getCWPosition(op_dw, w, cl_dstr, op_c, sig_y, sig_z, pc_y, pc_z, x_0);
  
 %% Calculate difference and apply step to the world coordinates
-OP.pos = updatePosition(...
-    OP.pos, OP.U, cw_y, cw_z, cw_y_old, cw_z_old, delta, delta_old);
+op_pos = updatePosition(...
+    op_pos, op_U, cw_y, cw_z, cw_y_old, cw_z_old, delta, delta_old);
 
 %% Extract the windspeed at the rotorplane
-% OP.u has all speeds of the OPs, the speed of the first ones of the chains
+% op_u has all speeds of the OPs, the speed of the first ones of the chains
 % need to be weighted summed by the area they represent.
 %   Needs to happen BEFORE own reduction is applied. For the down wind step
 %   it was applied seperately
-u_t = getTurbineWindSpeed(OP.u,chain.List,T.D);
+u_t = getTurbineWindSpeed(op_u,chainList,tl_D);
 
 %% Apply own reduction to speed vector
-OP.u = OP.u.*(1-OP.r);
+op_u = op_u.*(1-op_r);
 end

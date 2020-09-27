@@ -51,10 +51,6 @@ for i = 1:Sim.NoTimeSteps
     
     % Insert new points
     OP = initAtRotorPlane(OP, chain, T);
-%     [OP.pos, OP.dw, OP.ayaw] = ...
-%         initAtRotorPlane(...
-%         OP.pos, OP.dw, OP.ayaw, OP.t_id, chain.List,...
-%         chain.dstr, T.pos, T.D, T.ayaw, T.U);
     
     % _____________________ Increment ____________________________________%
     % Update wind dir and speed along with amb. turbulence intensity
@@ -64,13 +60,10 @@ for i = 1:Sim.NoTimeSteps
     % Calculate the down and crosswind steps along with the windspeed at
     % the turbine rotor planes
     OP.pos_old = OP.pos;
-    [OP.pos, OP.dw, OP.u, T.u]=makeStep2(...
-        OP.pos, OP.dw, OP.ayaw, OP.t_id, OP.U, OP.I,...
-        chain.List, chain.dstr, T.pos, T.D, Sim.TimeStep);
+    [OP, T.u]=makeStep2(OP, chain, T, Sim.TimeStep);
     
     % Save power output for plotting
     % 1/2*airdensity*AreaRotor*C_P(a,yaw)*U_eff^3
-    %C_Pa = 4.*T.ayaw(:,1).*(1-T.ayaw(:,1)).^2;
     C_P = interp1(VCtCp(:,1),VCtCp(:,3),T.u);
     powerHist(:,i)=...
         0.5*U.airDen*(T.D/2).^2.*pi.*... %1/2*rho*A
