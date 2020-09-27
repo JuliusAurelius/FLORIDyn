@@ -1,4 +1,54 @@
 function [T,fieldLims,Pow,VCtCp,chain] = loadLayout(layout, varargin)
+% LOADLAYOUT Creates and loads the data necessary for the wind farm layout
+%   Here, the layout of the wind farm, its dimentions and the data of the
+%   turbines are set. The different layouts are chosen by a switch case.
+%   The switch case might overwrite data which can be set in variargin, so
+%   be aware to check for that.
+%   In the current version of the code, chains can have different lengths,
+%   but it is not possible to change the length during the simulation.
+% ======================================================================= %
+% INPUT
+%   layout      := String; Name of the Scenario used for the switch case.
+%                           'nineDTU10MW_Maatren':
+%                               9 turbines in a 3x3 grid
+%                           'twoDTU10MW_Maarten':
+%                               2 turbines behind each other
+%
+%   varargin    := String,Value: Option to change the value of the 
+%                                    default variables.
+% --- Var Name -|- Default -|- Explenation ------------------------------ %
+% ChainLength   | 200 OPs   | Number of Observation points in a chain
+% NumChains     | 100       | Number of chains per wind turbine
+% ======================================================================= %
+% OUTPUT
+%   T           := Struct;    All data related to the turbines
+%    .pos       := [nx3] mat; x & y positions and nacelle height for all n
+%                             turbines.
+%    .D         := [nx1] vec; Diameter of all n turbines
+%    .yaw       := [nx1] vec; Yaw setting of the n turbines    (Allocation)
+%    .Ct        := [nx1] vec; Current Ct of the n turbines     (Allocation)
+%    .Cp        := [nx1] vec; Current Cp of the n turbines     (Allocation)
+%
+%   fieldLims   := [2x2] mat; limits of the wind farm area (must not be the
+%                             same as the wind field!)
+%
+%   Pow         := Struct;    All data related to the power calculation
+%    .eta       := double;    Efficiency of the used turbine
+%    .p_p       := double;    cos(yaw) exponent for power calculation 
+%
+%   VCtCp       := [nx3];     Wind speed to Ct & Cp mapping
+%                               (Only used by controller script)
+%
+%   chain       := Struct;    Data related to the OP management / chains
+%    .NumChains := int;       Number of Chains per turbine
+%    .Length    := int/[nx1]; Length of the Chains - either uniform for all
+%                             chains or individually set for every chain.
+% ======================================================================= %
+% = Reviewed: 2020.09.27 (yyyy.mm.dd)                                   = %
+% === Author: Marcus Becker                                             = %
+% == Contact: marcus.becker.mail@gmail.com                              = %
+% ======================================================================= %
+%% Default variables
 % Observation Point data
 ChainLength     = 200;      % OPs per chain
 NumChains       = 100;       % Chains per turbine
@@ -67,8 +117,9 @@ switch layout
 end
 T.pos  = T_Pos(:,1:3); % 1:Dim
 T.D    = T_Pos(:,end);
-T.ayaw = zeros(length(T.D),2);
-
+T.yaw  = zeros(length(T.D),1);
+T.Ct   = zeros(length(T.D),1);
+T.Cp   = zeros(length(T.D),1);
 %% Store chain configuration
 chain.NumChains = NumChains;
 chain.Length    = ChainLength;

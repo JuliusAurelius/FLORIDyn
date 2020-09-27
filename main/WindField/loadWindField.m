@@ -3,7 +3,7 @@ function [U, I, UF, Sim] = loadWindField(fieldScenario,varargin)
 %   Wind variables like speed and direction are set here, as well as air
 %   density, resolution of the interpolation grid. The location of the
 %   measurement points are set here, ideally they are in a rectangle.
-%
+% ======================================================================= %
 % INPUT
 %   fieldScenario   := String; Name of the Scenario used for the switch
 %                               case below.
