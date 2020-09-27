@@ -4,15 +4,15 @@
 u_grid_z = NaN(size(u_grid_x(:)));
 narc_height = true(size(OP.t_id));
 
-if size(OP.pos_old,2)==3
-    narc_height = OP.pos_old(:,3)<mean(T.pos(:,3))*1.2;
-    narc_height = and(OP.pos_old(:,3)>mean(T.pos(:,3))*0.8,narc_height);
+if size(OP_pos_old,2)==3
+    narc_height = OP_pos_old(:,3)<mean(T.pos(:,3))*1.2;
+    narc_height = and(OP_pos_old(:,3)>mean(T.pos(:,3))*0.8,narc_height);
 end
 for wakes = 1:length(T.D)
     % Use wake of turbine "wakes" to triangulate
     F = scatteredInterpolant(...
-        OP.pos_old(and(OP.t_id==wakes,narc_height),1),...
-        OP.pos_old(and(OP.t_id==wakes,narc_height),2),...
+        OP_pos_old(and(OP.t_id==wakes,narc_height),1),...
+        OP_pos_old(and(OP.t_id==wakes,narc_height),2),...
     sqrt(sum(OP.u(and(OP.t_id==wakes,narc_height),:).^2,2)),'nearest','none');
 
     % Get grid values within the wake, outside nan

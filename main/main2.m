@@ -43,6 +43,7 @@ powerHist = zeros(length(T.D),Sim.NoTimeSteps);
 % Set free wind speed as starting wind speed for the turbines
 T.U = getWindVec3(T.pos, UF.IR, U_abs, U_ang, UF.Res, UF.lims);
 T.u = sqrt(T.U(:,1).^2+T.U(:,2).^2);
+i = 1; % Maybe needed for Controlle Script
 ControllerScript;
 OP.Ct = T.Ct(OP.t_id);
 %% Start simulation
@@ -76,9 +77,11 @@ for i = 1:Sim.NoTimeSteps
     OP.U = getWindVec3(OP.pos, UF.IR, U_abs, U_ang, UF.Res, UF.lims);
     OP.I = getAmbientTurbulence(OP.pos, UF.IR, I_val, UF.Res, UF.lims);
     
+    % Save old position for plotting if needed
+    if onlineVis; OP_pos_old = OP.pos;end
+    
     % Calculate the down and crosswind steps along with the windspeed at
     % the turbine rotor planes
-    OP.pos_old = OP.pos;
     [OP, T]=makeStep2(OP, chain, T, Sim);
     
     % Increment the index of the chain starting entry
