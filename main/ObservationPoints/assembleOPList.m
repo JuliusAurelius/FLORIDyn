@@ -47,10 +47,6 @@ function [OP, chain] = assembleOPList(chain,T,distr_method)
 %    .dstr      := [nx2] vec; Relative y,z distribution of the chain in the
 %                             wake, factor multiplied with the width, +-0.5
 % ======================================================================= %
-% = Reviewed: 2020.09.28 (yyyy.mm.dd)                                   = %
-% === Author: Marcus Becker                                             = %
-% == Contact: marcus.becker.mail@gmail.com                              = %
-% ======================================================================= %
 %% Constants
 Dim             = 3; % Since the model is defined in 3D
 NumTurb         = length(T.D);
@@ -180,3 +176,9 @@ end
 
 % chainList
 % [ off, start_id, length, t_id, relArea]
+
+%% ===================================================================== %%
+% = Reviewed: 2020.09.28 (yyyy.mm.dd)                                   = %
+% === Author: Marcus Becker                                             = %
+% == Contact: marcus.becker.mail@gmail.com                              = %
+% ======================================================================= %

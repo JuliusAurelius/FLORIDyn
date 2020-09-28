@@ -44,10 +44,6 @@ function [T,fieldLims,Pow,VCtCp,chain] = loadLayout(layout, varargin)
 %    .Length    := int/[nx1]; Length of the Chains - either uniform for all
 %                             chains or individually set for every chain.
 % ======================================================================= %
-% = Reviewed: 2020.09.27 (yyyy.mm.dd)                                   = %
-% === Author: Marcus Becker                                             = %
-% == Contact: marcus.becker.mail@gmail.com                              = %
-% ======================================================================= %
 %% Default variables
 % Observation Point data
 ChainLength     = 200;      % OPs per chain
@@ -124,4 +120,8 @@ T.Cp   = zeros(length(T.D),1);
 chain.NumChains = NumChains;
 chain.Length    = ChainLength;
 end
-
+%% ===================================================================== %%
+% = Reviewed: 2020.09.27 (yyyy.mm.dd)                                   = %
+% === Author: Marcus Becker                                             = %
+% == Contact: marcus.becker.mail@gmail.com                              = %
+% ======================================================================= %

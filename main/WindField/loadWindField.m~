@@ -41,7 +41,7 @@ function [U, I, UF, Sim] = loadWindField(fieldScenario,varargin)
 % WidthFactor   | 6         | Multiplication factor for the sig_y and sig_z
 %               |           | of the gaussian function describing the
 %               |           | field. 6 -> the OPs get distributed on 6*sig
-% z_h           | 119m      | Height of the wind speed measurement
+% z_h           | 119m      | 
 % ======================================================================= %
 % OUTPUT
 %   U           := Struct;    All data related to the wind
@@ -182,7 +182,7 @@ switch fieldScenario
 end
 end
 %% ===================================================================== %%
-% = Reviewed: 2020.09.28 (yyyy.mm.dd)                                   = %
+% = Reviewed: 2020.09.27 (yyyy.mm.dd)                                   = %
 % === Author: Marcus Becker                                             = %
 % == Contact: marcus.becker.mail@gmail.com                              = %
 % ======================================================================= %

@@ -54,17 +54,18 @@ for i = 1:Sim.NoTimeSteps
     if UabsVar; U_abs = U.abs(i,:); end
     if IVar;    I_val = I.val(i,:); end
     
-    %================= CONTROLLER & POWER CALCULATION ====================%
     % Update Turbine data to get controller input
     T.U = getWindVec4(T.pos, U_abs, U_ang, UF);
     
+    %================= CONTROLLER & POWER CALCULATION ======================%
     % Set Ct/Cp and calculate the power output
     ControllerScript;
     
-    %================= INSERT NEW OBSERVATION POINTS =====================%
+    %================= INSERT NEW OBSERVATION POINTS ======================%
+
     OP = initAtRotorPlane(OP, chain, T);
     
-    %====================== INCREMENT POSITION ===========================%
+    %====================== Increment position ===========================%
     % Update wind dir and speed along with amb. turbulence intensity
     OP.U = getWindVec4(OP.pos, U_abs, U_ang, UF);
     OP.I = getAmbientTurbulence(OP.pos, UF.IR, I_val, UF.Res, UF.lims);
@@ -79,7 +80,7 @@ for i = 1:Sim.NoTimeSteps
     % Increment the index of the chain starting entry
     chain.List = shiftChainList(chain.List);
     
-    %===================== ONLINE VISULIZATION ===========================%
+    %===================== Online visulization ===========================%
     % Script (2/2)
     if onlineVis
         OnlineVis_plot;
