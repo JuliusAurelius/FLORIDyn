@@ -9,7 +9,6 @@ function [OP, chain] = assembleOPList(chain,T,distr_method)
 %   structure, .List stores the start index of each chain, which entry to
 %   overwrite, how many entries a chain has and which turbine it belongs
 %   to. Further it also stores the relative area represented by the chain.
-%   The .dstr entry holds the relative chain cross wind position
 % ======================================================================= %
 % INPUT
 %   chain       := Struct;    Data related to the OP management / chains
@@ -25,9 +24,8 @@ function [OP, chain] = assembleOPList(chain,T,distr_method)
 %    .Ct        := [nx1] vec; Current Ct of the n turbines
 %    .Cp        := [nx1] vec; Current Cp of the n turbines
 %
-%   distr_method:= String;    Name of the strategy to distribute points
-%                             across the wake cross section
-%                               (currently only 'sunflower')
+% distr_method  := String; Name of the strategy to distribute points across
+%                   the wake cross section
 % ======================================================================= %
 % OUTPUT
 %   OP          := Struct;    Data related to the state of the OPs
