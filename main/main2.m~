@@ -36,10 +36,9 @@ U_ang   = U.ang(1,:);
 U_abs   = U.abs(1,:);
 I_val   = I.val(1,:);
 
-%clc
-fprintf(' ============ FLORIDyn Progress ============ \n');
-fprintf(['  Number of turbines  : ' num2str(length(T.D)) '\n']);
-dispstat('','init')
+fprintf('FLORIDyn Simulation\n')
+fprintf(['Number of turbines: ' num2str(length(T.D)) ''])
+disp
 
 % Preallocate the power history
 powerHist = zeros(length(T.D),Sim.NoTimeSteps);

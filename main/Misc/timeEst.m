@@ -1,28 +1,9 @@
-function [remainingTime] = timeEst( timeMeasured, numOfOperationsLeft,varargin )
+function [remainingTime] = timeEst(timeMeasured, numOfOperationsLeft)
 % Gets a measured time and adds it to a set of already measured times
 % Returns a string that estimates how long the program will need to finish
 
-%Options
+%Number of consecutive measurements
 sizeTimeArray=10;
-
-if nargin>2
-    %varargin is used
-    for i=1:2:length(varargin)
-        %go through varargin which is build in pairs and assign variable
-        %stored in the first entry with the value stored in the second
-        %entry.
-        if isnumeric(varargin{i+1})
-            %Value is a number -> for 'eval' a string is needed, so convert
-            %num2str
-            eval([varargin{i} '=' num2str(varargin{i+1}) ';']);
-        else
-            %Value is a string, can be used as expected
-            stringVar=varargin{i+1};
-            eval([varargin{i} '= stringVar;']);
-            clear stringVar
-        end
-    end
-end
 
 % get array with saved times
 persistent MeasuredTimes;
@@ -35,7 +16,7 @@ if nargin==0||isempty(MeasuredTimes)
     if nargin==0
         %Mind that when resetting timeEst it will automatically use 
         % sizeTimeArray=10;
-        remainingTime=0;
+        remainingTime='0';
         return
     end
 end
@@ -49,6 +30,12 @@ MeasuredTimes=A*MeasuredTimes;
 
 %Save the new measurement
 MeasuredTimes(1,1)=timeMeasured;
+
+% If not enough measurements yet
+if sum(MeasuredTimes==0)>0
+    remainingTime = '... estimating';
+    return
+end
 
 %Calculate mean of saved times
 meanTime=mean(MeasuredTimes);
