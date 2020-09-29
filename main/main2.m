@@ -12,7 +12,7 @@ addpath('./Misc')
 [T,fieldLims,Pow,VCtCp,chain] = loadLayout('twoDTU10MW_Maarten'); %#ok<ASGLU>
 
 %% Load the environment
-[U, I, UF, Sim] = loadWindField('const',... %'+60DegChange'
+[U, I, UF, Sim] = loadWindField('+60DegChange',... %'+60DegChange''const'
     'SimDuration',1000,...
     'FreeSpeed',true,...
     'Interaction',false);
