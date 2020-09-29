@@ -7,9 +7,6 @@ addpath('./WakeModel')
 addpath('./Visulization')
 addpath('./TurbineData')
 
-warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
-warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
-
 %% Load Layout
 [T,fieldLims,Pow,VCtCp,chain] = loadLayout('twoDTU10MW_Maarten'); %#ok<ASGLU>
 
@@ -18,7 +15,7 @@ warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
     'SimDuration',300,...
     'FreeSpeed',true);
 
-onlineVis = false;
+onlineVis = true;
 
 %% Create starting OPs and build opList
 [OP, chain] = assembleOPList(chain,T,'sunflower');

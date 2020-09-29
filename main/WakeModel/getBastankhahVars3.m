@@ -1,31 +1,38 @@
 function [sig_y, sig_z, C_T, x_0, delta, pc_y, pc_z] = getBastankhahVars3(OP, D)
-% getCW returns the crosswind position of an OP based on the dw position
+% GETBASTANKHAHVARS calculates the field width, the potential core data and
+% the deflection. These values are needed for the wake shape and speed 
+% reduction. The values are based of the state of every individual OP.
+% ======================================================================= %
+% INPUT
+%   OP          := Struct;    Data related to the state of the OPs
+%    .pos       := [nx3] vec; [x,y,z] world coord. (can be nx2)
+%    .dw        := [nx1] vec; downwind position (wake coordinates)
+%    .yaw       := [nx1] vec; yaw angle (wake coord.) at the time of creat.
+%    .Ct        := [nx1] vec; Ct coefficient at the time of creation
+%    .t_id      := [nx1] vec; Turbine OP belongs to
+%    .U         := [nx2] vec; Uninfluenced wind vector at OP position
+%    .u         := [nx2] vec; Effective wind vector at OP position
 %
-%INPUT
-% OP Data
-%   OP.dw       := [n x 1] vec; downwind position
-%   OP.ayaw     := [n x 2] vec; axial induction factor and yaw (wake coord.)
-%   OP.t_id     := [n x 1] vec; Turbine op belongs to
-%   OP.I        := [n x 1] vec; Ambient turbulence intensity
-%
-% Turbine Data
-%   tl_D        := [n x 1] vec; Turbine diameter
-%
+%   D           := [nx1] vec; Turbine diameter.
+% ======================================================================= %
+% OUTPUT
+%   sig_y       := [nx1] vec; Gaussian variance in y direction (sqrt of)
+%   sig_z       := [nx1] vec; Gaussian variance in z direction (sqrt of)
+%   C_T         := [nx1] vec; Thrust coefficient, same as OP.Ct
+%   x_0         := [nx1] vec; Potential core length
+%   delta       := [nx1] vec; Deflection
+%   pc_y        := [nx1] vec; Potential core boundary in y dir
+%   pc_z        := [nx1] vec; Potential core boundary in z dir
+% ======================================================================= %
 % SOURCES
 % [1] Experimental and theoretical study of wind turbine wakes in yawed
 %     conditions - M. Bastankhah and F. Porté-Agel
 % [2] Design and analysis of a spatially heterogeneous wake - A. Farrell,
 %     J. King et al.
-
+% ======================================================================= %
 %% Calc C_T
 %a = OP.ayaw(:,1);
 yaw = OP.yaw;
-
-% Could be replaced by look-up-table
-% [1] Eq.6.1 
-%C_T = 4*a.*sqrt(1-a.*(2*cos(yaw)-a));
-% [1] Eq.6.2
-%C_T = 4*a.*(1-a.*cos(yaw));
 C_T = OP.Ct;
 %% Calc x_0 (Core length)
 alpha = 2.32;
@@ -90,3 +97,8 @@ u_r_0 = (C_T.*cos(yaw))./(...
 pc_y = D.*cos(yaw).*sqrt(u_r_0).*max([1-OP.dw./x_0,zs],[],2);
 pc_z = D.*sqrt(u_r_0).*max([1-OP.dw./x_0,zs],[],2);
 end
+%% ===================================================================== %%
+% = Reviewed: 2020.09.29 (yyyy.mm.dd)                                   = %
+% === Author: Marcus Becker                                             = %
+% == Contact: marcus.becker.mail@gmail.com                              = %
+% ======================================================================= %

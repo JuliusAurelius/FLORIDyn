@@ -75,7 +75,6 @@ len_OPs = sum(chainList(:,3));
 %(pos, dw, r, U, a,yaw t_ind)
 op_pos  = zeros(len_OPs,Dim);
 op_dw   = zeros(len_OPs,1);
-op_r    = zeros(len_OPs,2);
 op_U    = zeros(len_OPs,2);
 op_yaw  = zeros(len_OPs,1);
 op_Ct   = zeros(len_OPs,1);        %Otherwise the first points are init. wrong
@@ -148,7 +147,6 @@ chainList(:,5) = cl_relA;
 
 OP.pos  = op_pos;
 OP.dw   = op_dw;
-OP.r    = op_r;
 OP.U    = op_U;
 OP.yaw  = op_yaw;
 OP.Ct   = op_Ct;

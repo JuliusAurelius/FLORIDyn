@@ -22,3 +22,12 @@ powerHist(:,i)= T.P;
 % === Author: Marcus Becker                                             = %
 % == Contact: marcus.becker.mail@gmail.com                              = %
 % ======================================================================= %
+
+%% Other Ct equations based on the axial induction factor
+% [1] Eq.6.1 
+%C_T = 4*a.*sqrt(1-a.*(2*cos(yaw)-a));
+% [1] Eq.6.2
+%C_T = 4*a.*(1-a.*cos(yaw));
+% SOURCES
+% [1] Experimental and theoretical study of wind turbine wakes in yawed
+%     conditions - M. Bastankhah and F. Porté-Agel

@@ -2,15 +2,16 @@ function ind = pos2ind(pos,num_xy,grid_lims)
 %POS2IND performs a nearest neighbor interpolation from any position to a
 % grid of values and returns the index of the grid matrix entry related to
 % the position
+% ======================================================================= %
 % INPUTS
-% pos       := [n x 2] vec; points to get index for
+% pos       := [n x 3] vec; points to get index for
 % num_xy    := [1 x 2] vec; Number of grid points in x and y direction
 % grid_lims := [2 x 2] mat; [delta x, delta y; (x,y) bottom left]
-%
+% ======================================================================= %
 % OUTPUT
 % ind       := [n x 1] vec; Index of the grid matrix the position belongs
 %                           to.
-%
+% ======================================================================= %
 %% Nearest neighbour interpolation
 % Transform the (x,y) coordinates into the indeces of the wind field, so
 % that the position is automatically matched to an entry in the matrix.
@@ -36,4 +37,8 @@ n_pos(:,2) = round(n_pos(:,2) * (num_y-1))+1;
 n_uf2 = [num_xy(2),num_xy(1)];
 ind = sub2ind(n_uf2,n_pos(:,2),n_pos(:,1));
 end
-
+%% ===================================================================== %%
+% = Reviewed: 2020.09.29 (yyyy.mm.dd)                                   = %
+% === Author: Marcus Becker                                             = %
+% == Contact: marcus.becker.mail@gmail.com                              = %
+% ======================================================================= %
