@@ -42,6 +42,9 @@ function [U, I, UF, Sim] = loadWindField(fieldScenario,varargin)
 %               |           | of the gaussian function describing the
 %               |           | field. 6 -> the OPs get distributed on 6*sig
 % z_h           | 119m      | Height of the wind speed measurement
+% Interaction   | true      | If activated, the OPs look for foreign wake
+%               |           | influences, disabeling dastically decreases
+%               |           | simulation time
 % ======================================================================= %
 % OUTPUT
 %   U           := Struct;    All data related to the wind
@@ -73,6 +76,7 @@ function [U, I, UF, Sim] = loadWindField(fieldScenario,varargin)
 %    .FreeSpeed := bool;      OPs traveling with free wind speed or own
 %                             speed
 %    .WidthFactor= double;    Multiplication factor for the field width
+%    .Interaction= bool;      Whether the wakes interact with each other
 % ======================================================================= %
 %% Default variables
 % Wind field data
@@ -92,9 +96,10 @@ interpMethod    = 'natural';% Interpolation method for the wind field
 % Simulation data
 SimDuration     = 1000;     % in s
 TimeStep        = 4;        % in s
-FreeSpeed       = true;
+FreeSpeed       = true;     % bool
 WidthFactor     = 6;
 z_h             = 119;      % in m
+Interaction     = true;     % bool
 %% Code to use varargin values
 % function(*normal in*,'var1','val1','var2',val2[numeric])
 if nargin>1
@@ -128,6 +133,7 @@ Sim.TimeSteps   = timeSteps;
 Sim.NoTimeSteps = NoTimeSteps;
 Sim.FreeSpeed   = FreeSpeed;
 Sim.WidthFactor = WidthFactor;
+Sim.Interaction = Interaction;
 
 %% Wind field
 UF.lims = ...

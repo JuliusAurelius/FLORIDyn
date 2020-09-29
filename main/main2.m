@@ -12,8 +12,9 @@ addpath('./TurbineData')
 
 %% Load the environment
 [U, I, UF, Sim] = loadWindField('const',... %'+60DegChange'
-    'SimDuration',300,...
-    'FreeSpeed',true);
+    'SimDuration',1000,...
+    'FreeSpeed',true,...
+    'Interaction',false);
 
 onlineVis = true;
 

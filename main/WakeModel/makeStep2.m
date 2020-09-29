@@ -34,6 +34,16 @@ function [OP, T]=makeStep2(OP, chain, T, Sim)
 %    .Cp        := [nx1] vec; Current Cp of the n turbines
 %    .U         := [nx2] vec; Wind vector for the n turbines
 %    .u         := [nx1] vec; Effective wind speed at the rotor plane
+%
+%   Sim
+%    .Duration  := double;    Duration of the Simulation in seconds
+%    .TimeStep  := double;    Duration of one time step
+%    .TimeSteps := [1xt] vec; All time steps
+%    .NoTimeSteps= int;       Number of time steps
+%    .FreeSpeed := bool;      OPs traveling with free wind speed or own
+%                             speed
+%    .WidthFactor= double;    Multiplication factor for the field width
+%    .Interaction= bool;      Whether the wakes interact with each other
 % ======================================================================= %
 % OUTPUT
 %   OP          := Struct;    Data related to the state of the OPs
@@ -91,7 +101,13 @@ OP_r(~core) = gaussAbs(~core).*...
     exp(-0.5.*((cw_z(~core)-sin(phi_cw(~core)).*pc_z(~core)*0.5)./sig_z(~core)).^2);
 
 %% Get forgeign influence
-r_f = getForeignInfluence(OP.pos, OP_r, OP.t_id, length(T.D));
+if Sim.Interaction
+    % Calculate foreign influence
+    r_f = getForeignInfluence(OP.pos, OP_r, OP.t_id, length(T.D));
+else
+    % Foreign influence ignored
+    r_f = ones(size(OP_r));
+end
 
 %% Calculate speed
 % Windspeed at every OP WITHOUT own wake (needed for turbine windspeed)
