@@ -1,88 +1,142 @@
-function [op_pos, op_dw, op_u, u_t]=makeStep2(op_pos, op_dw, op_ayaw, op_t_id, op_U, op_I, chainList, cl_dstr, tl_pos, tl_D, timeStep)
+function [OP, T]=makeStep2(OP, chain, T, Sim)
 % MAKESTEP2 calculates all values necessary to propagate the wind field.
 %   It calculates the crosswind position of the OPs, the reduction and the
 %   foreign influence. With that information the downwind step can be
 %   calculated.
 %   With the new downwind position comes a new crosswind position. The
-%   function returns the vector describing the down- and crosswind movement
-%   of all observation points. It also extracts the wind speed at the rotor
-%   planes.
-%
+%   function returns the updated OP struct.
+%   It also extracts the effective wind speed at the rotor planes.
+% ======================================================================= %
 % INPUT
-% OP Data
-%   op_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
-%   op_dw       := [n x 1] vec; downwind position
-%   op_r        := [n x 2] vec; [r_own, r_turbine]
-%   op_ayaw     := [n x 2] vec; axial induction factor and yaw (wake coord.)
-%   op_t_id     := [n x 1] vec; Turbine op belongs to
-%   op_U        := [n x 2] vec; Uninfluenced wind vector at OP position
+%   OP          := Struct;    Data related to the state of the OPs
+%    .pos       := [nx3] vec; [x,y,z] world coord. (can be nx2)
+%    .dw        := [nx1] vec; downwind position (wake coordinates)
+%    .yaw       := [nx1] vec; yaw angle (wake coord.) at the time of creat.
+%    .Ct        := [nx1] vec; Ct coefficient at the time of creation
+%    .t_id      := [nx1] vec; Turbine OP belongs to
+%    .U         := [nx2] vec; Uninfluenced wind vector at OP position
+%    .u         := [nx1] vec; Effective wind speed at OP position
 %
-% Chain Data
-%   chainList   := [n x 1] vec; (see at the end of the function)
-%   cl_dstr     := [n x 1] vec; Distribution relative to the wake width
+%   chain       := Struct;    Data related to the OP management / chains
+%    .NumChains := int;       Number of Chains per turbine
+%    .Length    := int/[nx1]; Length of the Chains - either uniform for all
+%                             chains or individually set for every chain.
+%    .List      := [nx5] vec; [Offset, start_id, length, t_id, relArea]
+%    .dstr      := [nx2] vec; Relative y,z distribution of the chain in the
+%                             wake, factor multiplied with the width, +-0.5
 %
-% Turbine Data
-%   tl_pos      := [m x 3] vec; [x,y,z] world coord. (can be nx2)
-%   tl_D        := [m x 1] vec; Turbine diameter
+%   T           := Struct;    All data related to the turbines
+%    .pos       := [nx3] mat; x & y positions and nacelle height for all n
+%                             turbines.
+%    .D         := [nx1] vec; Diameter of all n turbines
+%    .yaw       := [nx1] vec; Yaw setting of the n turbines
+%    .Ct        := [nx1] vec; Current Ct of the n turbines
+%    .Cp        := [nx1] vec; Current Cp of the n turbines
+%    .U         := [nx2] vec; Wind vector for the n turbines
+%    .u         := [nx1] vec; Effective wind speed at the rotor plane
 %
+%   Sim
+%    .Duration  := double;    Duration of the Simulation in seconds
+%    .TimeStep  := double;    Duration of one time step
+%    .TimeSteps := [1xt] vec; All time steps
+%    .NoTimeSteps= int;       Number of time steps
+%    .FreeSpeed := bool;      OPs traveling with free wind speed or own
+%                             speed
+%    .WidthFactor= double;    Multiplication factor for the field width
+%    .Interaction= bool;      Whether the wakes interact with each other
+% ======================================================================= %
 % OUTPUT
-% op_pos        := [n x 3] vec; [x,y,z] world coord. (can be nx2)
-% op_dw         := [n x 1] vec; downwind position
-% u_t           := [m x 1] vec; Effective wind speeds at the turbines
+%   OP          := Struct;    Data related to the state of the OPs
+%    .pos       := [nx3] vec; [x,y,z] world coord. (can be nx2)
+%    .dw        := [nx1] vec; downwind position (wake coordinates)
+%    .yaw       := [nx1] vec; yaw angle (wake coord.) at the time of creat.
+%    .Ct        := [nx1] vec; Ct coefficient at the time of creation
+%    .t_id      := [nx1] vec; Turbine OP belongs to
+%    .U         := [nx2] vec; Uninfluenced wind vector at OP position
+%    .u         := [nx2] vec; Effective wind vector at OP position
 %
+%   T           := Struct;    All data related to the turbines
+%    .pos       := [nx3] mat; x & y positions and nacelle height for all n
+%                             turbines.
+%    .D         := [nx1] vec; Diameter of all n turbines
+%    .yaw       := [nx1] vec; Yaw setting of the n turbines
+%    .Ct        := [nx1] vec; Current Ct of the n turbines
+%    .Cp        := [nx1] vec; Current Cp of the n turbines
+%    .U         := [nx2] vec; Wind vector for the n turbines
+%    .u         := [nx1] vec; Effective wind speed at the rotor plane
+% ======================================================================= %
 % SOURCES
 % [1] Experimental and theoretical study of wind turbine wakes in yawed
 %     conditions - M. Bastankhah and F. Porté-Agel
 % [2] Design and analysis of a spatially heterogeneous wake - A. Farrell,
 %     J. King et al.
 % ======================================================================= %
-% AUTHOR: M. Becker                                                       %
-% DATE  : 01.09.2020 (ddmmyyyy)                                           %
-% ======================================================================= %
 %% Vars
 % Factor for sig of gaussian function
-w = 6;
-
-op_r = zeros(length(op_dw),1);
-op_D = tl_D(op_t_id);
-op_c = getChainIDforOP(chainList);
-yaw  = op_ayaw(:,2);
-% 1 if three dimentions, 0 if only 2
-
+w    = Sim.WidthFactor;
+OP_r = zeros(length(OP.dw),1);
+D    = T.D(OP.t_id);
+OP_c = getChainIDforOP(chain.List);
+yaw  = OP.yaw;
 
 %% Get wake width
-[sig_y, sig_z, C_T, x_0, delta, pc_y, pc_z] = ...
-     getBastankhahVars2(op_dw, op_ayaw, op_I, op_D);
+[sig_y, sig_z, C_T, x_0, delta, pc_y, pc_z] = getBastankhahVars3(OP, D);
  
 [nw, cw_y, cw_z, core, phi_cw]=...
-     getCWPosition(op_dw, w, cl_dstr, op_c, sig_y, sig_z, pc_y, pc_z, x_0);
+     getCWPosition(OP.dw, w, chain.dstr, OP_c, sig_y, sig_z, pc_y, pc_z, x_0);
 
 %% Get speed reduction
-op_r(core) = 1-sqrt(1-C_T(core));
+OP_r(core) = 1-sqrt(1-C_T(core));
 
 % Remove core from crosswind pos and calculate speed reduction
-%nw = op_dw<x_0;
+%nw = OP.dw<x_0;
 fw = ~nw;
 gaussAbs = zeros(size(core));
 
 gaussAbs(nw) = 1-sqrt(1-C_T(nw));
 gaussAbs(fw) = 1-sqrt(1-C_T(fw)...
-    .*cos(yaw(fw))./(8*(sig_y(fw).*sig_z(fw)./op_D(fw).^2)));
-op_r(~core) = gaussAbs(~core).*...
+    .*cos(yaw(fw))./(8*(sig_y(fw).*sig_z(fw)./D(fw).^2)));
+OP_r(~core) = gaussAbs(~core).*...
     exp(-0.5.*((cw_y(~core)-cos(phi_cw(~core)).*pc_y(~core)*0.5)./sig_y(~core)).^2).*...
     exp(-0.5.*((cw_z(~core)-sin(phi_cw(~core)).*pc_z(~core)*0.5)./sig_z(~core)).^2);
 
 %% Get forgeign influence
-r_f = getForeignInfluence(op_pos, op_r, op_t_id, tl_D);
+if Sim.Interaction
+    % Calculate foreign influence
+    r_f = getForeignInfluence(OP.pos, OP_r, OP.t_id, length(T.D));
+else
+    % Foreign influence ignored
+    r_f = ones(size(OP_r));
+end
 
 %% Calculate speed
 % Windspeed at every OP WITHOUT own wake (needed for turbine windspeed)
-op_u = r_f.*op_U;
-% Calculate downwind step and add it to the real world coordinates and
-% downwind position
-dw_step = (1-op_r).*op_u*timeStep;
-op_pos(:,1:2) = op_pos(:,1:2) + dw_step;
-op_dw = op_dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
+OP.u = r_f.*OP.U;
+
+%% Extract the windspeed at the rotorplane
+% OP.u has all speeds of the OPs, the speed of the first ones of the chains
+% need to be weighted summed by the area they represent.
+%   Needs to happen BEFORE own reduction is applied. For the down wind step
+%   it was applied seperately
+T.u = getTurbineWindSpeed(OP.u,chain.List,T.D);
+
+%% Down wind step
+% Calculate downwind step, based on the simulation settings, the OPs travel
+% at their effective speed u or at the uninfluenced wind speed U.
+
+if Sim.FreeSpeed
+    % Frozen turbulence hypothesis
+    %   All OPs travel with free wind speed
+    dw_step = OP.U*Sim.TimeStep;
+else
+    % OPs travel with their effective wind speed
+    dw_step = (1-OP_r).*OP.u*Sim.TimeStep;
+end
+
+% Apply the down wind step to the x,y world coordinates and the down wind
+% location
+OP.pos(:,1:2) = OP.pos(:,1:2) + dw_step;
+OP.dw = OP.dw + sqrt(dw_step(:,1).^2 + dw_step(:,2).^2);
 
 %% Get new wake width
 % Save old values
@@ -91,23 +145,20 @@ cw_y_old  = cw_y;
 cw_z_old  = cw_z;
 
 % Get new values
-[sig_y, sig_z, ~, ~, delta, pc_y, pc_z] = ...
-    getBastankhahVars2(op_dw, op_ayaw, op_I, op_D);
+[sig_y, sig_z, ~, ~, delta, pc_y, pc_z] = getBastankhahVars3(OP, D);
 
 [~, cw_y, cw_z, ~, ~]=...
-    getCWPosition(op_dw, w, cl_dstr, op_c, sig_y, sig_z, pc_y, pc_z, x_0);
+    getCWPosition(OP.dw, w, chain.dstr, OP_c, sig_y, sig_z, pc_y, pc_z, x_0);
  
 %% Calculate difference and apply step to the world coordinates
-op_pos = updatePosition(...
-    op_pos, op_U, cw_y, cw_z, cw_y_old, cw_z_old, delta, delta_old);
-
-%% Extract the windspeed at the rotorplane
-% op_u has all speeds of the OPs, the speed of the first ones of the chains
-% need to be weighted summed by the area they represent.
-%   Needs to happen BEFORE own reduction is applied. For the down wind step
-%   it was applied seperately
-u_t = getTurbineWindSpeed(op_u,chainList,tl_D);
+OP.pos = updatePosition(...
+    OP.pos, OP.U, cw_y, cw_z, cw_y_old, cw_z_old, delta, delta_old);
 
 %% Apply own reduction to speed vector
-op_u = op_u.*(1-op_r);
+OP.u = OP.u.*(1-OP_r);
 end
+%% ===================================================================== %%
+% = Reviewed: 2020.09.29 (yyyy.mm.dd)                                   = %
+% === Author: Marcus Becker                                             = %
+% == Contact: marcus.becker.mail@gmail.com                              = %
+% ======================================================================= %

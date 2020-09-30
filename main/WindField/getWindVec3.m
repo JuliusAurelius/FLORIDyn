@@ -40,3 +40,12 @@ U(:,1) = cos(Ang_interp(i)).*Abs_interp(i);
 U(:,2) = sin(Ang_interp(i)).*Abs_interp(i);
 end
 
+%% getWindVec4
+% also includes a shear model for different wind speeds at different
+% heights by the Eq.7 from [1]: U = (z/z_h)^alpha * U_measurement
+% z_h := hub height, but should be measurement height..?
+% Shear coeff.: 0<=alpha, <0.2 unstable atmosphere; >0.2 stable atmosphere
+
+% SOURCES
+%   [1] Design and analysis of a spatially heterogeneous wake, Farrell et
+%   al.

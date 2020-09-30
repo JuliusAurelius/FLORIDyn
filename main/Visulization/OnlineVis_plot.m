@@ -7,21 +7,21 @@ end
 %% Plot the OPs
 subplot(2,1,1)
 hold on
-u_l = min(sqrt(sum(op_u.^2,2)));
-%ff = sqrt(sum(op_u.^2,2))>(u_l*1.2)*0;
-if Dim==2
-    u_max = 20;
-    slow = sqrt(sum(op_u.^2,2))<u_max;
-    p = scatter3(op_pos_old(slow,1),op_pos_old(slow,2),sqrt(sum(op_u(slow,:).^2,2)),...
-        ones(size(op_t_id(slow)))*40,sqrt(sum(op_u(slow,:).^2,2)),...
+u_l = min(sqrt(sum(OP.u.^2,2)));
+%ff = sqrt(sum(OP.u.^2,2))>(u_l*1.2)*0;
+% if Dim==2
+%     u_max = 20;
+%     slow = sqrt(sum(OP.u.^2,2))<u_max;
+%     p = scatter3(OP_pos_old(slow,1),OP_pos_old(slow,2),sqrt(sum(OP.u(slow,:).^2,2)),...
+%         ones(size(OP.t_id(slow)))*40,sqrt(sum(OP.u(slow,:).^2,2)),...
+%         'filled');
+% else
+    p = scatter3(OP_pos_old(:,1),OP_pos_old(:,2),OP_pos_old(:,3),...
+        sqrt(sum(OP.u.^2,2)).^-1 * 100,sqrt(sum(OP.u.^2,2)),...%ones(size(OP.t_id(:)))*20,sqrt(sum(OP.u.^2,2)),...
         'filled');
-else
-    p = scatter3(op_pos_old(:,1),op_pos_old(:,2),op_pos_old(:,3),...
-        ones(size(op_t_id(:)))*20,sqrt(sum(op_u.^2,2)),...
-        'filled');
-end
-Uq = getWindVec3([ufieldx(:),ufieldy(:)],IR, U_abs(i,:), U_ang(i,:), uf_n, uf_lims);
-q = quiver(ufieldx(:),ufieldy(:),Uq(:,1),Uq(:,2),'Color',[0.5,0.5,0.5]);
+% end
+Uq = getWindVec3([UF.ufieldx(:),UF.ufieldy(:)],UF.IR, U_abs, U_ang, UF.Res, UF.lims);
+q = quiver(UF.ufieldx(:),UF.ufieldy(:),Uq(:,1),Uq(:,2),'Color',[0.5,0.5,0.5]);
 
 
 c = colorbar;
@@ -31,37 +31,37 @@ xlabel('West-East [m]')
 ylabel('South-North [m]')
 xlim(fLim_x);
 ylim(fLim_y);
-if Dim == 3
+% if Dim == 3
     zlabel('Height [m]')
     zlim([-300,500]);
-end
+% end
 grid on
 
 %% Plot the rotors
-for i_T = 1:length(tl_D)
+for i_T = 1:length(T.D)
     if i>1
         delete(rotors{i_T});
     end
     % Get start and end of the turbine rotor
     rot_pos = ...
-        [cos(tl_ayaw(i_T,2)), -sin(tl_ayaw(i_T,2));...
-        sin(tl_ayaw(i_T,2)), cos(tl_ayaw(i_T,2))] * ...
-        [0,0;tl_D(i_T)/2,-tl_D(i_T)/2];
-    rot_pos = rot_pos + tl_pos(i_T,1:2)';
+        [cos(T.yaw(i_T)), -sin(T.yaw(i_T));...
+        sin(T.yaw(i_T)), cos(T.yaw(i_T))] * ...
+        [0,0;T.D(i_T)/2,-T.D(i_T)/2];
+    rot_pos = rot_pos + T.pos(i_T,1:2)';
     rotors{i_T} = plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
 end
 
 %% Plot the Power Output
 subplot(2,1,2)
-plot(timeSteps,powerHist(1,:),'LineWidth',2);
+plot(Sim.TimeSteps,powerHist(1,:),'LineWidth',2);
 hold on
-for ii = 2:length(tl_D)
-    plot(timeSteps,powerHist(ii,:),'LineWidth',2);
+for ii = 2:length(T.D)
+    plot(Sim.TimeSteps,powerHist(ii,:),'LineWidth',2);
 end
 title('Power Output')
 ylabel('Power output in W')
 xlabel('Time [s]')
-xlim([0,timeSteps(end)])
+xlim([0,Sim.TimeSteps(end)])
 ylim([0 inf])
 grid on
 hold off

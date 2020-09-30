@@ -1,56 +1,73 @@
-function [op_pos, op_dw, op_r, op_U, op_ayaw, op_t_id, chainList, cl_dstr] = assembleOPList(NumChains,chainLength,tl_D,tl_pos,distr_method,Dim)
-% assembleOPList creates a list of OPs with entries for the starting points 
-% and the rest being 0
-% 
+function [OP, chain] = assembleOPList(chain,T,distr_method)
+% assembleOPList creates a struct for the Observation Point data needed to
+% create the wake shape and the velocity deficit.
+%   The function calculates the distribution of the OPs relative to the
+%   wake width. It also allocates the storage needed for the rest of the
+%   data.
+%   The chain struct gets extended by .List and .dstr: .List describes the
+%   storage of the OPs in chains. All OPs are stored in a coloumn
+%   structure, .List stores the start index of each chain, which entry to
+%   overwrite, how many entries a chain has and which turbine it belongs
+%   to. Further it also stores the relative area represented by the chain.
+%   The .dstr entry holds the relative chain cross wind position
+% ======================================================================= %
 % INPUT
-% Chain Data
-%   NumChains   := int; Number of chains per turbine
-%   chainLength := int; Unfiform length for all chains
-%   chainLength := [n x 1] vec; Individual length of each chain of each T
+%   chain       := Struct;    Data related to the OP management / chains
+%    .NumChains := int;       Number of Chains per turbine
+%    .Length    := int/[nx1]; Length of the Chains - either uniform for all
+%                             chains or individually set for every chain.
 %
-% Turbine Data
-%   tl_pos      := [m x 3] vec; [x,y,z] world coord. (can be mx2)
-%   tl_D        := [m x 1] vec; Turbine diameter
+%   T           := Struct;    All data related to the turbines
+%    .pos       := [nx3] mat; x & y positions and nacelle height for all n
+%                             turbines.
+%    .D         := [nx1] vec; Diameter of all n turbines
+%    .yaw       := [nx1] vec; Yaw setting of the n turbines
+%    .Ct        := [nx1] vec; Current Ct of the n turbines
+%    .Cp        := [nx1] vec; Current Cp of the n turbines
 %
-% distr_method  := String; Name of the strategy to distribute points across
-%                   the wake cross section
-%
+%   distr_method:= String;    Name of the strategy to distribute points
+%                             across the wake cross section
+%                               (currently only 'sunflower')
+% ======================================================================= %
 % OUTPUT
-% OP Data
-%   op_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)
-%   op_dw       := [n x 1] vec; downwind position
-%   op_r        := [n x 2] vec; [r_own, r_turbine]
-%   op_ayaw     := [n x 2] vec; axial induction factor and yaw (wake coord.)
-%   op_t_id     := [n x 1] vec; Turbine op belongs to
-%   op_U        := [n x 2] vec; Uninfluenced wind vector at OP position
+%   OP          := Struct;    Data related to the state of the OPs
+%    .pos       := [nx3] vec; [x,y,z] world coord. (can be nx2)
+%    .dw        := [nx1] vec; downwind position (wake coordinates)
+%    .r         := [nx1] vec; Reduction factor: u = U*(1-r)
+%    .yaw       := [nx1] vec; yaw angle (wake coord.) at the time of creat.
+%    .Ct        := [nx1] vec; Ct coefficient at the time of creation
+%    .t_id      := [nx1] vec; Turbine OP belongs to
+%    .U         := [nx2] vec; Uninfluenced wind vector at OP position
 %
-% Chain Data
-%   chainList   := [n x 1] vec; (see at the end of the function)
-%   cl_dstr     := [n x 1] vec; Distribution relative to the wake width
-%
-
-
-
-% ==== Constants ==== %
-NumTurb         = length(tl_D);
-NumChainsTot    = NumChains*NumTurb; % Total number of chains across all t.
+%   chain       := Struct;    Data related to the OP management / chains
+%    .NumChains := int;       Number of Chains per turbine
+%    .Length    := int/[nx1]; Length of the Chains - either uniform for all
+%                             chains or individually set for every chain.
+%    .List      := [nx5] vec; [Offset, start_id, length, t_id, relArea]
+%    .dstr      := [nx2] vec; Relative y,z distribution of the chain in the
+%                             wake, factor multiplied with the width, +-0.5
+% ======================================================================= %
+%% Constants
+Dim             = 3; % Since the model is defined in 3D
+NumTurb         = length(T.D);
+NumChainsTot    = chain.NumChains*NumTurb; % Total number of chains across all t.
 chainList       = zeros(NumChainsTot,5);
-chainList(:,4)  = reshape(repmat(1:NumTurb,NumChains,1),NumChainsTot,1);
+chainList(:,4)  = reshape(repmat(1:NumTurb,chain.NumChains,1),NumChainsTot,1);
 
 % ==== Build Chains ==== %
-if length(chainLength)==NumChainsTot
+if length(chain.Length)==NumChainsTot
     % diverse length, for every chain there is a length.
     
     % Get starting indeces
-    chainList(:,2) = cumsum(chainLength')'-chainLength+1;
+    chainList(:,2) = cumsum(chain.Length')'-chain.Length+1;
 else
     % Starting points
-    chainList(:,2) = cumsum(ones(1,NumChainsTot)*chainLength(1))'...
-        -chainLength(1)+1;
+    chainList(:,2) = cumsum(ones(1,NumChainsTot)*chain.Length(1))'...
+        -chain.Length(1)+1;
 end
 
 % Store chain length
-chainList(:,3) = chainLength;
+chainList(:,3) = chain.Length;
     
 % Allocate opList
 len_OPs = sum(chainList(:,3));
@@ -58,13 +75,12 @@ len_OPs = sum(chainList(:,3));
 %(pos, dw, r, U, a,yaw t_ind)
 op_pos  = zeros(len_OPs,Dim);
 op_dw   = zeros(len_OPs,1);
-op_r    = zeros(len_OPs,2);
 op_U    = zeros(len_OPs,2);
-op_ayaw = zeros(len_OPs,2);
-op_ayaw(:,1) = 0.33;        %Otherwise the first points are init. wrong
+op_yaw  = zeros(len_OPs,1);
+op_Ct   = zeros(len_OPs,1);        %Otherwise the first points are init. wrong
 op_t_id = assignTIDs(chainList,len_OPs);
 
-op_pos(:,1:2) = tl_pos(op_t_id,1:2);
+op_pos(:,1:2) = T.pos(op_t_id,1:2);
 
 cl_dstr = zeros(NumChainsTot,Dim-1);
 
@@ -79,14 +95,14 @@ switch distr_method
         % [-.5,0.5] 
         if Dim == 3
             % 3 Dimentional field: 2D rotor plane
-            [y,z,repArea] = sunflower(NumChains, 2);
+            [y,z,repArea] = sunflower(chain.NumChains, 2);
             
             cl_dstr(:,1) = repmat(y,NumTurb,1).*0.5;
             cl_dstr(:,2) = repmat(z,NumTurb,1).*0.5;
             cl_relA = repmat(repArea,NumTurb,1);
         else
             % 2 Dimentional field: 1D rotor plane
-            y = linspace(-0.5,.5,NumChains)';
+            y = linspace(-0.5,.5,chain.NumChains)';
             cl_dstr(:) = repmat(y,NumTurb,1);
             
             
@@ -99,10 +115,10 @@ switch distr_method
             
             % repArea contains the area from the center to the outside
             
-            %d = zeros(floor(NumChains/2),1);
-            if mod(NumChains,2)==0
+            %d = zeros(floor(chain.NumChains/2),1);
+            if mod(chain.NumChains,2)==0
                 % Even
-                d = 1/NumChains*(0:(NumChains-1)/2);
+                d = 1/chain.NumChains*(0:(chain.NumChains-1)/2);
                 repArea = A(d);
                 repArea(1:end-1) = repArea(1:end-1)-repArea(2:end);
                 
@@ -112,7 +128,7 @@ switch distr_method
                 cl_relA = repmat(repArea_all',NumTurb,1);
             else
                 % Uneven
-                d = [0,1/(NumChains-1)*(0.5:(NumChains-1)/2)];
+                d = [0,1/(chain.NumChains-1)*(0.5:(chain.NumChains-1)/2)];
                 repArea = A(d);
                 repArea(1:end-1) = repArea(1:end-1)-repArea(2:end);
                 
@@ -128,6 +144,16 @@ switch distr_method
         end
 end
 chainList(:,5) = cl_relA;
+
+OP.pos  = op_pos;
+OP.dw   = op_dw;
+OP.U    = op_U;
+OP.yaw  = op_yaw;
+OP.Ct   = op_Ct;
+OP.t_id = op_t_id;
+
+chain.List = chainList;
+chain.dstr = cl_dstr;
 end
 
 function t_id = assignTIDs(chainList,len_OPs)
@@ -148,3 +174,9 @@ end
 
 % chainList
 % [ off, start_id, length, t_id, relArea]
+
+%% ===================================================================== %%
+% = Reviewed: 2020.09.28 (yyyy.mm.dd)                                   = %
+% === Author: Marcus Becker                                             = %
+% == Contact: marcus.becker.mail@gmail.com                              = %
+% ======================================================================= %

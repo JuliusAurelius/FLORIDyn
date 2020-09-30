@@ -43,7 +43,7 @@ addPaths;
 %% Visulization
 % Set to true or false, if set to false, the only output is what this
 % function returns. Disabeling decreases the computational effort noticably
-onlineVis = false;
+onlineVis = true;
 
 %% Create starting OPs and build opList
 %   Creates the observation point struct (OP) and extends the chain struct.
