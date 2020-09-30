@@ -20,10 +20,12 @@ function [U, I, UF, Sim] = loadWindField(fieldScenario,varargin)
 %               |           | 90 = direction of the y axis
 % ambTurbulence | 0.06 = 6% | Ambient turbulence intensity
 % posMeasFactor | 3000      | The Position of the measurements of the wind
-%               |           | speed, angle etc., is determined by this 
+%               | 3000,0;...| speed, angle etc., is determined by this 
 %               |           | factor: corners will be at (0,0),(k,0),(0,k),
-%               |           | (k,k) with k=posMeasFactor. Can be set in the
-%               |           | code for more or different locations.
+%                             (k,k) with k=posMeasFactor. Can be set in the
+%                             code for more or different locations
+%               | 0,3000;...|
+%               | 3000,3000]|
 % uf_res        | [60,60]   | Grid resolution of the field interpolation,
 %               |           | first in x direction, then y direction
 % alpha_z       | 0         | factor for atmospheric stability, for values
@@ -192,8 +194,6 @@ switch fieldScenario
         I.val = ones(1,measPoints)*ambTurbulence;
         
     case 'Propagating40DegChange'
-        posMeas = [0,0;2000,0;0,1000;2000,1000];
-        
         U.abs = ones(NoTimeSteps,measPoints).*windSpeed;
         
         % Changing angle: [t x m] matrix

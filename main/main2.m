@@ -8,14 +8,18 @@ addpath('./Visulization')
 addpath('./TurbineData')
 addpath('./Misc')
 
+warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
+warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
 %% Load Layout
 [T,fieldLims,Pow,VCtCp,chain] = loadLayout('twoDTU10MW_Maarten'); %#ok<ASGLU>
 
 %% Load the environment
-[U, I, UF, Sim] = loadWindField('+60DegChange',... %'+60DegChange''const'
+%'+60DegChange''const''Propagating40DegChange'
+[U, I, UF, Sim] = loadWindField('Propagating40DegChange',... 
     'SimDuration',1000,...
-    'FreeSpeed',true,...
-    'Interaction',false);
+    'FreeSpeed',false,...
+    'Interaction',true,...
+    'posMeasFactor',2000);
 
 onlineVis = true;
 
