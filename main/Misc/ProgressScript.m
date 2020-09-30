@@ -10,3 +10,9 @@ message=[...
     '  Mean turbulence     : ' num2str(mean(I_val)*100,2) ' %%\n'...
     ' =========================================== '];
 dispstat(sprintf(message))
+
+%% ===================================================================== %%
+% = Reviewed: 2020.09.30 (yyyy.mm.dd)                                   = %
+% === Author: Marcus Becker                                             = %
+% == Contact: marcus.becker.mail@gmail.com                              = %
+% ======================================================================= %
