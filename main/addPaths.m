@@ -9,6 +9,7 @@ addpath('./Misc')
 
 warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
+warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri3DWarnId')
 
 %% ===================================================================== %%
 % = Reviewed: 2020.09.30 (yyyy.mm.dd)                                   = %

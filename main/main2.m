@@ -1,4 +1,4 @@
-function [powerHist,OP,T,UF,Sim] = main2()
+function [powerHist,OP,T,UF,Sim] = main()
 % Add necessary local paths
 addPaths;
 
