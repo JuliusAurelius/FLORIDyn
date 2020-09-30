@@ -1,6 +1,6 @@
 function [powerHist,OP,T,UF,Sim] = main()
 % Add necessary local paths
-addPaths;
+main_addPaths;
 
 %% Load Layout
 %   Load the turbine configuration (position, diameter, hub height,...) the
