@@ -9,6 +9,7 @@ T.Ct    = interp1(VCtCp(:,1),VCtCp(:,2),T.u);
 
 % Yaw staying relative to the wind angle
 T.yaw   = atan2(T.U(:,2),T.U(:,1));
+T.yaw(1) = T.yaw(1) +(tanh((Sim.TimeSteps(i)-300)/50)+1)*15/180*pi;
 
 %% Calculate Power Output
 % 1/2*airdensity*AreaRotor*C_P*U_eff^3*cos(yaw)^p_p

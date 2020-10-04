@@ -103,7 +103,7 @@ figure; box on;
 plot(turb.V, turb.cp,'LineWidth',2)
 hold on
 plot(turb.V, turb.ct,'--','LineWidth',2)
-xlabel('Wind speed [m/s]','Interpreter','latex')
+xlabel('Wind speed in m/s')%,'Interpreter','latex')
 %ylabel('$C_p$ [-]','Interpreter','latex')
 xlim([4 25])
 

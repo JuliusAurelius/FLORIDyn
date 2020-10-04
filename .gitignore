@@ -4,3 +4,16 @@ main/ObservationPoints/initAtRotorplane.m~
 main/tricontour/tricontour.m
 main/tricontour/license.txt
 main/Code fragments/fig_plotFlowPowerSignals.m
+main/Code fragments/.DS_Store
+main/Code fragments/.DS_Store
+main/Code fragments/addTikZ.m
+*.m~
+main/Code fragments/TestWindField.m
+main/Code fragments/SOWFAplot/v.mat
+main/Code fragments/SOWFAplot/U.mat
+main/Code fragments/SOWFAplot/plotSlice.m
+main/Code fragments/SOWFAplot/f.mat
+main/Code fragments/CPCT/generate_coefficients_10MW.m
+main/Code fragments/compareFreeSpeed_noFreeSpeed.m
+main/Code fragments/addTikZ.m
+main/Code fragments/.DS_Store

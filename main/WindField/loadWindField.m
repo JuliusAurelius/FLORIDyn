@@ -137,23 +137,7 @@ Sim.FreeSpeed   = FreeSpeed;
 Sim.WidthFactor = WidthFactor;
 Sim.Interaction = Interaction;
 
-%% Wind field
-UF.lims = ...
-    [max(posMeas(:,1))-min(posMeas(:,1)),max(posMeas(:,2))-min(posMeas(:,2));...
-    min(posMeas(:,1)),min(posMeas(:,2))];
 
-[ufieldx,ufieldy] = meshgrid(...
-    linspace(min(posMeas(:,1)),max(posMeas(:,1)),uf_res(1)),...
-    linspace(min(posMeas(:,2)),max(posMeas(:,2)),uf_res(2)));
-
-UF.IR = createIRMatrix(posMeas,...
-    [fliplr(ufieldx(:)')',fliplr(ufieldy(:)')'],interpMethod);
-
-UF.Res      = uf_res;
-UF.alpha_z  = alpha_z;
-UF.pos      = posMeas;
-UF.airDen   = airDen;
-UF.z_h      = z_h;
 %%
 switch fieldScenario
     case 'const'
@@ -244,9 +228,49 @@ switch fieldScenario
         
         % Constant ambient turbulence
         I.val = ones(1,measPoints)*ambTurbulence;
+    case 'TestWindfield'
+        uf_res = [30,15];
+        posMeas = [0,0;
+            2000,0;
+            0,1000;
+            2000,1000;
+            500,800;
+            1800,300;
+            800,0;
+            1200,1000];
+        measPoints = size(posMeas,1);
+        v_abs = 10;  %m/s
+        v_ang = 6;  %m/s
+        U.abs = zeros(NoTimeSteps,measPoints);
+        U.ang = zeros(NoTimeSteps,measPoints);
+        
+        for m = 1:size(posMeas,1)
+            U.abs(:,m) = windSpeed + ...
+                3*sin(2*pi/4000*(v_abs*timeSteps-posMeas(m,1)));
+            U.ang(:,m) = (windAngle + ...
+                30*sin(2*pi/2000*(v_ang*timeSteps-posMeas(m,2))))/180*pi;
+        end
+        I.val = ones(1,measPoints)*ambTurbulence;
     otherwise
         error('Unknown wind conditions, no simulation started')
 end
+%% Wind field
+UF.lims = ...
+    [max(posMeas(:,1))-min(posMeas(:,1)),max(posMeas(:,2))-min(posMeas(:,2));...
+    min(posMeas(:,1)),min(posMeas(:,2))];
+
+[ufieldx,ufieldy] = meshgrid(...
+    linspace(min(posMeas(:,1)),max(posMeas(:,1)),uf_res(1)),...
+    linspace(min(posMeas(:,2)),max(posMeas(:,2)),uf_res(2)));
+
+UF.IR = createIRMatrix(posMeas,...
+    [fliplr(ufieldx(:)')',fliplr(ufieldy(:)')'],interpMethod);
+
+UF.Res      = uf_res;
+UF.alpha_z  = alpha_z;
+UF.pos      = posMeas;
+UF.airDen   = airDen;
+UF.z_h      = z_h;
 end
 %% ===================================================================== %%
 % = Reviewed: 2020.09.28 (yyyy.mm.dd)                                   = %
