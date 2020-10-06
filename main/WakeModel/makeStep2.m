@@ -101,32 +101,6 @@ OP_r(~core) = gaussAbs(~core).*...
     exp(-0.5.*((cw_z(~core)-sin(phi_cw(~core)).*pc_z(~core)*0.5)./sig_z(~core)).^2);
 
 %% Get forgeign influence
-% Problem:
-%   The first OPs were used for effective wind speed calculation of the
-%   wind turbine BUT that was at a stage where they were spread across the
-%   rotor plane. The diameter of the potential core at the start of the
-%   wake is larger than the diameter of the turbine.
-%
-% Solutions:
-% - Adapt the weights of the OPs to match the turbine area and ignore
-%   outliers.
-%       Problem: 
-%       The weights of the start OPs has to be recalculated and the
-%       resolution is not as expected by the user
-%
-% - Init OPs at R-Diameter, move outside in first step
-%       Problem:
-%       OPs are initialized in the wrong place, might travel too fast/slow
-%       in their first step then correctly
-%
-% - Add special OPs at rotor plane for wind speed estimation
-%       Problem: 
-%       Additional OPs which are not needed otherwise, added clutter
-%       in the code
-%
-% Init OPs at Rotor diameter seems least invasive, will be chosen
-
-
 if Sim.Interaction
     % Calculate foreign influence
     r_f = getForeignInfluence(OP.pos, OP_r, OP.t_id, length(T.D));

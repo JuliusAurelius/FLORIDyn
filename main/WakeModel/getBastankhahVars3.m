@@ -96,9 +96,15 @@ u_r_0 = (C_T.*cos(yaw))./(...
 %   Ellypitcal boundaries [1] P.530, L.7f
 pc_y = D.*cos(yaw).*sqrt(u_r_0).*max([1-OP.dw./x_0,zs],[],2);
 pc_z = D.*sqrt(u_r_0).*max([1-OP.dw./x_0,zs],[],2);
+
+%   For OPs at the rotor plane (rp) fit to rotor plane rater than PC to get
+%   effective wind speed right
+rp  = OP.dw==0;
+pc_y(rp) = D(rp).*cos(yaw(rp));
+pc_z(rp) = D(rp);
 end
 %% ===================================================================== %%
-% = Reviewed: 2020.09.29 (yyyy.mm.dd)                                   = %
+% = Reviewed: 2020.10.06 (yyyy.mm.dd)                                   = %
 % === Author: Marcus Becker                                             = %
 % == Contact: marcus.becker.mail@gmail.com                              = %
 % ======================================================================= %
