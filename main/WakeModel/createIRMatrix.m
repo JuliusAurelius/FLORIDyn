@@ -36,4 +36,11 @@ for i = 2:n
     IR(:,i) = F(goal_xy);
 end
 end
-
+%% TODOs
+% - Test if extrapolation is sufficient
+% - potentially replace by neq algorithm
+%% ===================================================================== %%
+% = Reviewed: 2020.10.06 (yyyy.mm.dd)                                   = %
+% === Author: Marcus Becker                                             = %
+% == Contact: marcus.becker.mail@gmail.com                              = %
+% ======================================================================= %
