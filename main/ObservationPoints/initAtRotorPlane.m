@@ -66,8 +66,10 @@ yaw = OP.yaw(ind);
 C_T = OP.Ct(ind);
 % Potential core at rotor plane
 %   Ratio u_r/u_0 [1] Eq.6.4 & 6.7
-u_r_0 = (C_T.*cos(yaw))./(...
-    2*(1-sqrt(1-C_T.*cos(yaw))).*sqrt(1-C_T));
+% u_r_0 = (C_T.*cos(yaw))./(...
+%     2*(1-sqrt(1-C_T.*cos(yaw))).*sqrt(1-C_T));
+% Disabeled to spawn OPs at the rotor area
+u_r_0 = 1;
 
 % x_w = Potential_core_y*(-sin(phi))*distribution_cw_y*wf + t_x_w
 OP.pos(ind,1) = ...

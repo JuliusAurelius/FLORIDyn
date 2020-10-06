@@ -4,8 +4,8 @@
 % should be implemented here.
 
 % Calculate Ct and Cp based on the wind speed
-T.Cp    = interp1(VCtCp(:,1),VCtCp(:,3),T.u);
-T.Ct    = interp1(VCtCp(:,1),VCtCp(:,2),T.u);
+T.Cp    = interp1(VCtCp(:,1),VCtCp(:,2),T.u); % Ct / Cp STORED OTHER ORDER?
+T.Ct    = interp1(VCtCp(:,1),VCtCp(:,3),T.u);
 
 % Yaw staying relative to the wind angle
 T.yaw   = atan2(T.U(:,2),T.U(:,1));
