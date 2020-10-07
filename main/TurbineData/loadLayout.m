@@ -1,4 +1,4 @@
-function [T,fieldLims,Pow,VCtCp,chain] = loadLayout(layout, varargin)
+function [T,fieldLims,Pow,VCpCt,chain] = loadLayout(layout, varargin)
 % LOADLAYOUT Creates and loads the data necessary for the wind farm layout
 %   Here, the layout of the wind farm, its dimentions and the data of the
 %   turbines are set. The different layouts are chosen by a switch case.
@@ -93,7 +93,7 @@ switch layout
         Pow.p_p     = 1.50;     %Def. DTU 10MW
         
         % Get VCtCp
-        load('./TurbineData/VCtCp_10MW.mat');
+        load('./TurbineData/VCpCt_10MW.mat');
     case 'twoDTU10MW_Maarten'
         % Two DTU 10MW Turbines 
         T_Pos = [400 500 119 178.4;...
@@ -105,7 +105,7 @@ switch layout
         Pow.p_p     = 1.50;     %Def. DTU 10MW
         
         % Get VCtCp
-        load('./TurbineData/VCtCp_10MW.mat');
+        load('./TurbineData/VCpCt_10MW.mat');
         
         % 
         ChainLength = [ones(NumChains,1)*120;ones(NumChains,1)*10];   

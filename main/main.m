@@ -14,7 +14,7 @@ main_addPaths;
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.
-[T,fieldLims,Pow,VCtCp,chain] = loadLayout('twoDTU10MW_Maarten'); %#ok<ASGLU>
+[T,fieldLims,Pow,VCpCt,chain] = loadLayout('twoDTU10MW_Maarten'); %#ok<ASGLU>
 
 %% Load the environment
 %   U provides info about the wind: Speed(s), direction(s), changes.
