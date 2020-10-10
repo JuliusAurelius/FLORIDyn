@@ -47,7 +47,7 @@ function [T,fieldLims,Pow,VCpCt,chain] = loadLayout(layout, varargin)
 %% Default variables
 % Observation Point data
 ChainLength     = 200;      % OPs per chain
-NumChains       = 100;       % Chains per turbine
+NumChains       = 50;       % Chains per turbine
 
 %% Code to use varargin values
 % function(*normal in*,'var1','val1','var2',val2[numeric])
@@ -108,7 +108,7 @@ switch layout
         load('./TurbineData/VCpCt_10MW.mat');
         
         % 
-        ChainLength = [ones(NumChains,1)*120;ones(NumChains,1)*10];   
+        ChainLength = [ones(NumChains,1)*100;ones(NumChains,1)*50];   
     otherwise
         error('Unknown scenario, no simulation started')
 end

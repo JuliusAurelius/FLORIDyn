@@ -81,9 +81,13 @@ yaw  = OP.yaw;
 
 %% Get wake width
 [sig_y, sig_z, C_T, x_0, delta, pc_y, pc_z] = getBastankhahVars3(OP, D);
- 
+
+try
 [nw, cw_y, cw_z, core, phi_cw]=...
      getCWPosition(OP.dw, w, chain.dstr, OP_c, sig_y, sig_z, pc_y, pc_z, x_0);
+catch
+    disp('err')
+end
 
 %% Get speed reduction
 OP_r(core) = 1-sqrt(1-C_T(core));

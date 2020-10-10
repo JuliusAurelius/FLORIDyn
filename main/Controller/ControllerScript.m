@@ -3,13 +3,24 @@
 % and the wake. If a switch to the axial induction factor is desired, it
 % should be implemented here.
 
-% Calculate Ct and Cp based on the wind speed
-T.Cp    = interp1(VCpCt(:,1),VCpCt(:,2),T.u);
-T.Ct    = interp1(VCpCt(:,1),VCpCt(:,3),T.u);
+% Read yaw of SOWFA Sim
+yawT1 = interp1(yawSOWFA(1:2:end,2),yawSOWFA(1:2:end,3),Sim.TimeSteps(i));
 
-% Yaw staying relative to the wind angle
+% Calculate Ct and Cp based on the wind speed
+%    Ct is restricted at 1, otherwise complex numbers appear in the FLORIS
+%    equations
+T.Cp    = interp1(VCpCt(:,1),VCpCt(:,2),T.u);
+T.Ct    = min(interp1(VCpCt(:,1),VCpCt(:,3),T.u),1);
+
+% Calculate Ct and Cp based on the axial induction factor
+% a = 1/3;
+yaw = [(270-yawT1)/180*pi;0];
+% T.Cp    = ones(size(T.Cp)).*4*a.*(1-a)^2;
+% T.Ct    = ones(size(T.Cp)).*4*a.*(1-a.*cos(yaw));
+
+% Set Yaw relative to the wind angle and add offset
 T.yaw   = atan2(T.U(:,2),T.U(:,1));
-T.yaw(1) = T.yaw(1) +(tanh((Sim.TimeSteps(i)-300)/50)+1)*15/180*pi;
+T.yaw(1) = T.yaw(1) + yaw(1);
 
 %% Calculate Power Output
 % 1/2*airdensity*AreaRotor*C_P*U_eff^3*cos(yaw)^p_p

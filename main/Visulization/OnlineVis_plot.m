@@ -5,7 +5,7 @@ if i>1
 end
 
 %% Plot the OPs
-subplot(2,1,1)
+%subplot(2,1,1)
 hold on
 u_l = min(sqrt(sum(OP.u.^2,2)));
 %ff = sqrt(sum(OP.u.^2,2))>(u_l*1.2)*0;
@@ -17,7 +17,7 @@ u_l = min(sqrt(sum(OP.u.^2,2)));
 %         'filled');
 % else
     p = scatter3(OP_pos_old(:,1),OP_pos_old(:,2),OP_pos_old(:,3),...
-        sqrt(sum(OP.u.^2,2)).^-1 * 100,sqrt(sum(OP.u.^2,2)),...%ones(size(OP.t_id(:)))*20,sqrt(sum(OP.u.^2,2)),...
+        20-sqrt(sum(OP.u.^2,2)),sqrt(sum(OP.u.^2,2)),...%ones(size(OP.t_id(:)))*20,sqrt(sum(OP.u.^2,2)),...
         'filled');
 % end
 Uq = getWindVec3([UF.ufieldx(:),UF.ufieldy(:)],UF.IR, U_abs, U_ang, UF.Res, UF.lims);
@@ -36,7 +36,6 @@ ylim(fLim_y);
     zlim([-300,500]);
 % end
 grid on
-
 %% Plot the rotors
 for i_T = 1:length(T.D)
     if i>1
@@ -51,20 +50,21 @@ for i_T = 1:length(T.D)
     rotors{i_T} = plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
 end
 
-%% Plot the Power Output
-subplot(2,1,2)
-plot(Sim.TimeSteps,powerHist(1,:),'LineWidth',2);
-hold on
-for ii = 2:length(T.D)
-    plot(Sim.TimeSteps,powerHist(ii,:),'LineWidth',2);
-end
-title('Power Output')
-ylabel('Power output in W')
-xlabel('Time [s]')
-xlim([0,Sim.TimeSteps(end)])
-ylim([0 inf])
-grid on
 hold off
+%% Plot the Power Output
+% subplot(2,1,2)
+% plot(Sim.TimeSteps,powerHist(1,:),'LineWidth',2);
+% hold on
+% for ii = 2:length(T.D)
+%     plot(Sim.TimeSteps,powerHist(ii,:),'LineWidth',2);
+% end
+% title('Power Output')
+% ylabel('Power output in W')
+% xlabel('Time [s]')
+% xlim([0,Sim.TimeSteps(end)])
+% ylim([0 inf])
+% grid on
+% hold off
 
 pause(0.1)
 

@@ -6,6 +6,8 @@ addpath('./WakeModel')
 addpath('./Visulization')
 addpath('./TurbineData')
 addpath('./Misc')
+addpath('./ValidationData')
+addpath('./ValidationData/csv')
 
 warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')
