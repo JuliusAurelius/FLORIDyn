@@ -105,6 +105,8 @@ OP_r(~core) = gaussAbs(~core).*...
     exp(-0.5.*((cw_z(~core)-sin(phi_cw(~core)).*pc_z(~core)*0.5)./sig_z(~core)).^2);
 
 %% Get forgeign influence
+% TODO Change it to only calculate the interpolation of the OPs at the
+% rotor plane
 if Sim.Interaction
     % Calculate foreign influence
     r_f = getForeignInfluence(OP.pos, OP_r, OP.t_id, length(T.D));
