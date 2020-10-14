@@ -109,7 +109,15 @@ OP_r(~core) = gaussAbs(~core).*...
 % rotor plane
 if Sim.Interaction
     % Calculate foreign influence
-    r_f = getForeignInfluence(OP.pos, OP_r, OP.t_id, length(T.D));
+    if Sim.reducedInteraction
+        % Only the ones at the rotor plane interact
+        ind = chain.List(:,1) + chain.List(:,2);
+        r_f = getForeignInfluence2(OP.pos, OP_r, OP.t_id, ind, length(T.D));
+    else
+        % All OPs interact
+        r_f = getForeignInfluence(OP.pos, OP_r, OP.t_id, length(T.D));
+    end
+    
 else
     % Foreign influence ignored
     r_f = ones(size(OP_r));

@@ -51,7 +51,7 @@ end
 title('Filled contour plot')
 axis equal
 c = colorbar;
-c.Label.String ='Windspeed [m/s]';
+c.Label.String ='Wind speed [m/s]';
 xlabel('West-East [m]')
 ylabel('South-North [m]')
 hold off

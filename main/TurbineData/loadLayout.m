@@ -108,7 +108,28 @@ switch layout
         load('./TurbineData/VCpCt_10MW.mat');
         
         % 
-        ChainLength = [ones(NumChains,1)*100;ones(NumChains,1)*50];   
+        ChainLength = [ones(NumChains,1)*200;ones(NumChains,1)*50];   
+    case 'threeDTU10MW_Daan'
+        D = 178.4;
+        % Three DTU 10MW Turbines 
+        T_Pos = [...
+            1500-5*D 1500 119 D;...
+            1500 1500 119 D;...
+            1500+5*D 1500 119 D];
+        
+        fieldLims = [0 0; 3000 3000];
+        
+        Pow.eta     = 1.08;     %Def. DTU 10MW
+        Pow.p_p     = 1.50;     %Def. DTU 10MW
+        
+        % Get VCtCp
+        load('./TurbineData/VCpCt_10MW.mat');
+        
+        % Chain lengths should be sufficient for 9m/s
+        ChainLength = [...
+            ones(NumChains,1)*220;...
+            ones(NumChains,1)*120;...
+            ones(NumChains,1)*70];
     otherwise
         error('Unknown scenario, no simulation started')
 end

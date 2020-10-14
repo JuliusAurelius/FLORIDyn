@@ -80,7 +80,7 @@ op_yaw  = zeros(len_OPs,1);
 op_Ct   = zeros(len_OPs,1);        %Otherwise the first points are init. wrong
 op_t_id = assignTIDs(chainList,len_OPs);
 
-op_pos(:,1:2) = T.pos(op_t_id,1:2);
+op_pos(:,1:Dim) = T.pos(op_t_id,1:Dim);
 
 cl_dstr = zeros(NumChainsTot,Dim-1);
 

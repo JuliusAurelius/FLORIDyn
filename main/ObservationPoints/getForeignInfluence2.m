@@ -1,13 +1,14 @@
-function r_f = getForeignInfluence(op_pos, op_r, op_t_id, numT)
-% GETFOREIGNINFLUENCE interpolates the influence of other wakes on the OP
+function r_f = getForeignInfluence2(op_pos, op_r, op_t_id, startOPs, numT)
+% GETFOREIGNINFLUENCE2 interpolates the influence of other wakes on the OP
 %   The current solution is to use the entire wake as a 2D function and
-%   do a nearest neighbour interpolation for all other OPs.
-%   This function is by far the biggest bottleneck of the simulation.
+%   do a nearest neighbour interpolation for the OPs at the rotor plane.
+%   This function is a big bottleneck of the simulation.
 % ======================================================================= %
 % INPUT
 %   op_pos      := [nx3] vec; World coordinates of the Observation Points
 %   op_r        := [nx1] vec; Reduction factor of the OP
 %   op_t_id     := [nx1] vec; Turbine the OPs belong to
+%   startOPs    := [mx1] vec; Indeces of rotor plane OPs
 %   numT        := int;       Number of turbines
 % ======================================================================= %
 % OUTPUT
@@ -27,6 +28,7 @@ for t = 1:numT
     % extract points which belong to the turbine and which are potentially
     % influenced
     t_points = op_t_id == t;
+    t_rpOPs  = op_t_id(startOPs) == t;
     
     if threeDim == 1
         F = scatteredInterpolant(...
@@ -35,21 +37,22 @@ for t = 1:numT
             op_pos(t_points,3),...
             op_r(t_points),'nearest','none');
     
-        r_f_tmp = F(op_pos(~t_points,1:3));
+        r_f_tmp = F(op_pos(startOPs(~t_rpOPs),1:3));
     else
-        F = scatteredInterpolant(...
-            op_pos(t_points,1),...
-            op_pos(t_points,2),...
-            op_r(t_points),'nearest','none');
-    
-        r_f_tmp = F(op_pos(~t_points,1:2));
+        error('2D not supported by reduced interaction')
+%         F = scatteredInterpolant(...
+%             op_pos(t_points,1),...
+%             op_pos(t_points,2),...
+%             op_r(t_points),'nearest','none');
+%     
+%         r_f_tmp = F(op_pos(~t_points,1:2));
     end
     
     if isempty(r_f_tmp)
-        break;
+        continue;
     end
     r_f_tmp(isnan(r_f_tmp)) = 0;
-    r_f(~t_points) = r_f(~t_points).*(1-r_f_tmp);
+    r_f(startOPs(~t_rpOPs)) = r_f(startOPs(~t_rpOPs)).*(1-r_f_tmp);
 end
 end
 %% ===================================================================== %%
