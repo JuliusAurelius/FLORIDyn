@@ -28,6 +28,7 @@ function [T,fieldLims,Pow,VCpCt,chain] = loadLayout(layout, varargin)
 %    .yaw       := [nx1] vec; Yaw setting of the n turbines    (Allocation)
 %    .Ct        := [nx1] vec; Current Ct of the n turbines     (Allocation)
 %    .Cp        := [nx1] vec; Current Cp of the n turbines     (Allocation)
+%    .P         := [nx1] vec; Power production                 (Allocation)
 %
 %   fieldLims   := [2x2] mat; limits of the wind farm area (must not be the
 %                             same as the wind field!)
@@ -93,7 +94,7 @@ switch layout
         Pow.p_p     = 1.50;     %Def. DTU 10MW
         
         % Get VCtCp
-        load('./TurbineData/VCpCt_10MW.mat');
+        load('./TurbineData/VCpCt_10MW_SOWFA.mat');
     case 'twoDTU10MW_Maarten'
         % Two DTU 10MW Turbines 
         T_Pos = [400 500 119 178.4;...
@@ -105,7 +106,7 @@ switch layout
         Pow.p_p     = 1.50;     %Def. DTU 10MW
         
         % Get VCtCp
-        load('./TurbineData/VCpCt_10MW.mat');
+        load('./TurbineData/VCpCt_10MW_SOWFA.mat');
         
         % 
         ChainLength = [ones(NumChains,1)*200;ones(NumChains,1)*50];   
@@ -123,7 +124,7 @@ switch layout
         Pow.p_p     = 1.50;     %Def. DTU 10MW
         
         % Get VCtCp
-        load('./TurbineData/VCpCt_10MW.mat');
+        load('./TurbineData/VCpCt_10MW_SOWFA.mat');
         
         % Chain lengths should be sufficient for 9m/s
         ChainLength = [...
@@ -138,6 +139,7 @@ T.D    = T_Pos(:,end);
 T.yaw  = zeros(length(T.D),1);
 T.Ct   = zeros(length(T.D),1);
 T.Cp   = zeros(length(T.D),1);
+T.P    = ones(length(T.D),1)*5*10^6;
 %% Store chain configuration
 chain.NumChains = NumChains;
 chain.Length    = ChainLength;

@@ -25,6 +25,8 @@ powerHist = zeros(length(T.D),Sim.NoTimeSteps);
 T.U = getWindVec4(T.pos, U_abs, U_ang, UF);
 T.u = sqrt(T.U(:,1).^2+T.U(:,2).^2);
 i = 1; % Maybe needed for Controlle Script
+
+nT = length(T.D);
 % Set the C_t coefficient for all OPs (otherwise NaNs occur)
 ControllerScript;
 OP.Ct = T.Ct(OP.t_id);

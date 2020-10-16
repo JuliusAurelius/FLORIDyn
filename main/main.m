@@ -3,9 +3,24 @@ function [powerHist,OP,T,UF,Sim] = main()
 main_addPaths;
 
 %% Load SOWFA yaw values
-file2val = '/ValidationData/csv/sweep_';
-yawSOWFA = importYawAngleFile([file2val 'wps_nacelleYaw.csv']);
+%file2val = '/ValidationData/csv/3T_pos_y_';
+file2val = '/ValidationData/csv/3T_dyn_Ct_';
+% Get yaw angle (deg)
+yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
+% Blade pitch angle (deg)
+bladePitch = importYawAngleFile([file2val 'bladePitch.csv']);
+% Rotor speed (rpm)
+tipSpeed = importYawAngleFile([file2val 'rotorSpeedFiltered.csv']);
+%   Conversion from rpm to m/s tip speed 
+tipSpeed(:,3) = tipSpeed(:,3)*pi*89.2/30; 
+
+% Fix time
 yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
+bladePitch(:,2) = bladePitch(:,2)-bladePitch(1,2);
+tipSpeed(:,2) = tipSpeed(:,2)-tipSpeed(1,2);
+load('./TurbineData/Cp_Ct_SOWFA.mat');
+cpInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.cpArray,'linear','none');
+ctInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.ctArray,'linear','none');
 %% Load Layout
 %   Load the turbine configuration (position, diameter, hub height,...) the
 %   power constants (Efficiency, p_p), data to connect wind speed and
@@ -19,7 +34,7 @@ yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.
-[T,fieldLims,Pow,VCpCt,chain] = loadLayout('twoDTU10MW_Maarten'); %#ok<ASGLU>
+ [T,fieldLims,Pow,VCpCt,chain] = loadLayout('threeDTU10MW_Daan'); %#ok<ASGLU>
 
 %% Load the environment
 %   U provides info about the wind: Speed(s), direction(s), changes.
@@ -46,13 +61,13 @@ yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
     'Interaction',true,...
     'posMeasFactor',2000,...
     'alpha_z',0.1,...
-    'windSpeed',8,...
-    'ambTurbulence',0.06);
+    'windSpeed',9,...
+    'ambTurbulence',0.05);
 Sim.reducedInteraction = true;
 %% Visulization
 % Set to true or false, if set to false, the only output is what this
 % function returns. Disabeling decreases the computational effort noticably
-onlineVis = false;
+onlineVis = true;
 
 %% Create starting OPs and build opList
 %   Creates the observation point struct (OP) and extends the chain struct.
@@ -122,29 +137,69 @@ end
 powerHist = [Sim.TimeSteps',powerHist'];
 
 %% Compare power plot
-%powSOWFA_PISO = importGenPowerFile([file2val 'piso_generatorPower.csv']);
-powSOWFA_WPS = importGenPowerFile([file2val 'wps_generatorPower.csv']);
+% Get SOWFA data
+powSOWFA_WPS = importGenPowerFile([file2val 'generatorPower.csv']);
+
+% Plotting
 f = figure;
-plot(powSOWFA_WPS(1:2:end,2)-powSOWFA_WPS(1,2),powSOWFA_WPS(1:2:end,3)/UF.airDen,'-.','LineWidth',1)
+% =========== SOWFA data ===========
+plot(...
+    powSOWFA_WPS(1:nT:end,2)-powSOWFA_WPS(1,2),...
+    powSOWFA_WPS(1:nT:end,3)/UF.airDen,...
+    '-.','LineWidth',1)
 hold on
-plot(powSOWFA_WPS(2:2:end,2)-powSOWFA_WPS(2,2),powSOWFA_WPS(2:2:end,3)/UF.airDen,'-.','LineWidth',1)
-plot(powerHist(:,1),powerHist(:,2),'--','LineWidth',1.5)
-plot(powerHist(:,1),powerHist(:,3),'--','LineWidth',1.5)
+plot(...
+    powSOWFA_WPS(2:nT:end,2)-powSOWFA_WPS(2,2),...
+    powSOWFA_WPS(2:nT:end,3)/UF.airDen,...
+    '-.','LineWidth',1)
+
+if nT == 3
+    plot(...
+    powSOWFA_WPS(3:nT:end,2)-powSOWFA_WPS(2,2),...
+    powSOWFA_WPS(3:nT:end,3)/UF.airDen,...
+    '-.','LineWidth',1)
+end
+% ========== FLORIDyn data =========
 plot(powerHist(:,1),powerHist(:,2),'LineWidth',1.5)
 plot(powerHist(:,1),powerHist(:,3),'LineWidth',1.5)
-% plot(powSOWFA_PISO(1:2:end,2),powSOWFA_PISO(1:2:end,3),'--','LineWidth',1.5)
-% plot(powSOWFA_PISO(2:2:end,2),powSOWFA_PISO(2:2:end,3),'--','LineWidth',1.5)
+
+% Plot second FLORIDyn results
+% plot(powerHist(:,1),powerHist(:,2),'--','LineWidth',1.5)
+% plot(powerHist(:,1),powerHist(:,3),'--','LineWidth',1.5)
+
+if nT==3
+    plot(powerHist(:,1),powerHist(:,4),'LineWidth',1.5)
+    legend(...
+        'T0 SOWFA wps','T1 SOWFA wps','T2 SOWFA wps',...
+        'T0 FLORIDyn','T1 FLORIDyn','T2 FLORIDyn')
+else
+    legend(...
+        'T0 SOWFA wps','T1 SOWFA wps',...
+        'T0 FLORIDyn free speed','T1 FLORIDyn free speed')
+end
+
+% % //// EXTRA YAW  ////
+% % Yaw T0
+% plot([200,200],[-.3,.3]*10^6+powerHist(51,2),'k','LineWidth',1)
+% plot([500,500],[-.3,.3]*10^6+powerHist(126,2),'k','LineWidth',1)
+% plot([800,800],[-.3,.3]*10^6+powerHist(201,2),'k','LineWidth',1)
+% % Yaw T1
+% plot([350,350],[-.3,.3]*10^6+powerHist(89,3),'k','LineWidth',1)
+% plot([650,650],[-.3,.3]*10^6+powerHist(164,3),'k','LineWidth',1)
+% plot([950,950],[-.3,.3]*10^6+powerHist(239,3),'k','LineWidth',1)
+% 
+% legend(...
+%     'T0 SOWFA wps','T1 SOWFA wps','T2 SOWFA wps',...
+%     'T0 FLORIDyn','T1 FLORIDyn','T2 FLORIDyn')
+% % //// EXTRA OVER ////
+
 hold off
-%legend('T0 FLORIDyn','T1 FLORIDyn','T0 SOWFA piso','T1 SOWFA piso','T0 SWOFA wps','T1 SWOFA wps')
-legend(...
-    'T0 SOWFA wps','T1 SOWFA wps',...
-    'T0 FLORIDyn axial Ind.','T1 FLORIDyn axial Ind.',...
-    'T0 FLORIDyn table','T1 FLORIDyn table')
+
 grid on
 xlim([0 powerHist(end,1)])
 xlabel('Time in s')
 ylabel('Power generated in W')
-title('Calculation of C_t and C_p')
+title('C_t and C_p change, free speed with first order delay, T=20s')
 
 % ==== Prep for export ==== %
 % scaling

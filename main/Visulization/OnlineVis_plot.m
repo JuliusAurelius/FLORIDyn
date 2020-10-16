@@ -5,7 +5,8 @@ if i>1
 end
 
 %% Plot the OPs
-%subplot(2,1,1)
+f = figure(1);
+clf;
 hold on
 u_l = min(sqrt(sum(OP.u.^2,2)));
 %ff = sqrt(sum(OP.u.^2,2))>(u_l*1.2)*0;
@@ -16,9 +17,17 @@ u_l = min(sqrt(sum(OP.u.^2,2)));
 %         ones(size(OP.t_id(slow)))*40,sqrt(sum(OP.u(slow,:).^2,2)),...
 %         'filled');
 % else
-    p = scatter3(OP_pos_old(:,1),OP_pos_old(:,2),OP_pos_old(:,3),...
-        20-sqrt(sum(OP.u.^2,2)),sqrt(sum(OP.u.^2,2)),...%ones(size(OP.t_id(:)))*20,sqrt(sum(OP.u.^2,2)),...
-        'filled');
+n_th = 4;
+p = scatter3(...
+    OP_pos_old(1:n_th:end,1),...
+    OP_pos_old(1:n_th:end,2),...
+    OP_pos_old(1:n_th:end,3),...
+    30-sqrt(sum(OP.u(1:n_th:end,:).^2,2)),...
+    sqrt(sum(OP.u(1:n_th:end,:).^2,2)),...
+    'filled');
+%     p = scatter3(OP_pos_old(:,1),OP_pos_old(:,2),OP_pos_old(:,3),...
+%         20-sqrt(sum(OP.u.^2,2)),sqrt(sum(OP.u.^2,2)),...%ones(size(OP.t_id(:)))*20,sqrt(sum(OP.u.^2,2)),...
+%         'filled');
 % end
 Uq = getWindVec3([UF.ufieldx(:),UF.ufieldy(:)],UF.IR, U_abs, U_ang, UF.Res, UF.lims);
 q = quiver(UF.ufieldx(:),UF.ufieldy(:),Uq(:,1),Uq(:,2),'Color',[0.5,0.5,0.5]);
@@ -26,7 +35,7 @@ q = quiver(UF.ufieldx(:),UF.ufieldy(:),Uq(:,1),Uq(:,2),'Color',[0.5,0.5,0.5]);
 
 c = colorbar;
 c.Label.String ='Windspeed [m/s]';
-c.Limits = [0,8];
+c.Limits = [0,10];
 xlabel('West-East [m]')
 ylabel('South-North [m]')
 xlim(fLim_x);
@@ -41,13 +50,27 @@ for i_T = 1:length(T.D)
     if i>1
         delete(rotors{i_T});
     end
-    % Get start and end of the turbine rotor
-    rot_pos = ...
-        [cos(T.yaw(i_T)), -sin(T.yaw(i_T));...
-        sin(T.yaw(i_T)), cos(T.yaw(i_T))] * ...
-        [0,0;T.D(i_T)/2,-T.D(i_T)/2];
-    rot_pos = rot_pos + T.pos(i_T,1:2)';
-    rotors{i_T} = plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
+    
+    %Plot circular Rotor
+    phi = linspace(0,2*pi);
+    r = T.D(i_T)/2;
+    yR = r*cos(phi);
+    zR = r*sin(phi);
+    
+    cR = [...
+        -sin(T.yaw(i_T)),0;...
+        cos(T.yaw(i_T)),0;
+        0,1]*[yR;zR];
+    
+    cR = cR'+T.pos(i_T,:);
+    plot3(cR(:,1),cR(:,2),cR(:,3),'k','LineWidth',3);
+%     % Get start and end of the turbine rotor
+%     rot_pos = ...
+%         [cos(T.yaw(i_T)), -sin(T.yaw(i_T));...
+%         sin(T.yaw(i_T)), cos(T.yaw(i_T))] * ...
+%         [0,0;T.D(i_T)/2,-T.D(i_T)/2];
+%     rot_pos = rot_pos + T.pos(i_T,1:2)';
+%     rotors{i_T} = plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
 end
 
 hold off
