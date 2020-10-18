@@ -1,56 +1,46 @@
 
-if i>1
-    delete(p)
-    delete(q)
-end
-
 %% Plot the OPs
 f = figure(1);
 clf;
+axes1 = axes('Parent',f);
 hold on
-u_l = min(sqrt(sum(OP.u.^2,2)));
-%ff = sqrt(sum(OP.u.^2,2))>(u_l*1.2)*0;
-% if Dim==2
-%     u_max = 20;
-%     slow = sqrt(sum(OP.u.^2,2))<u_max;
-%     p = scatter3(OP_pos_old(slow,1),OP_pos_old(slow,2),sqrt(sum(OP.u(slow,:).^2,2)),...
-%         ones(size(OP.t_id(slow)))*40,sqrt(sum(OP.u(slow,:).^2,2)),...
-%         'filled');
-% else
+
 n_th = 4;
+
+OPtmp_pos = OP_pos_old(1:n_th:end,:);
+OPtmp_u = OP.u(1:n_th:end,:);
+
+aboveGround = OPtmp_pos(:,3)>1; % Cut off bottom layer under 5m
 p = scatter3(...
-    OP_pos_old(1:n_th:end,1),...
-    OP_pos_old(1:n_th:end,2),...
-    OP_pos_old(1:n_th:end,3),...
-    30-sqrt(sum(OP.u(1:n_th:end,:).^2,2)),...
-    sqrt(sum(OP.u(1:n_th:end,:).^2,2)),...
+    OPtmp_pos(aboveGround,1),...
+    OPtmp_pos(aboveGround,2),...
+    OPtmp_pos(aboveGround,3),...
+    13-sqrt(sum(OPtmp_u(aboveGround,:).^2,2)),...
+    sqrt(sum(OPtmp_u(aboveGround,:).^2,2)),...
     'filled');
-%     p = scatter3(OP_pos_old(:,1),OP_pos_old(:,2),OP_pos_old(:,3),...
-%         20-sqrt(sum(OP.u.^2,2)),sqrt(sum(OP.u.^2,2)),...%ones(size(OP.t_id(:)))*20,sqrt(sum(OP.u.^2,2)),...
-%         'filled');
-% end
+
+%% Add wind field vectors
 Uq = getWindVec3([UF.ufieldx(:),UF.ufieldy(:)],UF.IR, U_abs, U_ang, UF.Res, UF.lims);
 q = quiver(UF.ufieldx(:),UF.ufieldy(:),Uq(:,1),Uq(:,2),'Color',[0.5,0.5,0.5]);
 
-
+colormap jet
 c = colorbar;
 c.Label.String ='Windspeed [m/s]';
 c.Limits = [0,10];
+axis equal
 xlabel('West-East [m]')
-ylabel('South-North [m]')
 xlim(fLim_x);
+ylabel('South-North [m]')
 ylim(fLim_y);
-% if Dim == 3
-    zlabel('Height [m]')
-    zlim([-300,500]);
-% end
+zlabel('Height [m]')
+zlim([-300,500]);
+title('FLORIDyn three turbine case')
+
+view([-i/251*80-5 20]);
+
 grid on
 %% Plot the rotors
 for i_T = 1:length(T.D)
-    if i>1
-        delete(rotors{i_T});
-    end
-    
     %Plot circular Rotor
     phi = linspace(0,2*pi);
     r = T.D(i_T)/2;
@@ -63,17 +53,20 @@ for i_T = 1:length(T.D)
         0,1]*[yR;zR];
     
     cR = cR'+T.pos(i_T,:);
-    plot3(cR(:,1),cR(:,2),cR(:,3),'k','LineWidth',3);
-%     % Get start and end of the turbine rotor
-%     rot_pos = ...
-%         [cos(T.yaw(i_T)), -sin(T.yaw(i_T));...
-%         sin(T.yaw(i_T)), cos(T.yaw(i_T))] * ...
-%         [0,0;T.D(i_T)/2,-T.D(i_T)/2];
-%     rot_pos = rot_pos + T.pos(i_T,1:2)';
-%     rotors{i_T} = plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
+    plot3(cR(:,1),cR(:,2),cR(:,3),'k','LineWidth',2);
+    plot3(...
+        [T.pos(i_T,1),T.pos(i_T,1)],...
+        [T.pos(i_T,2),T.pos(i_T,2)],...
+        [0,T.pos(i_T,3)],...
+        'k','LineWidth',1.5);
 end
 
 hold off
+set(f.Children, ...
+    'FontName',     'Frontpage', ...
+    'FontSize',     10);
+axes1.Projection = 'perspective';
+
 %% Plot the Power Output
 % subplot(2,1,2)
 % plot(Sim.TimeSteps,powerHist(1,:),'LineWidth',2);
@@ -90,6 +83,10 @@ hold off
 % hold off
 
 pause(0.1)
+nr = num2str(i);
+nr = pad(nr,3,'left','0');
+print(['./Animation/BladePitchChange' nr], '-dpng', '-r300')
+
 
 % Turbine Data
 %   tl_pos      := [n x 3] vec; [x,y,z] world coord. (can be nx2)

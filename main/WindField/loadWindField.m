@@ -86,7 +86,7 @@ windAngle       = 0;        % Degree, will be converted in rad
 ambTurbulence   = .06;      % in percent
 posMeasFactor   = 3000;     % Determines location of measurement points
 posMeas         = [0,0;1,0;0,1;1,1]*posMeasFactor;
-uf_res          = [60,60];  % resolution across the field [x,y]
+uf_res          = [20,20];  % resolution across the field [x,y]
 alpha_z         = 0;        % factor for height decrease due to 
                             %   atmospheric stability
                             %     0 = a disabled

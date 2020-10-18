@@ -3,8 +3,8 @@ function [powerHist,OP,T,UF,Sim] = main()
 main_addPaths;
 
 %% Load SOWFA yaw values
-%file2val = '/ValidationData/csv/3T_pos_y_';
 file2val = '/ValidationData/csv/3T_dyn_Ct_';
+%file2val = '/ValidationData/csv/3T_00_';
 % Get yaw angle (deg)
 yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
 % Blade pitch angle (deg)
@@ -67,7 +67,7 @@ Sim.reducedInteraction = true;
 %% Visulization
 % Set to true or false, if set to false, the only output is what this
 % function returns. Disabeling decreases the computational effort noticably
-onlineVis = true;
+onlineVis = false;
 
 %% Create starting OPs and build opList
 %   Creates the observation point struct (OP) and extends the chain struct.

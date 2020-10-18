@@ -33,8 +33,10 @@ Ct1 = ctInterp(bp1,tsr1);
 Ct2 = ctInterp(bp2,tsr2);
 Ct3 = ctInterp(bp3,tsr3);
 
+% Added PT1 behaviour to Ct
+PT1_T = 5; %s
 T.Cp = [Cp1;Cp2;Cp3];
-T.Ct = [Ct1;Ct2;Ct3];
+T.Ct = T.Ct + Sim.TimeStep/PT1_T*([Ct1;Ct2;Ct3]-T.Ct);
 
 if nT==3
     yaw = [yawT1;yawT2;yawT3];
@@ -55,14 +57,10 @@ T.yaw   = T.yaw + yaw;
 
 %% Calculate Power Output
 % 1/2*airdensity*AreaRotor*C_P*U_eff^3*cos(yaw)^p_p
-% T.P = 0.5*UF.airDen*(T.D/2).^2.*pi.*T.Cp.*T.u.^3.* Pow.eta.*...
-%     cos(T.yaw-atan2(T.U(:,2),T.U(:,1))).^Pow.p_p;
+T.P = 0.5*UF.airDen*(T.D/2).^2.*pi.*T.Cp.*T.u.^3.* Pow.eta.*...
+    cos(T.yaw-atan2(T.U(:,2),T.U(:,1))).^Pow.p_p;
 
-PT1_T = 4; %s
-P_new = 0.5*UF.airDen*(T.D/2).^2.*pi.*T.Cp.*T.u.^3.* Pow.eta.*...
-     cos(T.yaw-atan2(T.U(:,2),T.U(:,1))).^Pow.p_p;
 
-T.P = T.P + Sim.TimeStep/PT1_T*(P_new-T.P);
 powerHist(:,i)= T.P;
 
 %% ===================================================================== %%
