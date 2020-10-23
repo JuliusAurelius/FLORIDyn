@@ -186,7 +186,7 @@ switch fieldScenario
         changeAng = linspace(0,40/180*pi,startI);
         
         % Offset with which the angle changes at the measurement points
-        offset = round(20/TimeStep);
+        offset = round(60/TimeStep);
         
         % Throw error if the simulation time is set too short
         if 2*startI+3*offset>NoTimeSteps
@@ -204,11 +204,11 @@ switch fieldScenario
         U.ang(startI+offset+1:2*startI+offset,3) = ...
             U.ang(startI+offset+1:2*startI+offset,3) + changeAng';
         
-        U.ang(startI+2*offset+1:2*startI+2*offset,2) = ...
-            U.ang(startI+2*offset+1:2*startI+2*offset,2) + changeAng';
-        
-        U.ang(startI+3*offset+1:2*startI+3*offset,4) = ...
-            U.ang(startI+3*offset+1:2*startI+3*offset,4) + changeAng';
+%         U.ang(startI+2*offset+1:2*startI+2*offset,2) = ...
+%             U.ang(startI+2*offset+1:2*startI+2*offset,2) + changeAng';
+%         
+%         U.ang(startI+3*offset+1:2*startI+3*offset,4) = ...
+%             U.ang(startI+3*offset+1:2*startI+3*offset,4) + changeAng';
         
         % Set the remaining entries to the last value
         U.ang(2*startI+1:end,1) = ...
@@ -217,17 +217,21 @@ switch fieldScenario
         U.ang(2*startI+offset+1:end,3) = ...
             U.ang(2*startI+offset+1:end,3) + changeAng(end);
         
-        U.ang(2*startI+2*offset+1:end,2) = ...
-            U.ang(2*startI+2*offset+1:end,2) + changeAng(end);
-        
-        U.ang(2*startI+3*offset+1:end,4) = ...
-            U.ang(2*startI+3*offset+1:end,4) + changeAng(end);
+%         U.ang(2*startI+2*offset+1:end,2) = ...
+%             U.ang(2*startI+2*offset+1:end,2) + changeAng(end);
+%         
+%         U.ang(2*startI+3*offset+1:end,4) = ...
+%             U.ang(2*startI+3*offset+1:end,4) + changeAng(end);
    
         % Make sure the angle is in range [0,2pi)
         U.ang = mod(U.ang,2*pi);
         
         % Constant ambient turbulence
         I.val = ones(1,measPoints)*ambTurbulence;
+    case 'WindGusts'
+        
+        
+        
     case 'TestWindfield'
         uf_res = [30,15];
         posMeas = [0,0;

@@ -116,6 +116,7 @@ if Sim.Interaction
     else
         % All OPs interact
         r_f = getForeignInfluence(OP.pos, OP_r, OP.t_id, length(T.D));
+        %r_f = getForeignInfluence3(OP,T,chain,OP_r,0);
     end
     
 else

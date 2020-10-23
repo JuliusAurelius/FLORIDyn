@@ -32,6 +32,7 @@ if mod(size(op_pos,2),2)
     % OPs which would move into the ground are now kept above ground.
     aboveGround = op_pos(:,3) + diff_cw_z>0;
     op_pos(aboveGround,3) = op_pos(aboveGround,3) + diff_cw_z(aboveGround);
+    op_pos(~aboveGround,3) = 0;
 end
 %% ===================================================================== %%
 % = Reviewed: 2020.10.07 (yyyy.mm.dd)                                   = %

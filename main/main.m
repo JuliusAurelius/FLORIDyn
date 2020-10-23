@@ -3,24 +3,24 @@ function [powerHist,OP,T,UF,Sim] = main()
 main_addPaths;
 
 %% Load SOWFA yaw values
-file2val = '/ValidationData/csv/3T_dyn_Ct_';
-%file2val = '/ValidationData/csv/3T_00_';
-% Get yaw angle (deg)
-yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
-% Blade pitch angle (deg)
-bladePitch = importYawAngleFile([file2val 'bladePitch.csv']);
-% Rotor speed (rpm)
-tipSpeed = importYawAngleFile([file2val 'rotorSpeedFiltered.csv']);
-%   Conversion from rpm to m/s tip speed 
-tipSpeed(:,3) = tipSpeed(:,3)*pi*89.2/30; 
-
-% Fix time
-yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
-bladePitch(:,2) = bladePitch(:,2)-bladePitch(1,2);
-tipSpeed(:,2) = tipSpeed(:,2)-tipSpeed(1,2);
-load('./TurbineData/Cp_Ct_SOWFA.mat');
-cpInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.cpArray,'linear','none');
-ctInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.ctArray,'linear','none');
+% file2val = '/ValidationData/csv/2T_00_torque_';
+% %file2val = '/ValidationData/csv/3T_00_';
+% % Get yaw angle (deg)
+% yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
+% % % Blade pitch angle (deg)
+% % bladePitch = importYawAngleFile([file2val 'bladePitch.csv']);
+% % % Rotor speed (rpm)
+% % tipSpeed = importYawAngleFile([file2val 'rotorSpeedFiltered.csv']);
+% %   Conversion from rpm to m/s tip speed 
+% % tipSpeed(:,3) = tipSpeed(:,3)*pi*89.2/30; 
+% 
+% % Fix time
+% yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
+% % bladePitch(:,2) = bladePitch(:,2)-bladePitch(1,2);
+% % tipSpeed(:,2) = tipSpeed(:,2)-tipSpeed(1,2);
+% % load('./TurbineData/Cp_Ct_SOWFA.mat');
+% % cpInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.cpArray,'linear','none');
+% % ctInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.ctArray,'linear','none');
 %% Load Layout
 %   Load the turbine configuration (position, diameter, hub height,...) the
 %   power constants (Efficiency, p_p), data to connect wind speed and
@@ -31,6 +31,7 @@ ctInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaDat
 %       'twoDTU10MW_Maarten'    -> two turbines at 900m distance
 %       'nineDTU10MW_Maatren'   -> nine turbines in a 3x3 grid, 900m dist.
 %       'threeDTU10MW_Daan'     -> three turbines in 1x3 grid, 5D distance
+%       'fourDTU10MW'           -> 2x2 grid from 3x3 layout
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.
@@ -56,24 +57,27 @@ ctInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaDat
 %   for more info.
 [U, I, UF, Sim] = loadWindField('const',... 
     'windAngle',0,...
-    'SimDuration',yawSOWFA(end,2),...
+    'SimDuration',820,...%yawSOWFA(end,2),...
     'FreeSpeed',true,...
     'Interaction',true,...
     'posMeasFactor',2000,...
     'alpha_z',0.1,...
     'windSpeed',9,...
     'ambTurbulence',0.05);
-Sim.reducedInteraction = true;
+Sim.reducedInteraction = false;
 %% Visulization
 % Set to true or false, if set to false, the only output is what this
 % function returns. Disabeling decreases the computational effort noticably
-onlineVis = false;
+onlineVis = true;
 
 %% Create starting OPs and build opList
 %   Creates the observation point struct (OP) and extends the chain struct.
 %   Here, the distribution of the OPs in the wake is set, currently, only
 %   the sunflower distribution is avaiable.
-[OP, chain] = assembleOPList(chain,T,'sunflower');
+%   '2D_horizontal'
+%   '2D_vertical'
+%   'sunflower'
+[OP, chain] = assembleOPList(chain,T,'2D_vertical');
 
 %% Preparation for Simulation
 %   Script starts the visulization, checks whether the field variables are

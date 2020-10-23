@@ -2,10 +2,10 @@
 %% Plot the OPs
 f = figure(1);
 clf;
-axes1 = axes('Parent',f);
+%axes1 = axes('Parent',f);
 hold on
 
-n_th = 4;
+n_th = 1;
 
 OPtmp_pos = OP_pos_old(1:n_th:end,:);
 OPtmp_u = OP.u(1:n_th:end,:);
@@ -15,7 +15,7 @@ p = scatter3(...
     OPtmp_pos(aboveGround,1),...
     OPtmp_pos(aboveGround,2),...
     OPtmp_pos(aboveGround,3),...
-    13-sqrt(sum(OPtmp_u(aboveGround,:).^2,2)),...
+    20-sqrt(sum(OPtmp_u(aboveGround,:).^2,2)),...
     sqrt(sum(OPtmp_u(aboveGround,:).^2,2)),...
     'filled');
 
@@ -34,10 +34,12 @@ ylabel('South-North [m]')
 ylim(fLim_y);
 zlabel('Height [m]')
 zlim([-300,500]);
-title('FLORIDyn three turbine case')
+title('FLORIDyn two turbine case, heterogeneous wind direction')
 
-view([-i/251*80-5 20]);
-
+%view([-i/251*80-5 20]);
+zrot = max(i/80*(-10)-5,-15) + max(i-144,0)/60*13 - max(i-204,0)/60*13;
+xrot = min(i/80*37,37)+ 5 + max(i-144,0)/80*38 - max(i-204,0)/80*38;
+view([zrot xrot]);
 grid on
 %% Plot the rotors
 for i_T = 1:length(T.D)
@@ -65,7 +67,7 @@ hold off
 set(f.Children, ...
     'FontName',     'Frontpage', ...
     'FontSize',     10);
-axes1.Projection = 'perspective';
+%axes1.Projection = 'perspective';
 
 %% Plot the Power Output
 % subplot(2,1,2)
@@ -83,9 +85,9 @@ axes1.Projection = 'perspective';
 % hold off
 
 pause(0.1)
-nr = num2str(i);
-nr = pad(nr,3,'left','0');
-print(['./Animation/BladePitchChange' nr], '-dpng', '-r300')
+% nr = num2str(i);
+% nr = pad(nr,3,'left','0');
+% print(['./Animation/BladePitchChange' nr], '-dpng', '-r300')
 
 
 % Turbine Data
