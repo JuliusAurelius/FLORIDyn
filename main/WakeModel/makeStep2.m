@@ -106,14 +106,36 @@ OP_r(~core) = gaussAbs(~core).*...
 
 %% Get forgeign influence
 if Sim.Interaction
-    rel = getRelations(OP,T,chain,Sim.reducedInteraction);
+    % Create the relation matrix which stores the indices of the nearest
+    % neighbour for foreign reduction and turbulence
+    rel_r = getRelations(OP,T,chain,Sim.reducedInteraction);
+    rel_I = rel_r;
+    f_inf = rel_r>0;
     
-    f_inf = rel>0;
-    rel(f_inf) = 1-OP_r(rel(f_inf));
-    rel(~f_inf) = 1;
+    % Foreign speed reduction
+    rel_r(f_inf) = 1-OP_r(rel_r(f_inf));
+    rel_r(~f_inf) = 1;
+    r_f = prod(rel_r,2);
     
-    r_f = prod(rel,2);
+    % Fix for now
+    OP_a = ones(size(D))*0.33;
+    % Calculate the foreign turbulence influence
+    obj_a = .73;    %.8
+    obj_b = .8325;  %.73
+    obj_c = .0325;  %.35
+    obj_d = -.32;   %-0.32
+    rel_I(f_inf) = ...
+        obj_a*(OP_a(rel_I(f_inf)).^obj_b) .* ...
+        (OP.I_0(rel_I(f_inf)).^obj_c) .* ...
+        ((OP.dw(rel_I(f_inf))./D(rel_I(f_inf))).^obj_d);
     
+    rel_I(:,1) = sum(rel_I,2);
+    ind = chain.List(:,1) + chain.List(:,2);
+    all_I = chain.List(:,5).*rel_I(ind,1);
+    
+    for ti = 1:length(T.D)
+        T.I_f(ti) = sum(all_I(chain.List(:,4)==ti));
+    end
 else
     % Foreign influence ignored
     r_f = ones(size(OP_r));
@@ -129,6 +151,7 @@ OP.u = r_f.*OP.U;
 %   Needs to happen BEFORE own reduction is applied. For the down wind step
 %   it was applied seperately
 T.u = getTurbineWindSpeed(OP.u,chain.List,T.D);
+
 
 %% Down wind step
 % Calculate downwind step, based on the simulation settings, the OPs travel

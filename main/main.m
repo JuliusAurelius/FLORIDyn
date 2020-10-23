@@ -35,7 +35,7 @@ main_addPaths;
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.
- [T,fieldLims,Pow,VCpCt,chain] = loadLayout('threeDTU10MW_Daan'); %#ok<ASGLU>
+ [T,fieldLims,Pow,VCpCt,chain] = loadLayout('nineDTU10MW_Maatren'); %#ok<ASGLU>
 
 %% Load the environment
 %   U provides info about the wind: Speed(s), direction(s), changes.
@@ -55,15 +55,15 @@ main_addPaths;
 %
 %   Numerous settings can be set via additional arguments, see the comments
 %   for more info.
-[U, I, UF, Sim] = loadWindField('const',... 
+[U, I, UF, Sim] = loadWindField('+60DegChange',... 
     'windAngle',0,...
     'SimDuration',1000,...%yawSOWFA(end,2),...
     'FreeSpeed',true,...
     'Interaction',true,...
     'posMeasFactor',2000,...
     'alpha_z',0.1,...
-    'windSpeed',9,...
-    'ambTurbulence',0.05);
+    'windSpeed',8,...
+    'ambTurbulence',0.06);
 Sim.reducedInteraction = true;
 %% Visulization
 % Set to true or false, if set to false, the only output is what this
@@ -96,7 +96,7 @@ for i = 1:Sim.NoTimeSteps
     %================= CONTROLLER & POWER CALCULATION ====================%
     % Update Turbine data to get controller input
     T.U = getWindVec4(T.pos, U_abs, U_ang, UF);
-    
+    T.I0 = getAmbientTurbulence(T.pos, UF.IR, I_val, UF.Res, UF.lims);
     % Set Ct/Cp and calculate the power output
     ControllerScript;
     
@@ -111,7 +111,7 @@ for i = 1:Sim.NoTimeSteps
         OP.U = getWindVec4(OP.pos, U_abs, U_ang, UF);
     end
     
-    OP.I = getAmbientTurbulence(OP.pos, UF.IR, I_val, UF.Res, UF.lims);
+    OP.I_0 = getAmbientTurbulence(OP.pos, UF.IR, I_val, UF.Res, UF.lims);
     
     % Save old position for plotting if needed
     if onlineVis; OP_pos_old = OP.pos;end %#ok<NASGU>
@@ -165,8 +165,9 @@ hold on
 %     '-.','LineWidth',1)
 % end
 % ========== FLORIDyn data =========
-plot(powerHist(:,1),powerHist(:,2),'LineWidth',1.5)
-plot(powerHist(:,1),powerHist(:,3),'LineWidth',1.5)
+for iT = 1:length(T.D)
+    plot(powerHist(:,1),powerHist(:,iT+1),'LineWidth',1.5)
+end
 
 % Plot second FLORIDyn results
 % plot(powerHist(:,1),powerHist(:,2),'--','LineWidth',1.5)
@@ -202,9 +203,9 @@ hold off
 
 grid on
 xlim([0 powerHist(end,1)])
-xlabel('Time in s')
-ylabel('Power generated in W')
-title('C_t and C_p change, free speed with first order delay, T=20s')
+xlabel('Time [s]')
+ylabel('Power generated [W]')
+title('Turbulence influence included')
 
 % ==== Prep for export ==== %
 % scaling

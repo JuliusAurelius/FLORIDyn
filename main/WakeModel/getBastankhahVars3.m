@@ -34,19 +34,20 @@ function [sig_y, sig_z, C_T, x_0, delta, pc_y, pc_z] = getBastankhahVars3(OP, D)
 %a = OP.ayaw(:,1);
 yaw = OP.yaw;
 C_T = OP.Ct;
+OP_I = sqrt(OP.I_f.^2+OP.I_0.^2);
 %% Calc x_0 (Core length)
 alpha = 2.32;
 beta = 0.154;
 % [1] Eq. 7.3
 x_0 = (cos(yaw).*(1+sqrt(1-C_T))./...
-    (sqrt(2)*(alpha*OP.I+beta*(1-sqrt(1-C_T))))).*D;
+    (sqrt(2)*(alpha*OP_I+beta*(1-sqrt(1-C_T))))).*D;
 
 %% Calc k_z and k_y based on I
 k_a = 0.38371;
 k_b = 0.003678;
 
 %[2] Eq.8
-k_y = k_a*OP.I + k_b;
+k_y = k_a*OP_I + k_b;
 k_z = k_y;
 
 %% Get field width y
@@ -104,7 +105,7 @@ pc_y(rp) = D(rp).*cos(yaw(rp));
 pc_z(rp) = D(rp);
 end
 %% ===================================================================== %%
-% = Reviewed: 2020.10.06 (yyyy.mm.dd)                                   = %
+% = Reviewed: 2020.11.23 (yyyy.mm.dd)                                   = %
 % === Author: Marcus Becker                                             = %
 % == Contact: marcus.becker.mail@gmail.com                              = %
 % ======================================================================= %

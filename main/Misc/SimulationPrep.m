@@ -24,6 +24,8 @@ powerHist = zeros(length(T.D),Sim.NoTimeSteps);
 % Set free wind speed as starting wind speed for the turbines
 T.U = getWindVec4(T.pos, U_abs, U_ang, UF);
 T.u = sqrt(T.U(:,1).^2+T.U(:,2).^2);
+T.I_f = zeros(size(T.u));
+
 i = 1; % Maybe needed for Controlle Script
 
 nT = length(T.D);

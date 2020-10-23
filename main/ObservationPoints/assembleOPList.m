@@ -38,6 +38,7 @@ function [OP, chain] = assembleOPList(chain,T,distr_method)
 %    .Ct        := [nx1] vec; Ct coefficient at the time of creation
 %    .t_id      := [nx1] vec; Turbine OP belongs to
 %    .U         := [nx2] vec; Uninfluenced wind vector at OP position
+%    .I_f       := [nx1] vec; Foreign added turbunlence
 %
 %   chain       := Struct;    Data related to the OP management / chains
 %    .NumChains := int;       Number of Chains per turbine
@@ -280,6 +281,7 @@ OP.U    = op_U;
 OP.yaw  = op_yaw;
 OP.Ct   = op_Ct;
 OP.t_id = op_t_id;
+OP.I_f  = zeros(size(op_Ct));
 
 chain.List = chainList;
 chain.dstr = cl_dstr;
