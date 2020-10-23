@@ -105,19 +105,14 @@ OP_r(~core) = gaussAbs(~core).*...
     exp(-0.5.*((cw_z(~core)-sin(phi_cw(~core)).*pc_z(~core)*0.5)./sig_z(~core)).^2);
 
 %% Get forgeign influence
-% TODO Change it to only calculate the interpolation of the OPs at the
-% rotor plane
 if Sim.Interaction
-    % Calculate foreign influence
-    if Sim.reducedInteraction
-        % Only the ones at the rotor plane interact
-        ind = chain.List(:,1) + chain.List(:,2);
-        r_f = getForeignInfluence2(OP.pos, OP_r, OP.t_id, ind, length(T.D));
-    else
-        % All OPs interact
-        r_f = getForeignInfluence(OP.pos, OP_r, OP.t_id, length(T.D));
-        %r_f = getForeignInfluence3(OP,T,chain,OP_r,0);
-    end
+    rel = getRelations(OP,T,chain,Sim.reducedInteraction);
+    
+    f_inf = rel>0;
+    rel(f_inf) = 1-OP_r(rel(f_inf));
+    rel(~f_inf) = 1;
+    
+    r_f = prod(rel,2);
     
 else
     % Foreign influence ignored
