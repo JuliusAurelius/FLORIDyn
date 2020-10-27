@@ -3,20 +3,20 @@ function [powerHist,OP,T,UF,Sim] = main()
 main_addPaths;
 
 %% Load SOWFA yaw values
-file2val = '/ValidationData/csv/9T_00_';
-%file2val = '/ValidationData/csv/2T_20_';
-%file2val = '/ValidationData/csv/3T_dyn_Ct_';
-% Get yaw angle (deg)
-yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
-% % Blade pitch angle (deg)
-% bladePitch = importYawAngleFile([file2val 'bladePitch.csv']);
-% % Rotor speed (rpm)
-% tipSpeed = importYawAngleFile([file2val 'rotorSpeedFiltered.csv']);
-% %  Conversion from rpm to m/s tip speed 
-% tipSpeed(:,3) = tipSpeed(:,3)*pi*89.2/30; 
-
-% Fix time
-yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
+% file2val = '/ValidationData/csv/9T_00_';
+% %file2val = '/ValidationData/csv/2T_20_';
+% %file2val = '/ValidationData/csv/3T_dyn_Ct_';
+% % Get yaw angle (deg)
+% yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
+% % % Blade pitch angle (deg)
+% % bladePitch = importYawAngleFile([file2val 'bladePitch.csv']);
+% % % Rotor speed (rpm)
+% % tipSpeed = importYawAngleFile([file2val 'rotorSpeedFiltered.csv']);
+% % %  Conversion from rpm to m/s tip speed 
+% % tipSpeed(:,3) = tipSpeed(:,3)*pi*89.2/30; 
+% 
+% % Fix time
+% yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
 % bladePitch(:,2) = bladePitch(:,2)-bladePitch(1,2);
 % tipSpeed(:,2) = tipSpeed(:,2)-tipSpeed(1,2);
 % load('./TurbineData/Cp_Ct_SOWFA.mat');
@@ -36,7 +36,7 @@ yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.
- [T,fieldLims,Pow,VCpCt,chain] = loadLayout('nineDTU10MW_Maatren'); %#ok<ASGLU>
+ [T,fieldLims,Pow,VCpCt,chain] = loadLayout('twoDTU10MW_Maarten'); %#ok<ASGLU>
 
 %% Load the environment
 %   U provides info about the wind: Speed(s), direction(s), changes.
@@ -57,15 +57,15 @@ yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
 %   Numerous settings can be set via additional arguments, see the comments
 %   for more info.
 [U, I, UF, Sim] = loadWindField('+60DegChange',... 
-    'windAngle',15,...
-    'SimDuration',yawSOWFA(end,2),...
+    'windAngle',0,...
+    'SimDuration',1000,...%yawSOWFA(end,2),...
     'FreeSpeed',true,...
     'Interaction',true,...
     'posMeasFactor',2000,...
     'alpha_z',0.1,...
     'windSpeed',8,...
     'ambTurbulence',0.06);
-Sim.reducedInteraction = false;
+Sim.reducedInteraction = true;
 %% Visulization
 % Set to true or false, if set to false, the only output is what this
 % function returns. Disabeling decreases the computational effort noticably
@@ -78,7 +78,7 @@ onlineVis = false;
 %   '2D_horizontal'
 %   '2D_vertical'
 %   'sunflower'
-[OP, chain] = assembleOPList(chain,T,'2D_horizontal');
+[OP, chain] = assembleOPList(chain,T,'sunflower');
 
 %% Preparation for Simulation
 %   Script starts the visulization, checks whether the field variables are
@@ -86,6 +86,7 @@ onlineVis = false;
 %   values for the turbines and observation points which may not be 0
 %   before the simulation starts.
 SimulationPrep;
+
 %% Start simulation
 for i = 1:Sim.NoTimeSteps
     tic;
@@ -137,7 +138,6 @@ for i = 1:Sim.NoTimeSteps
     % Display the current simulation progress
     ProgressScript;
 end
-
 %% Store power output together with time line
 powerHist = [Sim.TimeSteps',powerHist'];
 
