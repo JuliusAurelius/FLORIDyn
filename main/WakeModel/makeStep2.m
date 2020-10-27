@@ -117,8 +117,9 @@ if Sim.Interaction
     rel_r(~f_inf) = 1;
     r_f = prod(rel_r,2);
     
-    % Fix for now
-    OP_a = ones(size(D))*0.33;
+    % The added turbulence equation is dependent on a, so reverse
+    % Ct=4a(1-a) -> a = 0.5(1-sqrt(1-Ct)) in the area a \in [0,0.5]
+    OP_a = 0.5*(1-sqrt(1-OP.Ct));
     % Calculate the foreign turbulence influence
     obj_a = .73;    %.8
     obj_b = .8325;  %.73

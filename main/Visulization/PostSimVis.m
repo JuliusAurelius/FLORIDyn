@@ -36,7 +36,7 @@ u_grid_z(nan_z) = sqrt(sum(u_grid_z_tmp2.^2,2));
 u_grid_z = reshape(u_grid_z,size(u_grid_x));
 
 %% Plot contour
-figure(2)
+figure
 contourf(u_grid_x,u_grid_y,u_grid_z,30,'LineColor','none');
 hold on
 for i_T = 1:length(T.D)

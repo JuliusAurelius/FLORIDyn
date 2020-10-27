@@ -17,8 +17,8 @@ plot(greedyPowerHist(:,1),normFLORIdyn(:,t),'LineWidth',1.5)
 hold off
 grid on
 xlim([0 greedyPowerHist(end,1)])
-xlabel('Time in s')
-ylabel('Normalized power generated in W/W')
+xlabel('Time [s]')
+ylabel('Norm. P [W/W]')
 title(['Normalized power output of turbine ' num2str(t-1)])
 legend('SOWFA','FLORIDyn')
 % scaling
@@ -35,7 +35,7 @@ set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))
 % Export
 f.PaperPositionMode   = 'auto';
 %%
-print('Norm_T3_T0', '-dpng', '-r600')
+print('ThreeT_Norm_T0_negYaw_newI', '-dpng', '-r600')
 %% T1
 f = figure;
 hold on
@@ -49,13 +49,13 @@ plot(greedyPowerHist(:,1),normFLORIdyn(:,t),'LineWidth',1.5)
 hold off
 grid on
 xlim([0 greedyPowerHist(end,1)])
-xlabel('Time in s')
-ylabel('Normalized power generated in W/W')
+xlabel('Time [s]')
+ylabel('Normalized power [W/W]')
 title(['Normalized power output of turbine ' num2str(t-1)])
 legend('SOWFA','FLORIDyn')
 % scaling
 f.Units               = 'centimeters';
-f.Position(3)         = 16.1; % line width
+f.Position(3)         = 8; % line width
 
 
 % Set font & size
@@ -67,7 +67,7 @@ set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))
 % Export
 f.PaperPositionMode   = 'auto';
 %%
-print('Norm_T3_T1', '-dpng', '-r600')
+print('ThreeT_Norm_T1_negYaw_newI', '-dpng', '-r600')
 %% T2
 f = figure;
 hold on
@@ -81,13 +81,13 @@ plot(greedyPowerHist(:,1),normFLORIdyn(:,t),'LineWidth',1.5)
 hold off
 grid on
 xlim([0 greedyPowerHist(end,1)])
-xlabel('Time in s')
-ylabel('Normalized power generated in W/W')
+xlabel('Time [s]')
+ylabel('Normalized power [W/W]')
 title(['Normalized power output of turbine ' num2str(t-1)])
 legend('SOWFA','FLORIDyn')
 % scaling
 f.Units               = 'centimeters';
-f.Position(3)         = 16.1; % line width
+f.Position(3)         = 8; % line width
 
 
 % Set font & size
@@ -99,4 +99,4 @@ set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))
 % Export
 f.PaperPositionMode   = 'auto';
 %%
-print('Norm_T3_T2', '-dpng', '-r600')
+print('ThreeT_changingCt_newI', '-dpng', '-r600')

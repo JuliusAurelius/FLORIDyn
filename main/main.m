@@ -3,24 +3,25 @@ function [powerHist,OP,T,UF,Sim] = main()
 main_addPaths;
 
 %% Load SOWFA yaw values
-% file2val = '/ValidationData/csv/2T_00_torque_';
-% %file2val = '/ValidationData/csv/3T_00_';
-% % Get yaw angle (deg)
-% yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
-% % % Blade pitch angle (deg)
-% % bladePitch = importYawAngleFile([file2val 'bladePitch.csv']);
-% % % Rotor speed (rpm)
-% % tipSpeed = importYawAngleFile([file2val 'rotorSpeedFiltered.csv']);
-% %   Conversion from rpm to m/s tip speed 
-% % tipSpeed(:,3) = tipSpeed(:,3)*pi*89.2/30; 
-% 
-% % Fix time
-% yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
-% % bladePitch(:,2) = bladePitch(:,2)-bladePitch(1,2);
-% % tipSpeed(:,2) = tipSpeed(:,2)-tipSpeed(1,2);
-% % load('./TurbineData/Cp_Ct_SOWFA.mat');
-% % cpInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.cpArray,'linear','none');
-% % ctInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.ctArray,'linear','none');
+file2val = '/ValidationData/csv/9T_00_';
+%file2val = '/ValidationData/csv/2T_20_';
+%file2val = '/ValidationData/csv/3T_dyn_Ct_';
+% Get yaw angle (deg)
+yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
+% % Blade pitch angle (deg)
+% bladePitch = importYawAngleFile([file2val 'bladePitch.csv']);
+% % Rotor speed (rpm)
+% tipSpeed = importYawAngleFile([file2val 'rotorSpeedFiltered.csv']);
+% %  Conversion from rpm to m/s tip speed 
+% tipSpeed(:,3) = tipSpeed(:,3)*pi*89.2/30; 
+
+% Fix time
+yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
+% bladePitch(:,2) = bladePitch(:,2)-bladePitch(1,2);
+% tipSpeed(:,2) = tipSpeed(:,2)-tipSpeed(1,2);
+% load('./TurbineData/Cp_Ct_SOWFA.mat');
+% cpInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.cpArray,'linear','nearest');
+% ctInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.ctArray,'linear','none');
 %% Load Layout
 %   Load the turbine configuration (position, diameter, hub height,...) the
 %   power constants (Efficiency, p_p), data to connect wind speed and
@@ -31,7 +32,7 @@ main_addPaths;
 %       'twoDTU10MW_Maarten'    -> two turbines at 900m distance
 %       'nineDTU10MW_Maatren'   -> nine turbines in a 3x3 grid, 900m dist.
 %       'threeDTU10MW_Daan'     -> three turbines in 1x3 grid, 5D distance
-%       'fourDTU10MW'           -> 2x2 grid from 3x3 layout
+%       'fourDTU10MW'           -> 2x2 grid 
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.
@@ -56,15 +57,15 @@ main_addPaths;
 %   Numerous settings can be set via additional arguments, see the comments
 %   for more info.
 [U, I, UF, Sim] = loadWindField('+60DegChange',... 
-    'windAngle',0,...
-    'SimDuration',1000,...%yawSOWFA(end,2),...
+    'windAngle',15,...
+    'SimDuration',yawSOWFA(end,2),...
     'FreeSpeed',true,...
     'Interaction',true,...
     'posMeasFactor',2000,...
     'alpha_z',0.1,...
     'windSpeed',8,...
     'ambTurbulence',0.06);
-Sim.reducedInteraction = true;
+Sim.reducedInteraction = false;
 %% Visulization
 % Set to true or false, if set to false, the only output is what this
 % function returns. Disabeling decreases the computational effort noticably
@@ -77,7 +78,7 @@ onlineVis = false;
 %   '2D_horizontal'
 %   '2D_vertical'
 %   'sunflower'
-[OP, chain] = assembleOPList(chain,T,'sunflower');
+[OP, chain] = assembleOPList(chain,T,'2D_horizontal');
 
 %% Preparation for Simulation
 %   Script starts the visulization, checks whether the field variables are
@@ -142,46 +143,34 @@ powerHist = [Sim.TimeSteps',powerHist'];
 
 %% Compare power plot
 % Get SOWFA data
-% powSOWFA_WPS = importGenPowerFile([file2val 'generatorPower.csv']);
+powSOWFA_WPS = importGenPowerFile([file2val 'generatorPower.csv']);
+
+
+labels = cell(2*nT,1);
 
 % Plotting
 f = figure;
 hold on
+
 % =========== SOWFA data ===========
-% plot(...
-%     powSOWFA_WPS(1:nT:end,2)-powSOWFA_WPS(1,2),...
-%     powSOWFA_WPS(1:nT:end,3)/UF.airDen,...
-%     '-.','LineWidth',1)
-% hold on
-% plot(...
-%     powSOWFA_WPS(2:nT:end,2)-powSOWFA_WPS(2,2),...
-%     powSOWFA_WPS(2:nT:end,3)/UF.airDen,...
-%     '-.','LineWidth',1)
-% 
-% if nT == 3
-%     plot(...
-%     powSOWFA_WPS(3:nT:end,2)-powSOWFA_WPS(2,2),...
-%     powSOWFA_WPS(3:nT:end,3)/UF.airDen,...
-%     '-.','LineWidth',1)
-% end
+for iT = 1:nT
+    plot(...
+        powSOWFA_WPS(iT:nT:end,2)-powSOWFA_WPS(iT,2),...
+        powSOWFA_WPS(iT:nT:end,3)/UF.airDen,...
+        '-.','LineWidth',1)
+    labels{iT} = ['T' num2str(iT-1) ' SOWFA wps'];
+end
+
 % ========== FLORIDyn data =========
 for iT = 1:length(T.D)
     plot(powerHist(:,1),powerHist(:,iT+1),'LineWidth',1.5)
+    labels{nT+iT} = ['T' num2str(iT-1) ' FLORIDyn'];
 end
 
-% Plot second FLORIDyn results
-% plot(powerHist(:,1),powerHist(:,2),'--','LineWidth',1.5)
-% plot(powerHist(:,1),powerHist(:,3),'--','LineWidth',1.5)
-
-% if nT==3
-%     plot(powerHist(:,1),powerHist(:,4),'LineWidth',1.5)
-%     legend(...
-%         'T0 SOWFA wps','T1 SOWFA wps','T2 SOWFA wps',...
-%         'T0 FLORIDyn','T1 FLORIDyn','T2 FLORIDyn')
-% else
-%     legend(...
-%         'T0 SOWFA wps','T1 SOWFA wps',...
-%         'T0 FLORIDyn free speed','T1 FLORIDyn free speed')
+% % Plot second FLORIDyn results
+% for iT = 1:length(T.D)
+%     plot(powerHist(:,1),powerHist(:,iT+1),'--','LineWidth',1.5)
+%     labels{iT} = ['T' num2str(iT-1) ' FLORIDyn'];
 % end
 
 % % //// EXTRA YAW  ////
@@ -193,7 +182,7 @@ end
 % plot([350,350],[-.3,.3]*10^6+powerHist(89,3),'k','LineWidth',1)
 % plot([650,650],[-.3,.3]*10^6+powerHist(164,3),'k','LineWidth',1)
 % plot([950,950],[-.3,.3]*10^6+powerHist(239,3),'k','LineWidth',1)
-% 
+% % 
 % legend(...
 %     'T0 SOWFA wps','T1 SOWFA wps','T2 SOWFA wps',...
 %     'T0 FLORIDyn','T1 FLORIDyn','T2 FLORIDyn')
@@ -205,8 +194,8 @@ grid on
 xlim([0 powerHist(end,1)])
 xlabel('Time [s]')
 ylabel('Power generated [W]')
-title('Turbulence influence included')
-
+title('Three turbine case, changing blade pitch angle')
+legend(labels)
 % ==== Prep for export ==== %
 % scaling
 f.Units               = 'centimeters';

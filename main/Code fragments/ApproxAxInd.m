@@ -1,6 +1,6 @@
 %% Find closest match of Ct Cp table with the axial induction factor
 
-load('./TurbineData/VCpCt_10MW.mat'); % Output VCpCt
+load('./TurbineData/VCpCt_10MW_SOWFA.mat'); % Output VCpCt
 
 aOpt = zeros(size(VCpCt,1),1);
 Ct = @(a) 4*a.*(1-a);
@@ -18,26 +18,26 @@ end
 f = figure;
 
 subplot(2,1,1)
-plot(VCpCt(:,1),VCpCt(:,2),'--','LineWidth',1.5)
+plot(VCpCt(:,1),VCpCt(:,2),'-.k','LineWidth',1.5)
 hold on
-plot(VCpCt(:,1),VCpCt(:,3),'-.','LineWidth',1.5)
-plot(VCpCt(:,1),Cp(aOpt),'--','LineWidth',1.5)
-plot(VCpCt(:,1),Ct(aOpt),'-.','LineWidth',1.5)
+plot(VCpCt(:,1),VCpCt(:,3),'--k','LineWidth',1.5)
+plot(VCpCt(:,1),Cp(aOpt),'-.r','LineWidth',1.5)
+plot(VCpCt(:,1),Ct(aOpt),'--r','LineWidth',1.5)
 hold off
-ylabel('C_p and C_t')
-xlabel('Wind speed in m/s')
+ylabel('C_p and C_t [-]')
+xlabel('Wind speed [m/s]')
 title('C_p and C_t coefficient based on the wind speed')
-xlim([4 25])
-legend('C_p','C_t','C_p(a)','C_t(a)')
+xlim([4 15])
+legend('C_p(u)','C_t(u)','C_p(a)','C_t(a)')
 grid on
 
 subplot(2,1,2)
 plot(VCpCt(:,1),aOpt,':','LineWidth',3)
-ylabel('Axial induction factor')
+ylabel('Axial induction factor [-]')
 grid on
-xlim([4 25])
-xlabel('Wind speed in m/s')
-title('Axial induction factor to approximate C_t and C_p')
+xlim([4 15])
+xlabel('Wind speed [m/s]')
+title('Axial induction factor to approximate C_t(u) and C_p(u)')
 %% Make ready for thesis
 f.Units               = 'centimeters';
 f.Position(3)         = 16.1; % line width

@@ -10,7 +10,7 @@ n_th = 1;
 OPtmp_pos = OP_pos_old(1:n_th:end,:);
 OPtmp_u = OP.u(1:n_th:end,:);
 
-aboveGround = and(OPtmp_pos(:,3)>1,OP.t_id==2); % Cut off bottom layer under 5m
+aboveGround = OPtmp_pos(:,3)>1; % Cut off bottom layer under 5m
 p = scatter3(...
     OPtmp_pos(aboveGround,1),...
     OPtmp_pos(aboveGround,2),...
@@ -34,7 +34,10 @@ ylabel('South-North [m]')
 ylim(fLim_y);
 zlabel('Height [m]')
 zlim([-300,500]);
-title('FLORIDyn two turbine case, heterogeneous wind direction')
+
+nr = num2str(Sim.TimeSteps(i));
+nr = pad(nr,4,'left','0');
+title(['Nine turbine case, +60 deg wind change. t = ' nr  's'])
 
 %view([-i/251*80-5 20]);
 zrot = max(i/80*(-10)-5,-15) + max(i-144,0)/60*13 - max(i-204,0)/60*13;
@@ -85,9 +88,9 @@ set(f.Children, ...
 % hold off
 
 pause(0.1)
-% nr = num2str(i);
-% nr = pad(nr,3,'left','0');
-% print(['./Animation/BladePitchChange' nr], '-dpng', '-r300')
+nr = num2str(i);
+nr = pad(nr,3,'left','0');
+print(['./Animation/9T' nr], '-dpng', '-r300')
 
 
 % Turbine Data

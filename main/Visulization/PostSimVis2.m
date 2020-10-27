@@ -3,10 +3,10 @@ hold on;
 
 narc_height = true(size(OP.t_id));
 u_grid_z = NaN(size(u_grid_x(:)));
-% if size(OP_pos_old,2)==3
-%     narc_height = OP_pos_old(:,3)<mean(T.pos(:,3))*1.2;
-%     narc_height = and(OP_pos_old(:,3)>mean(T.pos(:,3))*0.8,narc_height);
-% end
+if size(OP_pos_old,2)==3
+    narc_height = OP_pos_old(:,3)<mean(T.pos(:,3))*1.2;
+    narc_height = and(OP_pos_old(:,3)>mean(T.pos(:,3))*0.8,narc_height);
+end
 
 [u_grid_x,u_grid_y] = meshgrid(linspace(5,2995,301),linspace(1.25,995,301));
 
