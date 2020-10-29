@@ -3,20 +3,20 @@ function [powerHist,OP,T,UF,Sim] = main()
 main_addPaths;
 
 %% Load SOWFA yaw values
-% file2val = '/ValidationData/csv/9T_00_';
-% %file2val = '/ValidationData/csv/2T_20_';
-% %file2val = '/ValidationData/csv/3T_dyn_Ct_';
-% % Get yaw angle (deg)
-% yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
-% % % Blade pitch angle (deg)
-% % bladePitch = importYawAngleFile([file2val 'bladePitch.csv']);
-% % % Rotor speed (rpm)
-% % tipSpeed = importYawAngleFile([file2val 'rotorSpeedFiltered.csv']);
-% % %  Conversion from rpm to m/s tip speed 
-% % tipSpeed(:,3) = tipSpeed(:,3)*pi*89.2/30; 
-% 
-% % Fix time
-% yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
+file2val = '/ValidationData/csv/2T_sweep_';
+%file2val = '/ValidationData/csv/2T_20_';
+%file2val = '/ValidationData/csv/3T_dyn_Ct_';
+% Get yaw angle (deg)
+yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
+% % Blade pitch angle (deg)
+% bladePitch = importYawAngleFile([file2val 'bladePitch.csv']);
+% % Rotor speed (rpm)
+% tipSpeed = importYawAngleFile([file2val 'rotorSpeedFiltered.csv']);
+% %  Conversion from rpm to m/s tip speed 
+% tipSpeed(:,3) = tipSpeed(:,3)*pi*89.2/30; 
+
+% Fix time
+yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
 % bladePitch(:,2) = bladePitch(:,2)-bladePitch(1,2);
 % tipSpeed(:,2) = tipSpeed(:,2)-tipSpeed(1,2);
 % load('./TurbineData/Cp_Ct_SOWFA.mat');
@@ -56,9 +56,9 @@ main_addPaths;
 %
 %   Numerous settings can be set via additional arguments, see the comments
 %   for more info.
-[U, I, UF, Sim] = loadWindField('+60DegChange',... 
+[U, I, UF, Sim] = loadWindField('const',... 
     'windAngle',0,...
-    'SimDuration',1000,...%yawSOWFA(end,2),...
+    'SimDuration',yawSOWFA(end,2),...%1000,...%
     'FreeSpeed',true,...
     'Interaction',true,...
     'posMeasFactor',2000,...

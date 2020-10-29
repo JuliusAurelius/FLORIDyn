@@ -5,10 +5,10 @@
 
 yaw = zeros(size(T.yaw));
 % Read yaw of SOWFA Sim
-% for iT = 1:nT
-%     yaw(iT) = interp1(...
-%         yawSOWFA(iT:nT:end,2),yawSOWFA(iT:nT:end,3),Sim.TimeSteps(i));
-% end
+for iT = 1:nT
+    yaw(iT) = interp1(...
+        yawSOWFA(iT:nT:end,2),yawSOWFA(iT:nT:end,3),Sim.TimeSteps(i));
+end
 % Calculate Ct and Cp based on the wind speed
 %    Ct is restricted at 1, otherwise complex numbers appear in the FLORIS
 %    equations
@@ -34,8 +34,8 @@ T.Ct    = min(interp1(VCpCt(:,1),VCpCt(:,3),T.u),0.89);
 %     yaw = [yawT1;yawT2];
 % end
 
-% % Yaw for SOWFA
-% yaw = (270*ones(size(yaw))-yaw)/180*pi;
+% Yaw for SOWFA
+yaw = (270*ones(size(yaw))-yaw)/180*pi;
 
 % Normal yaw
 %yaw = (-yaw)/180*pi;

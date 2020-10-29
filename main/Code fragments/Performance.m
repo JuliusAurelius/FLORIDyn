@@ -94,10 +94,10 @@ set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))
 f.PaperPositionMode   = 'auto';
 %% Plot
 f = figure;
-semilogy(t9(:,2),t9(:,3),t4(:,2),t4(:,3),t3(:,2),t3(:,3),t2(:,2),t2(:,3))
+semilogy(t9(:,2),t9(:,3)/251,t4(:,2),t4(:,3)/251,t3(:,2),t3(:,3)/251,t2(:,2),t2(:,3)/251)
 grid on
 xlabel('Number of OPs per turbine')
-ylabel('Time [s]')
+ylabel('Time step duration [s]')
 title('251 simulation steps for different numbers of turbines')
 legend('9 turbines','4 turbines','3 turbines','2 turbines')
 
