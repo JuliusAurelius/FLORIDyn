@@ -38,6 +38,7 @@ function [OP, chain] = assembleOPList(chain,T,distr_method)
 %    .Ct        := [nx1] vec; Ct coefficient at the time of creation
 %    .t_id      := [nx1] vec; Turbine OP belongs to
 %    .U         := [nx2] vec; Uninfluenced wind vector at OP position
+%    .I_f       := [nx1] vec; Foreign added turbunlence
 %
 %   chain       := Struct;    Data related to the OP management / chains
 %    .NumChains := int;       Number of Chains per turbine
@@ -80,7 +81,7 @@ op_yaw  = zeros(len_OPs,1);
 op_Ct   = zeros(len_OPs,1);        %Otherwise the first points are init. wrong
 op_t_id = assignTIDs(chainList,len_OPs);
 
-op_pos(:,1:2) = T.pos(op_t_id,1:2);
+op_pos(:,1:Dim) = T.pos(op_t_id,1:Dim);
 
 cl_dstr = zeros(NumChainsTot,Dim-1);
 
@@ -142,6 +143,135 @@ switch distr_method
             end
             
         end
+    case '2D_horizontal'
+        % 2 Dimentional field: 1.5D rotor plane
+        upN = round(chain.NumChains/2);
+        lowN = chain.NumChains-upN;
+        
+        y_up = linspace(-0.5,.5,upN)';
+        y_low = linspace(-0.5,.5,lowN)';
+        
+        z_up = ones(size(y_up))*0.05;
+        z_low = -ones(size(y_low))*0.05;
+        
+        cl_dstr(:,1) = repmat([y_up;y_low],NumTurb,1);
+        cl_dstr(:,2) = repmat([z_up;z_low],NumTurb,1);
+        
+        % Calculate the represened Area by the observation point
+        % assuming a circular rotor plane with r=0.5.
+        %   A(d) calculates the area given by a circular segment with the
+        %   distance d to the circle center
+        A =@(d) 0.25*acos(d/0.5)-d.*0.5.*sqrt(1-d.^2/0.25);
+        
+        if mod(upN,2)==0
+            % Even Up
+            d = 1/upN*(0:(upN-1)/2);
+            repArea = A(d)/2;
+            repArea(1:end-1) = repArea(1:end-1)-repArea(2:end);
+            
+            % Combine halves
+            repArea_up = [repArea(end:-1:1),repArea];
+        else
+            % Uneven Up
+            d = [0,1/(upN-1)*(0.5:(upN-1)/2)];
+            repAreaUp = A(d)/2;
+            repAreaUp(1:end-1) = repAreaUp(1:end-1)-repAreaUp(2:end);
+            % Center area is split in two
+            repAreaUp(1) = repAreaUp(1)*2;
+            
+            % Combine halves
+            repArea_up = [repAreaUp(end:-1:2),repAreaUp];
+        end
+        
+        if mod(lowN,2)==0
+            % Even Low
+            d = 1/lowN*(0:(lowN-1)/2);
+            repArea = A(d)/2;
+            repArea(1:end-1) = repArea(1:end-1)-repArea(2:end);
+            
+            % Combine halves
+            repArea_low = [repArea(end:-1:1),repArea];
+        else
+            % Uneven Low
+            d = [0,1/(lowN-1)*(0.5:(lowN-1)/2)];
+            repAreaLow = A(d)/2;
+            repAreaLow(1:end-1) = repAreaLow(1:end-1)-repAreaLow(2:end);
+            % Center area is split in two
+            repAreaLow(1) = repAreaLow(1)*2;
+            
+            % Combine halves
+            repArea_low = [repAreaLow(end:-1:2),repAreaLow];
+        end
+        
+        % Combine and normalize
+        repArea_all = [repArea_up,repArea_low];
+        repArea_all = repArea_all/sum(repArea_all);
+        cl_relA = repmat(repArea_all',NumTurb,1);
+        
+    case '2D_vertical'
+        % 2 Dimentional field: 1.5D rotor plane
+        upN = round(chain.NumChains/2);
+        lowN = chain.NumChains-upN;
+        
+        z_up  = linspace(-0.5,.5,upN)';
+        z_low = linspace(-0.5,.5,lowN)';
+        
+        y_up  = ones(size(z_up))*0.05;
+        y_low = -ones(size(z_low))*0.05;
+        
+        cl_dstr(:,1) = repmat([y_up;y_low],NumTurb,1);
+        cl_dstr(:,2) = repmat([z_up;z_low],NumTurb,1);
+        
+        % Calculate the represened Area by the observation point
+        % assuming a circular rotor plane with r=0.5.
+        %   A(d) calculates the area given by a circular segment with the
+        %   distance d to the circle center
+        A =@(d) 0.25*acos(d/0.5)-d.*0.5.*sqrt(1-d.^2/0.25);
+        
+        if mod(upN,2)==0
+            % Even Up
+            d = 1/upN*(0:(upN-1)/2);
+            repArea = A(d)/2;
+            repArea(1:end-1) = repArea(1:end-1)-repArea(2:end);
+            
+            % Combine halves
+            repArea_up = [repArea(end:-1:1),repArea];
+        else
+            % Uneven Up
+            d = [0,1/(upN-1)*(0.5:(upN-1)/2)];
+            repAreaUp = A(d)/2;
+            repAreaUp(1:end-1) = repAreaUp(1:end-1)-repAreaUp(2:end);
+            % Center area is split in two
+            repAreaUp(1) = repAreaUp(1)*2;
+            
+            % Combine halves
+            repArea_up = [repAreaUp(end:-1:2),repAreaUp];
+        end
+        
+        if mod(lowN,2)==0
+            % Even Low
+            d = 1/lowN*(0:(lowN-1)/2);
+            repArea = A(d)/2;
+            repArea(1:end-1) = repArea(1:end-1)-repArea(2:end);
+            
+            % Combine halves
+            repArea_low = [repArea(end:-1:1),repArea];
+        else
+            % Uneven Low
+            d = [0,1/(lowN-1)*(0.5:(lowN-1)/2)];
+            repAreaLow = A(d)/2;
+            repAreaLow(1:end-1) = repAreaLow(1:end-1)-repAreaLow(2:end);
+            % Center area is split in two
+            repAreaLow(1) = repAreaLow(1)*2;
+            
+            % Combine halves
+            repArea_low = [repAreaLow(end:-1:2),repAreaLow];
+        end
+        
+        % Combine and normalize
+        repArea_all = [repArea_up,repArea_low];
+        repArea_all = repArea_all/sum(repArea_all);
+        cl_relA = repmat(repArea_all',NumTurb,1);
 end
 chainList(:,5) = cl_relA;
 
@@ -151,6 +281,7 @@ OP.U    = op_U;
 OP.yaw  = op_yaw;
 OP.Ct   = op_Ct;
 OP.t_id = op_t_id;
+OP.I_f  = zeros(size(op_Ct));
 
 chain.List = chainList;
 chain.dstr = cl_dstr;

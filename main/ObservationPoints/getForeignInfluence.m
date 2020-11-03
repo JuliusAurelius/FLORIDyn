@@ -28,8 +28,6 @@ for t = 1:numT
     % influenced
     t_points = op_t_id == t;
     
-    % DOES NOT WORK PROPERLY WITH 3D WAKES 
-    %   (interpolation based on 2D plane)
     if threeDim == 1
         F = scatteredInterpolant(...
             op_pos(t_points,1),...

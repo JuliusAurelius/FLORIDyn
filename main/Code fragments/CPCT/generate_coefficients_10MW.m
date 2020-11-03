@@ -116,6 +116,7 @@ ylabel('C_p and C_t')
 %xlim([4 25])
 grid on
 legend('C_p','C_t')
+title('C_p and C_t coefficient based on the wind speed')
 hold off
 %legend('$C_p$','$C_t$','Interpreter','latex')
 %{

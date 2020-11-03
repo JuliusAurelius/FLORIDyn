@@ -46,6 +46,8 @@ function [U, I, UF, Sim] = loadWindField(fieldScenario,varargin)
 % Interaction   | true      | If activated, the OPs look for foreign wake
 %               |           | influences, disabeling dastically decreases
 %               |           | simulation time
+% redInteraction| true      | If activated, only the OPs at the rotor plane
+%               |           | look for foreign influences, otherwise all do
 % ======================================================================= %
 % OUTPUT
 %   U           := Struct;    All data related to the wind
@@ -78,6 +80,8 @@ function [U, I, UF, Sim] = loadWindField(fieldScenario,varargin)
 %                             speed
 %    .WidthFactor= double;    Multiplication factor for the field width
 %    .Interaction= bool;      Whether the wakes interact with each other
+%    .redInteraction = bool;  All OPs calculate their interaction (false)
+%                             or only the OPs at the rotor plane (true)
 % ======================================================================= %
 %% Default variables
 % Wind field data
@@ -86,7 +90,7 @@ windAngle       = 0;        % Degree, will be converted in rad
 ambTurbulence   = .06;      % in percent
 posMeasFactor   = 3000;     % Determines location of measurement points
 posMeas         = [0,0;1,0;0,1;1,1]*posMeasFactor;
-uf_res          = [60,60];  % resolution across the field [x,y]
+uf_res          = [20,20];  % resolution across the field [x,y]
 alpha_z         = 0;        % factor for height decrease due to 
                             %   atmospheric stability
                             %     0 = a disabled
@@ -102,6 +106,7 @@ FreeSpeed       = true;     % bool
 WidthFactor     = 6;
 z_h             = 119;      % in m
 Interaction     = true;     % bool
+redInteraction  = true;  % bool
 %% Code to use varargin values
 % function(*normal in*,'var1','val1','var2',val2[numeric])
 if nargin>1
@@ -136,7 +141,7 @@ Sim.NoTimeSteps = NoTimeSteps;
 Sim.FreeSpeed   = FreeSpeed;
 Sim.WidthFactor = WidthFactor;
 Sim.Interaction = Interaction;
-
+Sim.reducedInteraction = redInteraction;
 
 %%
 switch fieldScenario
@@ -186,7 +191,7 @@ switch fieldScenario
         changeAng = linspace(0,40/180*pi,startI);
         
         % Offset with which the angle changes at the measurement points
-        offset = round(20/TimeStep);
+        offset = round(60/TimeStep);
         
         % Throw error if the simulation time is set too short
         if 2*startI+3*offset>NoTimeSteps
@@ -217,17 +222,21 @@ switch fieldScenario
         U.ang(2*startI+offset+1:end,3) = ...
             U.ang(2*startI+offset+1:end,3) + changeAng(end);
         
-        U.ang(2*startI+2*offset+1:end,2) = ...
-            U.ang(2*startI+2*offset+1:end,2) + changeAng(end);
-        
-        U.ang(2*startI+3*offset+1:end,4) = ...
-            U.ang(2*startI+3*offset+1:end,4) + changeAng(end);
+%         U.ang(2*startI+2*offset+1:end,2) = ...
+%             U.ang(2*startI+2*offset+1:end,2) + changeAng(end);
+%         
+%         U.ang(2*startI+3*offset+1:end,4) = ...
+%             U.ang(2*startI+3*offset+1:end,4) + changeAng(end);
    
         % Make sure the angle is in range [0,2pi)
         U.ang = mod(U.ang,2*pi);
         
         % Constant ambient turbulence
         I.val = ones(1,measPoints)*ambTurbulence;
+    case 'WindGusts'
+        
+        
+        
     case 'TestWindfield'
         uf_res = [30,15];
         posMeas = [0,0;

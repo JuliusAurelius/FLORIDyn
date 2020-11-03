@@ -52,6 +52,7 @@ ind = chain.List(:,1) + chain.List(:,2);
 OP.Ct(ind) = T.Ct(OP.t_id(ind),1);   % a
 OP.yaw(ind) = getEffectiveYaw(...
     T.yaw(OP.t_id(ind)), T.U(OP.t_id(ind),:));
+OP.I_f(ind) = T.I_f(OP.t_id(ind));  % Foreign added turbulence (I^+)
 
 % Set downwind position to 0 (at the rotor plane)
 OP.dw(ind) = 0;

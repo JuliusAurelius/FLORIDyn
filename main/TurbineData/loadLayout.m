@@ -28,6 +28,7 @@ function [T,fieldLims,Pow,VCpCt,chain] = loadLayout(layout, varargin)
 %    .yaw       := [nx1] vec; Yaw setting of the n turbines    (Allocation)
 %    .Ct        := [nx1] vec; Current Ct of the n turbines     (Allocation)
 %    .Cp        := [nx1] vec; Current Cp of the n turbines     (Allocation)
+%    .P         := [nx1] vec; Power production                 (Allocation)
 %
 %   fieldLims   := [2x2] mat; limits of the wind farm area (must not be the
 %                             same as the wind field!)
@@ -47,7 +48,7 @@ function [T,fieldLims,Pow,VCpCt,chain] = loadLayout(layout, varargin)
 %% Default variables
 % Observation Point data
 ChainLength     = 200;      % OPs per chain
-NumChains       = 100;       % Chains per turbine
+NumChains       = 50;       % Chains per turbine
 
 %% Code to use varargin values
 % function(*normal in*,'var1','val1','var2',val2[numeric])
@@ -72,7 +73,71 @@ end
 
 %%
 switch layout
-    case 'nineDTU10MW_Maatren'
+    case 'oneDTU10MW'
+        % Nine DTU 10MW turbines in a 3x3 grid positioned with 900m
+        % distance. 
+        T_Pos = [...
+            500  500  119 178.4]; 
+        
+        fieldLims = [0 0; 1000 1000];
+        
+        Pow.eta     = 1.08;     %Def. DTU 10MW
+        Pow.p_p     = 1.50;     %Def. DTU 10MW
+        
+        % Get VCtCp
+        load('./TurbineData/VCpCt_10MW_SOWFA.mat');
+    case 'twoDTU10MW'
+        % Two DTU 10MW Turbines 
+        T_Pos = [400 500 119 178.4;...
+            1300 500 119 178.4];
+        
+        fieldLims = [0 0; 2000 1000];
+        
+        Pow.eta     = 1.08;     %Def. DTU 10MW
+        Pow.p_p     = 1.50;     %Def. DTU 10MW
+        
+        % Get VCtCp
+        load('./TurbineData/VCpCt_10MW_SOWFA.mat');
+        
+        % 
+        ChainLength = [ones(NumChains,1)*120;ones(NumChains,1)*45];   
+    case 'threeDTU10MW'
+        D = 178.4;
+        % Three DTU 10MW Turbines 
+        T_Pos = [...
+            1500-5*D 1500 119 D;...
+            1500 1500 119 D;...
+            1500+5*D 1500 119 D];
+        
+        fieldLims = [0 0; 3000 3000];
+        
+        Pow.eta     = 1.08;     %Def. DTU 10MW
+        Pow.p_p     = 1.50;     %Def. DTU 10MW
+        
+        % Get VCtCp
+        load('./TurbineData/VCpCt_10MW_SOWFA.mat');
+        
+        % Chain lengths should be sufficient for 9m/s
+        ChainLength = [...
+            ones(NumChains,1)*100;...
+            ones(NumChains,1)*80;...
+            ones(NumChains,1)*40];
+    case 'fourDTU10MW'
+        T_Pos = [...
+            600  600  119 178.4;...     % T0
+            1500 600  119 178.4;...     % T1
+            600  1500 119 178.4;...     % T2
+            1500 1500 119 178.4;...     % T3
+            ]; 
+        
+        fieldLims = [0 0; 2100 2100];
+        
+        Pow.eta     = 1.08;     %Def. DTU 10MW
+        Pow.p_p     = 1.50;     %Def. DTU 10MW
+        
+        % Get VCtCp
+        load('./TurbineData/VCpCt_10MW_SOWFA.mat');
+    case 'nineDTU10MW'
         % Nine DTU 10MW turbines in a 3x3 grid positioned with 900m
         % distance. 
         T_Pos = [...
@@ -93,36 +158,22 @@ switch layout
         Pow.p_p     = 1.50;     %Def. DTU 10MW
         
         % Get VCtCp
-        load('./TurbineData/VCpCt_10MW.mat');
-    case 'twoDTU10MW_Maarten'
-        % Two DTU 10MW Turbines 
-        T_Pos = [400 500 119 178.4;...
-            1300 500 119 178.4];
-        
-        fieldLims = [0 0; 2000 1000];
-        
-        Pow.eta     = 1.08;     %Def. DTU 10MW
-        Pow.p_p     = 1.50;     %Def. DTU 10MW
-        
-        % Get VCtCp
-        load('./TurbineData/VCpCt_10MW.mat');
-        
-        % 
-        ChainLength = [ones(NumChains,1)*120;ones(NumChains,1)*10];   
+        load('./TurbineData/VCpCt_10MW_SOWFA.mat');
     otherwise
-        error('Unknown scenario, no simulation started')
+        error('Unknown scenario, no simulation started');
 end
 T.pos  = T_Pos(:,1:3); % 1:Dim
 T.D    = T_Pos(:,end);
 T.yaw  = zeros(length(T.D),1);
 T.Ct   = zeros(length(T.D),1);
 T.Cp   = zeros(length(T.D),1);
+T.P    = ones(length(T.D),1)*5*10^6;
 %% Store chain configuration
 chain.NumChains = NumChains;
 chain.Length    = ChainLength;
 end
 %% ===================================================================== %%
-% = Reviewed: 2020.09.27 (yyyy.mm.dd)                                   = %
+% = Reviewed: 2020.11.03 (yyyy.mm.dd)                                   = %
 % === Author: Marcus Becker                                             = %
 % == Contact: marcus.becker.mail@gmail.com                              = %
 % ======================================================================= %
