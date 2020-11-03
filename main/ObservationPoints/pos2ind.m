@@ -19,7 +19,7 @@ num_x = num_xy(1);
 num_y = num_xy(2);
 
 % Remove offset to lower left corner
-n_pos = pos(:,1:2)-grid_lims(2,:);
+n_pos = pos(:,1:2)-repmat(grid_lims(2,:),size(pos,1),1);
 
 % Normalize position to range of the grid
 %   Positions within the grid now have values in range of [0,1] 

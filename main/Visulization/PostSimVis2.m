@@ -18,22 +18,9 @@ for wakes = 1:length(T.D)
 
     % Get grid values within the wake, outside nan
     u_grid_z_tmp = F(u_grid_x(:),u_grid_y(:));
-    
     u_grid_z = min([u_grid_z, u_grid_z_tmp],[],2);
-    
-%     DT = delaunay(...
-%         OP_pos_old(and(OP.t_id==wakes,narc_height),1),...
-%         OP_pos_old(and(OP.t_id==wakes,narc_height),3));%,2));
-%     
-%     trisurf(DT,OP_pos_old(and(OP.t_id==wakes,narc_height),1),...
-%         OP_pos_old(and(OP.t_id==wakes,narc_height),3),...
-%         ones(size(OP_pos_old(and(OP.t_id==wakes,narc_height),2)))*wakes,...
-%         sqrt(sum(OP.u(and(OP.t_id==wakes,narc_height),:).^2,2)),...
-%         'EdgeColor','none')
 
 end
-
-
 
 %% Fill up the values outside of the wakes with free windspeed measurements
 nan_z = isnan(u_grid_z);
@@ -46,15 +33,10 @@ u_grid_z(nan_z) = sqrt(sum(u_grid_z_tmp.^2,2));
 u_grid_z=reshape(u_grid_z,size(u_grid_x));
 
 %%
-
-
-% u_grid_z = getWindVec4(...
-%     [u_grid_x(:),zeros(size(u_grid_x(:))),u_grid_y(:)],...
-%     U_abs, U_ang, UF);
 u_grid_z = getWindVec4(...
     [u_grid_x(:),u_grid_y(:),ones(size(u_grid_x(:)))*119],...
     U_abs, U_ang, UF);
-% u_grid_z = getWindVec4([u_grid_x(:),u_grid_y(:)], U_abs, U_ang, UF);
+
 surf(u_grid_x,u_grid_y,zeros(size(u_grid_x)),...
     reshape(sqrt(sum(u_grid_z.^2,2)),size(u_grid_x)),'EdgeColor','none');
 
@@ -64,14 +46,13 @@ for i_T = 1:length(T.D)
         [cos(T.yaw(i_T)), -sin(T.yaw(i_T));...
         sin(T.yaw(i_T)), cos(T.yaw(i_T))] * ...
         [0,0;T.D(i_T)/2,-T.D(i_T)/2];
-    rot_pos = rot_pos + T.pos(i_T,1:2)'; %T.pos(i_T,1:2:3)';
+    rot_pos = rot_pos + repmat(T.pos(i_T,1:2)',1,size(rot_pos,2)); 
     plot3(rot_pos(1,:),rot_pos(2,:),[20,20],'k','LineWidth',3);
 end
 
 title('Field plot')
 axis equal
 xlabel('West-East [m]')
-%ylabel('Height [m]')
 ylabel('South-North [m]')
 xlim(fLim_x)
 ylim(fLim_y)
@@ -86,7 +67,7 @@ f.Position(3)         = 16.1; % line width
 
 % Set font & size
 set(f.Children, ...
-    'FontName',     'Frontpage', ...
+    'FontName',     'Arial', ...
     'FontSize',     10);
 
 set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))

@@ -82,12 +82,8 @@ yaw  = OP.yaw;
 %% Get wake width
 [sig_y, sig_z, C_T, x_0, delta, pc_y, pc_z] = getBastankhahVars3(OP, D);
 
-try
 [nw, cw_y, cw_z, core, phi_cw]=...
      getCWPosition(OP.dw, w, chain.dstr, OP_c, sig_y, sig_z, pc_y, pc_z, x_0);
-catch
-    disp('err')
-end
 
 %% Get speed reduction
 OP_r(core) = 1-sqrt(1-C_T(core));
@@ -144,8 +140,7 @@ end
 
 %% Calculate speed
 % Windspeed at every OP WITHOUT own wake (needed for turbine windspeed)
-OP.u = r_f.*OP.U;
-
+OP.u = repmat(r_f,1,size(OP.U,2)).*OP.U;
 %% Extract the windspeed at the rotorplane
 % OP.u has all speeds of the OPs, the speed of the first ones of the chains
 % need to be weighted summed by the area they represent.
@@ -189,7 +184,7 @@ OP.pos = updatePosition(...
     OP.pos, OP.U, cw_y, cw_z, cw_y_old, cw_z_old, delta, delta_old);
 
 %% Apply own reduction to speed vector
-OP.u = OP.u.*(1-OP_r);
+OP.u = OP.u.*(1-repmat(OP_r,1,size(OP.u,2)));
 end
 %% ===================================================================== %%
 % = Reviewed: 2020.09.29 (yyyy.mm.dd)                                   = %

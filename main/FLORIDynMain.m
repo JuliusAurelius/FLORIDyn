@@ -1,4 +1,4 @@
-function [powerHist,OP,T,UF,Sim] = FLORIDynMain()
+function [powerHist,OP,T,UF,Sim] = FLORIDynMain(layout)
 %% FLORIDyn main function 
 % Native FLORIDyn main function
 %
@@ -71,7 +71,7 @@ controllerType = 'FLORIDyn_greedy';
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.
- [T,fieldLims,Pow,VCpCt,chain] = loadLayout('twoDTU10MW'); %#ok<ASGLU>
+ [T,fieldLims,Pow,VCpCt,chain] = loadLayout(layout); %#ok<ASGLU>
 
 %% Load the environment
 %   U provides info about the wind: Speed(s), direction(s), changes.
