@@ -3,6 +3,8 @@ function [powerHist,OP,T,UF,Sim] = main()
 main_addPaths;
 
 %% Load SOWFA yaw values
+
+
 %file2val = '/ValidationData/csv/3T_pos_y_';
 file2val = '/ValidationData/csv/2T_00_torque_';
 %file2val = '/ValidationData/csv/3T_dyn_Ct_';
@@ -29,10 +31,11 @@ yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
 %   relative position, weights, lengths etc.
 %
 %   Currently implemented Layouts
-%       'twoDTU10MW_Maarten'    -> two turbines at 900m distance
-%       'nineDTU10MW_Maatren'   -> nine turbines in a 3x3 grid, 900m dist.
-%       'threeDTU10MW_Daan'     -> three turbines in 1x3 grid, 5D distance
-%       'fourDTU10MW'           -> 2x2 grid 
+%       'oneDTU10MW'    -> one turbine at 
+%       'twoDTU10MW'    -> two turbines at 900m distance
+%       'nineDTU10MW'   -> nine turbines in a 3x3 grid, 900m dist.
+%       'threeDTU10MW'  -> three turbines in 1x3 grid, 5D distance
+%       'fourDTU10MW'   -> 2x2 grid 
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.

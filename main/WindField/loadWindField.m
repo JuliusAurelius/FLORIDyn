@@ -46,6 +46,8 @@ function [U, I, UF, Sim] = loadWindField(fieldScenario,varargin)
 % Interaction   | true      | If activated, the OPs look for foreign wake
 %               |           | influences, disabeling dastically decreases
 %               |           | simulation time
+% redInteraction| true      | If activated, only the OPs at the rotor plane
+%               |           | look for foreign influences, otherwise all do
 % ======================================================================= %
 % OUTPUT
 %   U           := Struct;    All data related to the wind
@@ -78,6 +80,8 @@ function [U, I, UF, Sim] = loadWindField(fieldScenario,varargin)
 %                             speed
 %    .WidthFactor= double;    Multiplication factor for the field width
 %    .Interaction= bool;      Whether the wakes interact with each other
+%    .redInteraction = bool;  All OPs calculate their interaction (false)
+%                             or only the OPs at the rotor plane (true)
 % ======================================================================= %
 %% Default variables
 % Wind field data
@@ -102,6 +106,7 @@ FreeSpeed       = true;     % bool
 WidthFactor     = 6;
 z_h             = 119;      % in m
 Interaction     = true;     % bool
+redInteraction  = true;  % bool
 %% Code to use varargin values
 % function(*normal in*,'var1','val1','var2',val2[numeric])
 if nargin>1
@@ -136,7 +141,7 @@ Sim.NoTimeSteps = NoTimeSteps;
 Sim.FreeSpeed   = FreeSpeed;
 Sim.WidthFactor = WidthFactor;
 Sim.Interaction = Interaction;
-
+Sim.reducedInteraction = redInteraction;
 
 %%
 switch fieldScenario
@@ -204,11 +209,11 @@ switch fieldScenario
         U.ang(startI+offset+1:2*startI+offset,3) = ...
             U.ang(startI+offset+1:2*startI+offset,3) + changeAng';
         
-%         U.ang(startI+2*offset+1:2*startI+2*offset,2) = ...
-%             U.ang(startI+2*offset+1:2*startI+2*offset,2) + changeAng';
-%         
-%         U.ang(startI+3*offset+1:2*startI+3*offset,4) = ...
-%             U.ang(startI+3*offset+1:2*startI+3*offset,4) + changeAng';
+        U.ang(startI+2*offset+1:2*startI+2*offset,2) = ...
+            U.ang(startI+2*offset+1:2*startI+2*offset,2) + changeAng';
+        
+        U.ang(startI+3*offset+1:2*startI+3*offset,4) = ...
+            U.ang(startI+3*offset+1:2*startI+3*offset,4) + changeAng';
         
         % Set the remaining entries to the last value
         U.ang(2*startI+1:end,1) = ...
