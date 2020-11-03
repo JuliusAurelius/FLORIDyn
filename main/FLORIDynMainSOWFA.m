@@ -2,7 +2,10 @@ function [powerHist,OP,T,UF,Sim] = FLORIDynMainSOWFA(file2val,layout)
 %% FLORIDyn main function to simulate SOWFA simulations
 % To run this, modify the SOWFA output files to have the ending .csv they
 % are expected to be avaiable under i.e. [file2val 'generatorPower.csv']
-% Example: FLORIDynMainSOWFA('/ValidationData/csv/2T_00_torque_',)
+%
+% Example: 
+% [powerHist,OP,T,UF,Sim] = ...
+%       FLORIDynMainSOWFA('/ValidationData/csv/2T_00_torque_','twoDTU10MW')
 %
 % Two options are avaiable:
 %   1) Run greedy control
@@ -120,14 +123,14 @@ end
 %   relative position, weights, lengths etc.
 %
 %   Currently implemented Layouts
-%       'twoDTU10MW_Maarten'    -> two turbines at 900m distance
-%       'nineDTU10MW_Maatren'   -> nine turbines in a 3x3 grid, 900m dist.
-%       'threeDTU10MW_Daan'     -> three turbines in 1x3 grid, 5D distance
-%       'fourDTU10MW'           -> 2x2 grid 
+%       'twoDTU10MW'    -> two turbines at 900m distance
+%       'nineDTU10MW'   -> nine turbines in a 3x3 grid, 900m dist.
+%       'threeDTU10MW'  -> three turbines in 1x3 grid, 5D distance
+%       'fourDTU10MW'   -> 2x2 grid 
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.
- [T,fieldLims,Pow,VCpCt,chain] = loadLayout('twoDTU10MW_Maarten'); %#ok<ASGLU>
+ [T,fieldLims,Pow,VCpCt,chain] = loadLayout(layout); %#ok<ASGLU>
 
 %% Load the environment
 %   U provides info about the wind: Speed(s), direction(s), changes.

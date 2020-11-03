@@ -1,29 +1,69 @@
-function [powerHist,OP,T,UF,Sim] = main()
+function [powerHist,OP,T,UF,Sim] = FLORIDynMain()
+%% FLORIDyn main function 
+% Native FLORIDyn main function
+%
+% Example: 
+% [powerHist,OP,T,UF,Sim] = ...
+%       FLORIDynMainSOWFA('twoDTU10MW')
+%
+% ======================================================================= %
+% INPUT
+%   file2val := String; Path to 'nacelleYaw.csv' and 'generatorPower.csv'
+%                       if 'bladePitch.csv' and 'rotorSpeedFiltered.csv'
+%                       are available at the path, the blade pitch angle
+%                       and the tip speed ratio will be used to calculate
+%                       Ct and Cp
+%   layout   := String  Layout name
+%
+% OUTPUT
+%   powerHist   := [nx(nT+1)] [Time,P_T0,P_T1,...,]
+%                             Stores the time and the power output of the 
+%                             turbine at that time
+%
+%   OP          := Struct;    Data related to the state of the OPs
+%    .pos       := [nx3] vec; [x,y,z] world coord. (can be nx2)
+%    .dw        := [nx1] vec; downwind position (wake coordinates)
+%    .yaw       := [nx1] vec; yaw angle (wake coord.) at the time of creat.
+%    .Ct        := [nx1] vec; Ct coefficient at the time of creation
+%    .t_id      := [nx1] vec; Turbine OP belongs to
+%    .U         := [nx2] vec; Uninfluenced wind vector at OP position
+%    .u         := [nx1] vec; Effective wind speed at OP position
+%
+%   T           := Struct;    All data related to the turbines
+%    .pos       := [nx3] mat; x & y positions and nacelle height for all n
+%                             turbines.
+%    .D         := [nx1] vec; Diameter of all n turbines
+%    .yaw       := [nx1] vec; Yaw setting of the n turbines    (Allocation)
+%    .Ct        := [nx1] vec; Current Ct of the n turbines     (Allocation)
+%    .Cp        := [nx1] vec; Current Cp of the n turbines     (Allocation)
+%    .P         := [nx1] vec; Power production                 (Allocation)
+% 
+%   UF          := Struct;    Data connected to the (wind) field
+%    .lims      := [2x2] mat; Interpolation area
+%    .IR        := [mxn] mat; Maps the n measurements to the m grid points
+%                             of the interpolated mesh
+%    .Res       := [1x2] mat; x and y resolution of the interpolation mesh
+%    .pos       := [nx2] mat; Measurement positions
+%    .airDen    := double;    AirDensity
+%    .alpha_z   := double;    Atmospheric stability (see above)
+%    .z_h       := double;    Height of the measurement
+%
+%   Sim         := Struct;    Data connected to the Simulation
+%    .Duration  := double;    Duration of the Simulation in seconds
+%    .TimeStep  := double;    Duration of one time step
+%    .TimeSteps := [1xt] vec; All time steps
+%    .NoTimeSteps= int;       Number of time steps
+%    .FreeSpeed := bool;      OPs traveling with free wind speed or own
+%                             speed
+%    .WidthFactor= double;    Multiplication factor for the field width
+%    .Interaction= bool;      Whether the wakes interact with each other
+%    .redInteraction = bool;  All OPs calculate their interaction (false)
+%                             or only the OPs at the rotor plane (true)
+% ======================================================================= %
 % Add necessary local paths
 main_addPaths;
 
-%% Load SOWFA yaw values
 
-
-%file2val = '/ValidationData/csv/3T_pos_y_';
-file2val = '/ValidationData/csv/2T_00_torque_';
-%file2val = '/ValidationData/csv/3T_dyn_Ct_';
-% Get yaw angle (deg)
-yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
-% % Blade pitch angle (deg)
-% bladePitch = importYawAngleFile([file2val 'bladePitch.csv']);
-% % Rotor speed (rpm)
-% tipSpeed = importYawAngleFile([file2val 'rotorSpeedFiltered.csv']);
-% %  Conversion from rpm to m/s tip speed 
-% tipSpeed(:,3) = tipSpeed(:,3)*pi*89.2/30; 
-
-% Fix time
-yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
-% bladePitch(:,2) = bladePitch(:,2)-bladePitch(1,2);
-% tipSpeed(:,2) = tipSpeed(:,2)-tipSpeed(1,2);
-% load('./TurbineData/Cp_Ct_SOWFA.mat');
-% cpInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.cpArray,'linear','nearest');
-% ctInterp = scatteredInterpolant(sowfaData.pitchArray,sowfaData.tsrArray,sowfaData.ctArray,'linear','none');
 %% Load Layout
 %   Load the turbine configuration (position, diameter, hub height,...) the
 %   power constants (Efficiency, p_p), data to connect wind speed and
@@ -39,7 +79,7 @@ yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.
- [T,fieldLims,Pow,VCpCt,chain] = loadLayout('twoDTU10MW_Maarten'); %#ok<ASGLU>
+ [T,fieldLims,Pow,VCpCt,chain] = loadLayout('twoDTU10MW'); %#ok<ASGLU>
 
 %% Load the environment
 %   U provides info about the wind: Speed(s), direction(s), changes.
@@ -144,53 +184,17 @@ end
 %% Store power output together with time line
 powerHist = [Sim.TimeSteps',powerHist'];
 
-%% Compare power plot
-% Get SOWFA data
-powSOWFA_WPS = importGenPowerFile([file2val 'generatorPower.csv']);
-
-
+%% Power plot
 labels = cell(2*nT,1);
 
 % Plotting
 f = figure;
 hold on
-
-% =========== SOWFA data ===========
-for iT = 1:nT
-    plot(...
-        powSOWFA_WPS(iT:nT:end,2)-powSOWFA_WPS(iT,2),...
-        powSOWFA_WPS(iT:nT:end,3)/UF.airDen,...
-        '-.','LineWidth',1)
-    labels{iT} = ['T' num2str(iT-1) ' SOWFA wps'];
-end
-
 % ========== FLORIDyn data =========
 for iT = 1:length(T.D)
     plot(powerHist(:,1),powerHist(:,iT+1),'LineWidth',1.5)
     labels{nT+iT} = ['T' num2str(iT-1) ' FLORIDyn'];
 end
-
-% % Plot second FLORIDyn results
-% for iT = 1:length(T.D)
-%     plot(powerHist(:,1),powerHist(:,iT+1),'--','LineWidth',1.5)
-%     labels{iT} = ['T' num2str(iT-1) ' FLORIDyn'];
-% end
-
-% % //// EXTRA YAW  ////
-% % Yaw T0
-% plot([200,200],[-.3,.3]*10^6+powerHist(51,2),'k','LineWidth',1)
-% plot([500,500],[-.3,.3]*10^6+powerHist(126,2),'k','LineWidth',1)
-% plot([800,800],[-.3,.3]*10^6+powerHist(201,2),'k','LineWidth',1)
-% % Yaw T1
-% plot([350,350],[-.3,.3]*10^6+powerHist(89,3),'k','LineWidth',1)
-% plot([650,650],[-.3,.3]*10^6+powerHist(164,3),'k','LineWidth',1)
-% plot([950,950],[-.3,.3]*10^6+powerHist(239,3),'k','LineWidth',1)
-% % 
-% legend(...
-%     'T0 SOWFA wps','T1 SOWFA wps','T2 SOWFA wps',...
-%     'T0 FLORIDyn','T1 FLORIDyn','T2 FLORIDyn')
-% % //// EXTRA OVER ////
-
 hold off
 
 grid on
@@ -202,19 +206,22 @@ legend(labels)
 % ==== Prep for export ==== %
 % scaling
 f.Units               = 'centimeters';
-f.Position(3)         = 16.1; % line width
-
+f.Position(3)         = 16.1; % A4 line width
 % Set font & size
-set(f.Children, ...
-    'FontName',     'Frontpage', ...
-    'FontSize',     10);
+try
+    set(f.Children, ...
+        'FontName',     'Frontpage', ...
+        'FontSize',     10);
+catch
+    set(f.Children, ...
+        'FontName',     'Arial', ...
+        'FontSize',     10);
+end
 set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))
-
-% Export
 f.PaperPositionMode   = 'auto';
 end
 %% ===================================================================== %%
-% = Reviewed: 2020.09.30 (yyyy.mm.dd)                                   = %
+% = Reviewed: 2020.11.03 (yyyy.mm.dd)                                   = %
 % === Author: Marcus Becker                                             = %
 % == Contact: marcus.becker.mail@gmail.com                              = %
 % ======================================================================= %

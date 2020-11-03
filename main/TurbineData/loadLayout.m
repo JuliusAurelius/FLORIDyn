@@ -173,7 +173,7 @@ chain.NumChains = NumChains;
 chain.Length    = ChainLength;
 end
 %% ===================================================================== %%
-% = Reviewed: 2020.09.27 (yyyy.mm.dd)                                   = %
+% = Reviewed: 2020.11.03 (yyyy.mm.dd)                                   = %
 % === Author: Marcus Becker                                             = %
 % == Contact: marcus.becker.mail@gmail.com                              = %
 % ======================================================================= %
