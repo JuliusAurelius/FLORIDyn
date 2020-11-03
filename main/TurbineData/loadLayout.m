@@ -73,6 +73,19 @@ end
 
 %%
 switch layout
+    case 'oneDTU10MW'
+        % Nine DTU 10MW turbines in a 3x3 grid positioned with 900m
+        % distance. 
+        T_Pos = [...
+            500  500  119 178.4]; 
+        
+        fieldLims = [0 0; 1000 1000];
+        
+        Pow.eta     = 1.08;     %Def. DTU 10MW
+        Pow.p_p     = 1.50;     %Def. DTU 10MW
+        
+        % Get VCtCp
+        load('./TurbineData/VCpCt_10MW_SOWFA.mat');
     case 'nineDTU10MW_Maatren'
         % Nine DTU 10MW turbines in a 3x3 grid positioned with 900m
         % distance. 

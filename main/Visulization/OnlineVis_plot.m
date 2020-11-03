@@ -88,9 +88,9 @@ set(f.Children, ...
 % hold off
 
 pause(0.1)
-nr = num2str(i);
-nr = pad(nr,3,'left','0');
-print(['./Animation/9T' nr], '-dpng', '-r300')
+% nr = num2str(i);
+% nr = pad(nr,3,'left','0');
+% print(['./Animation/9T' nr], '-dpng', '-r300')
 
 
 % Turbine Data

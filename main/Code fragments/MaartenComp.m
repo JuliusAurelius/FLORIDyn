@@ -1,7 +1,7 @@
 path = '/ValidationData/csv/';
 
-torque = importGenPowerFile([path '00_torque_generatorPower.csv']);
-norm = importGenPowerFile([path '00_wps_generatorPower.csv']);
+torque = importGenPowerFile([path '2T_00_torque_generatorPower.csv']);
+norm = importGenPowerFile([path '2T_00_wps_generatorPower.csv']);
 
 torque(:,2) = torque(:,2)-torque(1,2);
 norm(:,2)   = norm(:,2)-norm(1,2);

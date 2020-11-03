@@ -3,8 +3,8 @@ function [powerHist,OP,T,UF,Sim] = main()
 main_addPaths;
 
 %% Load SOWFA yaw values
-file2val = '/ValidationData/csv/2T_sweep_';
-%file2val = '/ValidationData/csv/2T_20_';
+%file2val = '/ValidationData/csv/3T_pos_y_';
+file2val = '/ValidationData/csv/2T_00_torque_';
 %file2val = '/ValidationData/csv/3T_dyn_Ct_';
 % Get yaw angle (deg)
 yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
@@ -194,7 +194,7 @@ grid on
 xlim([0 powerHist(end,1)])
 xlabel('Time [s]')
 ylabel('Power generated [W]')
-title('Three turbine case, changing blade pitch angle')
+title('Two turbine case, un-yawed')
 legend(labels)
 % ==== Prep for export ==== %
 % scaling
