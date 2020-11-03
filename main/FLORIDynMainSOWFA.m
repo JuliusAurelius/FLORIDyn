@@ -80,10 +80,12 @@ function [powerHist,OP,T,UF,Sim] = FLORIDynMainSOWFA(file2val,layout)
 main_addPaths;
 
 %% Check for SOWFA files and load
+controllerType = 'SOWFA_greedy_yaw';
 if exist([file2val 'nacelleYaw.csv'], 'file') == 2
     % Get yaw angle (deg)
     yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
     yawSOWFA(:,2) = yawSOWFA(:,2)-yawSOWFA(1,2);
+    
 else
     error('nacelleYaw.csv file not avaiable, change link and retry')
 end
@@ -114,6 +116,7 @@ if exist([file2val 'bladePitch.csv'], 'file') == 2
         sowfaData.pitchArray,...
         sowfaData.tsrArray,...
         sowfaData.ctArray,'linear','nearest');
+    controllerType = 'SOWFA_bpa_tsr_yaw';
 end
 
 %% Load Layout
@@ -152,7 +155,7 @@ end
 %   for more info.
 [U, I, UF, Sim] = loadWindField('const',... 
     'windAngle',0,...
-    'SimDuration',yawSOWFA(end,2),...%1000,...%
+    'SimDuration',yawSOWFA(end,2),...
     'FreeSpeed',true,...
     'Interaction',true,...
     'posMeasFactor',2000,...
@@ -260,7 +263,7 @@ end
 % ========== FLORIDyn data =========
 for iT = 1:length(T.D)
     plot(powerHist(:,1),powerHist(:,iT+1),'LineWidth',1.5)
-    labels{nT+iT} = ['T' num2str(iT-1) ' FLORIDyn'];
+    labels{end-nT+iT} = ['T' num2str(iT-1) ' FLORIDyn'];
 end
 
 hold off

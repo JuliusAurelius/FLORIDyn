@@ -7,14 +7,6 @@ function [powerHist,OP,T,UF,Sim] = FLORIDynMain()
 %       FLORIDynMainSOWFA('twoDTU10MW')
 %
 % ======================================================================= %
-% INPUT
-%   file2val := String; Path to 'nacelleYaw.csv' and 'generatorPower.csv'
-%                       if 'bladePitch.csv' and 'rotorSpeedFiltered.csv'
-%                       are available at the path, the blade pitch angle
-%                       and the tip speed ratio will be used to calculate
-%                       Ct and Cp
-%   layout   := String  Layout name
-%
 % OUTPUT
 %   powerHist   := [nx(nT+1)] [Time,P_T0,P_T1,...,]
 %                             Stores the time and the power output of the 
@@ -62,7 +54,7 @@ function [powerHist,OP,T,UF,Sim] = FLORIDynMain()
 % ======================================================================= %
 % Add necessary local paths
 main_addPaths;
-
+controllerType = 'FLORIDyn_greedy';
 
 %% Load Layout
 %   Load the turbine configuration (position, diameter, hub height,...) the
@@ -101,7 +93,7 @@ main_addPaths;
 %   for more info.
 [U, I, UF, Sim] = loadWindField('const',... 
     'windAngle',0,...
-    'SimDuration',yawSOWFA(end,2),...%1000,...%
+    'SimDuration',1000,...%
     'FreeSpeed',true,...
     'Interaction',true,...
     'posMeasFactor',2000,...
@@ -185,15 +177,15 @@ end
 powerHist = [Sim.TimeSteps',powerHist'];
 
 %% Power plot
-labels = cell(2*nT,1);
+labels = cell(nT,1);
 
 % Plotting
 f = figure;
 hold on
 % ========== FLORIDyn data =========
 for iT = 1:length(T.D)
-    plot(powerHist(:,1),powerHist(:,iT+1),'LineWidth',1.5)
-    labels{nT+iT} = ['T' num2str(iT-1) ' FLORIDyn'];
+    plot(powerHist(:,1),powerHist(:,iT+1),'LineWidth',2)
+    labels{end-nT+iT} = ['T' num2str(iT-1) ' FLORIDyn'];
 end
 hold off
 
