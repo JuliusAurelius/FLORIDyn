@@ -102,9 +102,15 @@ controllerType = 'FLORIDyn_greedy';
     'ambTurbulence',0.06);
 Sim.reducedInteraction = true;
 %% Visulization
-% Set to true or false, if set to false, the only output is what this
-% function returns. Disabeling decreases the computational effort noticably
-onlineVis = false;
+% Set to true or false
+%   .online: Scattered OPs in the wake with quiver wind field plot
+%   .Snapshots: Saves the Scattered OP plots, requires online to be true
+%   .FlowField: Plots the flow field at the end of the simulation
+%   .PowerOutput: Plots the generated power at the end of the simulation
+Vis.online = false;
+Vis.Snapshots = false;
+Vis.FlowField = false;
+Vis.PowerOutput = true;
 
 %% Create starting OPs and build opList
 %   Creates the observation point struct (OP) and extends the chain struct.
@@ -157,13 +163,10 @@ for i = 1:Sim.NoTimeSteps
     chain.List = shiftChainList(chain.List);
     
     %===================== ONLINE VISULIZATION ===========================%
-    % Script (2/2)
-    if onlineVis
-        OnlineVis_plot;
-        if i == Sim.NoTimeSteps
-            hold off
-            PostSimVis;
-        end
+    if Vis.online; OnlineVis_plot; end
+    if and(Vis.FlowField,i == Sim.NoTimeSteps)
+        hold off
+        PostSimVis;
     end
     
     % Display the current simulation progress
@@ -173,40 +176,42 @@ end
 powerHist = [Sim.TimeSteps',powerHist'];
 
 %% Power plot
-labels = cell(nT,1);
-
-% Plotting
-f = figure;
-hold on
-% ========== FLORIDyn data =========
-for iT = 1:length(T.D)
-    plot(powerHist(:,1),powerHist(:,iT+1),'LineWidth',2)
-    labels{end-nT+iT} = ['T' num2str(iT-1) ' FLORIDyn'];
+if Vis.PowerOutput
+    labels = cell(nT,1);
+    
+    % Plotting
+    f = figure;
+    hold on
+    % ========== FLORIDyn data =========
+    for iT = 1:length(T.D)
+        plot(powerHist(:,1),powerHist(:,iT+1),'LineWidth',2)
+        labels{end-nT+iT} = ['T' num2str(iT-1) ' FLORIDyn'];
+    end
+    hold off
+    
+    grid on
+    xlim([0 powerHist(end,1)])
+    xlabel('Time [s]')
+    ylabel('Power generated [W]')
+    title('Two turbine case, un-yawed')
+    legend(labels)
+    % ==== Prep for export ==== %
+    % scaling
+    f.Units               = 'centimeters';
+    f.Position(3)         = 16.1; % A4 line width
+    % Set font & size
+    try
+        set(f.Children, ...
+            'FontName',     'Frontpage', ...
+            'FontSize',     10);
+    catch
+        set(f.Children, ...
+            'FontName',     'Arial', ...
+            'FontSize',     10);
+    end
+    set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))
+    f.PaperPositionMode   = 'auto';
 end
-hold off
-
-grid on
-xlim([0 powerHist(end,1)])
-xlabel('Time [s]')
-ylabel('Power generated [W]')
-title('Two turbine case, un-yawed')
-legend(labels)
-% ==== Prep for export ==== %
-% scaling
-f.Units               = 'centimeters';
-f.Position(3)         = 16.1; % A4 line width
-% Set font & size
-try
-    set(f.Children, ...
-        'FontName',     'Frontpage', ...
-        'FontSize',     10);
-catch
-    set(f.Children, ...
-        'FontName',     'Arial', ...
-        'FontSize',     10);
-end
-set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))
-f.PaperPositionMode   = 'auto';
 end
 %% ===================================================================== %%
 % = Reviewed: 2020.11.03 (yyyy.mm.dd)                                   = %

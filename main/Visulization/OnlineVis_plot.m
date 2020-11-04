@@ -88,9 +88,12 @@ set(f.Children, ...
 % hold off
 
 pause(0.1)
-% nr = num2str(i);
-% nr = pad(nr,3,'left','0');
-% print(['./Animation/9T' nr], '-dpng', '-r300')
+if Vis.Snapshots
+    nr = num2str(i);
+    nr = pad(nr,4,'left','0');
+    print(['./Snapshot/' nr], '-dpng', '-r300')
+end
+
 
 
 % Turbine Data

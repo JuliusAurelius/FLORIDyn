@@ -8,6 +8,7 @@ addpath('./TurbineData')
 addpath('./Misc')
 addpath('./ValidationData')
 addpath('./ValidationData/csv')
+addpath('./SOWFATools')
 
 warning('off','MATLAB:scatteredInterpolant:DupPtsAvValuesWarnId')
 warning('off','MATLAB:scatteredInterpolant:InterpEmptyTri2DWarnId')

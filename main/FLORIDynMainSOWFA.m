@@ -166,8 +166,10 @@ end
 %% Visulization
 % Set to true or false, if set to false, the only output is what this
 % function returns. Disabeling decreases the computational effort noticably
-onlineVis = false;
-
+Vis.online = false;
+Vis.Snapshots = false;
+Vis.FlowField = false;
+Vis.PowerOutput = true;
 %% Create starting OPs and build opList
 %   Creates the observation point struct (OP) and extends the chain struct.
 %   Here, the distribution of the OPs in the wake is set, currently, only
@@ -223,13 +225,10 @@ for i = 1:Sim.NoTimeSteps
     chain.List = shiftChainList(chain.List);
     
     %===================== ONLINE VISULIZATION ===========================%
-    % Script (2/2)
-    if onlineVis
-        OnlineVis_plot;
-        if i == Sim.NoTimeSteps
-            hold off
-            PostSimVis;
-        end
+    if Vis.online; OnlineVis_plot; end
+    if and(Vis.FlowField,i == Sim.NoTimeSteps)
+        hold off
+        PostSimVis;
     end
     
     % Display the current simulation progress
@@ -239,56 +238,57 @@ end
 powerHist = [Sim.TimeSteps',powerHist'];
 
 %% Compare power plot
-
-% Plotting
-f = figure;
-hold on
-
-% Get SOWFA data if avaiable
-if exist([file2val 'nacelleYaw.csv'], 'file') == 2
-    powSOWFA_WPS = importGenPowerFile([file2val 'generatorPower.csv']);
-    labels = cell(2*nT,1);
-    % =========== SOWFA data ===========
-    for iT = 1:nT
-        plot(...
-            powSOWFA_WPS(iT:nT:end,2)-powSOWFA_WPS(iT,2),...
-            powSOWFA_WPS(iT:nT:end,3)/UF.airDen,...
-            '-.','LineWidth',1)
-        labels{iT} = ['T' num2str(iT-1) ' SOWFA wps'];
+if Vis.PowerOutput
+    % Plotting
+    f = figure;
+    hold on
+    
+    % Get SOWFA data if avaiable
+    if exist([file2val 'nacelleYaw.csv'], 'file') == 2
+        powSOWFA_WPS = importGenPowerFile([file2val 'generatorPower.csv']);
+        labels = cell(2*nT,1);
+        % =========== SOWFA data ===========
+        for iT = 1:nT
+            plot(...
+                powSOWFA_WPS(iT:nT:end,2)-powSOWFA_WPS(iT,2),...
+                powSOWFA_WPS(iT:nT:end,3)/UF.airDen,...
+                '-.','LineWidth',1)
+            labels{iT} = ['T' num2str(iT-1) ' SOWFA wps'];
+        end
+    else
+        labels = cell(nT,1);
     end
-else
-    labels = cell(nT,1);
+    
+    % ========== FLORIDyn data =========
+    for iT = 1:length(T.D)
+        plot(powerHist(:,1),powerHist(:,iT+1),'LineWidth',1.5)
+        labels{end-nT+iT} = ['T' num2str(iT-1) ' FLORIDyn'];
+    end
+    
+    hold off
+    grid on
+    xlim([0 powerHist(end,1)])
+    xlabel('Time [s]')
+    ylabel('Power generated [W]')
+    title([num2str(nT) ' turbine case, based on SOWFA data'])
+    legend(labels)
+    % ==== Prep for export ==== %
+    % scaling
+    f.Units               = 'centimeters';
+    f.Position(3)         = 16.1; % A4 line width
+    % Set font & size
+    try
+        set(f.Children, ...
+            'FontName',     'Frontpage', ...
+            'FontSize',     10);
+    catch
+        set(f.Children, ...
+            'FontName',     'Arial', ...
+            'FontSize',     10);
+    end
+    set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))
+    f.PaperPositionMode   = 'auto';
 end
-
-% ========== FLORIDyn data =========
-for iT = 1:length(T.D)
-    plot(powerHist(:,1),powerHist(:,iT+1),'LineWidth',1.5)
-    labels{end-nT+iT} = ['T' num2str(iT-1) ' FLORIDyn'];
-end
-
-hold off
-grid on
-xlim([0 powerHist(end,1)])
-xlabel('Time [s]')
-ylabel('Power generated [W]')
-title([num2str(nT) ' turbine case, based on SOWFA data'])
-legend(labels)
-% ==== Prep for export ==== %
-% scaling
-f.Units               = 'centimeters';
-f.Position(3)         = 16.1; % A4 line width
-% Set font & size
-try
-    set(f.Children, ...
-        'FontName',     'Frontpage', ...
-        'FontSize',     10);
-catch
-    set(f.Children, ...
-        'FontName',     'Arial', ...
-        'FontSize',     10);
-end
-set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))
-f.PaperPositionMode   = 'auto';
 end
 %% ===================================================================== %%
 % = Reviewed: 2020.11.03 (yyyy.mm.dd)                                   = %
