@@ -26,8 +26,8 @@ The angle changes equally for every point in the field, something which can be c
 ![Nine turbines wind direction change](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/Animations/9T.gif)
 
 #### Flow field
-Comparison of the two turbine flow field with SOWFA simulation data
-![2 Turbine flow field](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/FlowField/2T_20_FlowFieldComparison.pdf)
+Comparison of the three turbine flow field with SOWFA simulation data, plotted as the relative error.
+![2 Turbine flow field](https://github.com/JuliusAurelius/FLORIDyn/blob/master/Pictures/FlowField/ThreeT_00_FlowField_Horizontal_RelError_newI.png)
 
 #### Power generated
 Generated power of three turbines with 5D distance with greedy control approach
