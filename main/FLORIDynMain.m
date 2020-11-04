@@ -93,7 +93,7 @@ controllerType = 'FLORIDyn_greedy';
 %   for more info.
 [U, I, UF, Sim] = loadWindField('const',... 
     'windAngle',0,...
-    'SimDuration',1000,...%
+    'SimDuration',1000,...
     'FreeSpeed',true,...
     'Interaction',true,...
     'posMeasFactor',2000,...
@@ -142,11 +142,7 @@ for i = 1:Sim.NoTimeSteps
     
     %====================== INCREMENT POSITION ===========================%
     % Update wind dir and speed along with amb. turbulence intensity
-    try
-        OP.U = getWindVec4(OP.pos, U_abs, U_ang, UF);
-    catch
-        OP.U = getWindVec4(OP.pos, U_abs, U_ang, UF);
-    end
+    OP.U = getWindVec4(OP.pos, U_abs, U_ang, UF);
     
     OP.I_0 = getAmbientTurbulence(OP.pos, UF.IR, I_val, UF.Res, UF.lims);
     

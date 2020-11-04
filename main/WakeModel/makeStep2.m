@@ -1,6 +1,6 @@
 function [OP, T]=makeStep2(OP, chain, T, Sim)
 % MAKESTEP2 calculates all values necessary to propagate the wind field.
-%   It calculates the crosswind position of the OPs, the reduction and the
+%   Calculates the crosswind position of the OPs, the reduction and the
 %   foreign influence. With that information the downwind step can be
 %   calculated.
 %   With the new downwind position comes a new crosswind position. The
@@ -35,7 +35,7 @@ function [OP, T]=makeStep2(OP, chain, T, Sim)
 %    .U         := [nx2] vec; Wind vector for the n turbines
 %    .u         := [nx1] vec; Effective wind speed at the rotor plane
 %
-%   Sim
+%   Sim         := Struct;    Data connected to the Simulation
 %    .Duration  := double;    Duration of the Simulation in seconds
 %    .TimeStep  := double;    Duration of one time step
 %    .TimeSteps := [1xt] vec; All time steps
@@ -44,6 +44,8 @@ function [OP, T]=makeStep2(OP, chain, T, Sim)
 %                             speed
 %    .WidthFactor= double;    Multiplication factor for the field width
 %    .Interaction= bool;      Whether the wakes interact with each other
+%    .redInteraction = bool;  All OPs calculate their interaction (false)
+%                             or only the OPs at the rotor plane (true)
 % ======================================================================= %
 % OUTPUT
 %   OP          := Struct;    Data related to the state of the OPs
