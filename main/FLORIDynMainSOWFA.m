@@ -206,11 +206,7 @@ for i = 1:Sim.NoTimeSteps
     
     %====================== INCREMENT POSITION ===========================%
     % Update wind dir and speed along with amb. turbulence intensity
-    try
-        OP.U = getWindVec4(OP.pos, U_abs, U_ang, UF);
-    catch
-        OP.U = getWindVec4(OP.pos, U_abs, U_ang, UF);
-    end
+    OP.U = getWindVec4(OP.pos, U_abs, U_ang, UF);
     
     OP.I_0 = getAmbientTurbulence(OP.pos, UF.IR, I_val, UF.Res, UF.lims);
     

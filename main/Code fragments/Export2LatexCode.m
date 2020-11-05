@@ -16,5 +16,3 @@ set(gca,'LooseInset', max(get(gca,'TightInset'), 0.04))
 % Export
 f.PaperPositionMode   = 'auto';
 print('TitleGoesHere', '-dpng', '-r600')
-
-print('2T_sweep', '-dpng', '-r600')
