@@ -1,7 +1,7 @@
 %% Simulation preparation
 
 % Online visulization script (1/2)
-if onlineVis
+if Vis.online
     OnlineVis_Start;
 end
 
