@@ -54,7 +54,7 @@ function [powerHist,OP,T,UF,Sim] = FLORIDynMain(layout)
 % ======================================================================= %
 % Add necessary local paths
 main_addPaths;
-controllerType = 'FLORIDyn_greedy';
+Control.Type = 'FLORIDyn_greedy';
 
 %% Load Layout
 %   Load the turbine configuration (position, diameter, hub height,...) the
@@ -71,7 +71,7 @@ controllerType = 'FLORIDyn_greedy';
 %  
 %   Chain length & the number of chains can be set as extra vars, see 
 %   comments in the function for additional info.
- [T,fieldLims,Pow,VCpCt,chain] = loadLayout(layout); %#ok<ASGLU>
+[T,fieldLims,Pow,VCpCt,chain] = loadLayout(layout); %#ok<ASGLU>
 
 %% Load the environment
 %   U provides info about the wind: Speed(s), direction(s), changes.
@@ -100,7 +100,7 @@ controllerType = 'FLORIDyn_greedy';
     'alpha_z',0.1,...
     'windSpeed',8,...
     'ambTurbulence',0.06);
-Sim.reducedInteraction = true;
+
 %% Visulization
 % Set to true or false
 %   .online: Scattered OPs in the wake with quiver wind field plot
@@ -129,12 +129,12 @@ Vis.PowerOutput = true;
 SimulationPrep;
 
 %% Start simulation
-for i = 1:Sim.NoTimeSteps
+for k = 1:Sim.NoTimeSteps
     tic;
     % Update measurements if they are variable
-    if UangVar; U_ang = U.ang(i,:); end
-    if UabsVar; U_abs = U.abs(i,:); end
-    if IVar;    I_val = I.val(i,:); end
+    if UangVar; U_ang = U.ang(k,:); end
+    if UabsVar; U_abs = U.abs(k,:); end
+    if IVar;    I_val = I.val(k,:); end
     
     %================= CONTROLLER & POWER CALCULATION ====================%
     % Update Turbine data to get controller input
@@ -164,7 +164,7 @@ for i = 1:Sim.NoTimeSteps
     
     %===================== ONLINE VISULIZATION ===========================%
     if Vis.online; OnlineVis_plot; end
-    if and(Vis.FlowField,i == Sim.NoTimeSteps)
+    if and(Vis.FlowField,k == Sim.NoTimeSteps)
         hold off
         PostSimVis;
     end

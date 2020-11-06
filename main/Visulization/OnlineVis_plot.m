@@ -35,13 +35,13 @@ ylim(fLim_y);
 zlabel('Height [m]')
 zlim([-300,500]);
 
-nr = num2str(Sim.TimeSteps(i));
+nr = num2str(Sim.TimeSteps(k));
 nr = pad(nr,4,'left','0');
 title(['Nine turbine case, +60 deg wind change. t = ' nr  's'])
 
 %view([-i/251*80-5 20]);
-zrot = max(i/80*(-10)-5,-15) + max(i-144,0)/60*13 - max(i-204,0)/60*13;
-xrot = min(i/80*37,37)+ 5 + max(i-144,0)/80*38 - max(i-204,0)/80*38;
+zrot = max(k/80*(-10)-5,-15) + max(k-144,0)/60*13 - max(k-204,0)/60*13;
+xrot = min(k/80*37,37)+ 5 + max(k-144,0)/80*38 - max(k-204,0)/80*38;
 view([zrot xrot]);
 grid on
 %% Plot the rotors
@@ -89,7 +89,7 @@ set(f.Children, ...
 
 pause(0.1)
 if Vis.Snapshots
-    nr = num2str(i);
+    nr = num2str(k);
     nr = pad(nr,4,'left','0');
     print(['./Snapshot/' nr], '-dpng', '-r300')
 end

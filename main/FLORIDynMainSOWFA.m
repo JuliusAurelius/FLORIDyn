@@ -80,7 +80,7 @@ function [powerHist,OP,T,UF,Sim] = FLORIDynMainSOWFA(file2val,layout)
 main_addPaths;
 
 %% Check for SOWFA files and load
-controllerType = 'SOWFA_greedy_yaw';
+Control.Type = 'SOWFA_greedy_yaw';
 if exist([file2val 'nacelleYaw.csv'], 'file') == 2
     % Get yaw angle (deg)
     yawSOWFA = importYawAngleFile([file2val 'nacelleYaw.csv']);
@@ -108,15 +108,15 @@ if exist([file2val 'bladePitch.csv'], 'file') == 2
     tipSpeed(:,2) = tipSpeed(:,2)-tipSpeed(1,2);
     
     load('./TurbineData/Cp_Ct_SOWFA.mat');
-    cpInterp = scatteredInterpolant(...
+    Control.cpInterp = scatteredInterpolant(...
         sowfaData.pitchArray,...
         sowfaData.tsrArray,...
         sowfaData.cpArray,'linear','nearest');
-    ctInterp = scatteredInterpolant(...
+    Control.ctInterp = scatteredInterpolant(...
         sowfaData.pitchArray,...
         sowfaData.tsrArray,...
         sowfaData.ctArray,'linear','nearest');
-    controllerType = 'SOWFA_bpa_tsr_yaw';
+    Control.Type = 'SOWFA_bpa_tsr_yaw';
 end
 
 %% Load Layout
@@ -187,12 +187,12 @@ Vis.PowerOutput = true;
 SimulationPrep;
 
 %% Start simulation
-for i = 1:Sim.NoTimeSteps
+for k = 1:Sim.NoTimeSteps
     tic;
     % Update measurements if they are variable
-    if UangVar; U_ang = U.ang(i,:); end
-    if UabsVar; U_abs = U.abs(i,:); end
-    if IVar;    I_val = I.val(i,:); end
+    if UangVar; U_ang = U.ang(k,:); end
+    if UabsVar; U_abs = U.abs(k,:); end
+    if IVar;    I_val = I.val(k,:); end
     
     %================= CONTROLLER & POWER CALCULATION ====================%
     % Update Turbine data to get controller input
@@ -222,7 +222,7 @@ for i = 1:Sim.NoTimeSteps
     
     %===================== ONLINE VISULIZATION ===========================%
     if Vis.online; OnlineVis_plot; end
-    if and(Vis.FlowField,i == Sim.NoTimeSteps)
+    if and(Vis.FlowField,k == Sim.NoTimeSteps)
         hold off
         PostSimVis;
     end

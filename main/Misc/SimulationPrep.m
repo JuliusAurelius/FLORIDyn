@@ -14,9 +14,9 @@ U_abs   = U.abs(1,:);
 I_val   = I.val(1,:);
 
 % Preparing the console output
-fprintf(' ============ FLORIDyn Progress ============ \n');
-fprintf(['  Number of turbines  : ' num2str(length(T.D)) '\n']);
-dispstat('','init')
+% fprintf(' ============ FLORIDyn Progress ============ \n');
+% fprintf(['  Number of turbines  : ' num2str(length(T.D)) '\n']);
+% dispstat('','init')
 
 % Preallocate the power history
 powerHist = zeros(length(T.D),Sim.NoTimeSteps);
@@ -26,7 +26,7 @@ T.U = getWindVec4(T.pos, U_abs, U_ang, UF);
 T.u = sqrt(T.U(:,1).^2+T.U(:,2).^2);
 T.I_f = zeros(size(T.u));
 
-i = 1; % Maybe needed for Controlle Script
+k = 1; % Needed for Controlle Script
 
 nT = length(T.D);
 % Set the C_t coefficient for all OPs (otherwise NaNs occur)

@@ -4,12 +4,13 @@
 % should be implemented here.
 
 yaw = zeros(size(T.yaw));
-switch controllerType
+
+switch Control.Type
     case 'SOWFA_greedy_yaw'
         % Read yaw of SOWFA Sim (deg)
         for iT = 1:nT
             yaw(iT) = interp1(...
-                yawSOWFA(iT:nT:end,2),yawSOWFA(iT:nT:end,3),Sim.TimeSteps(i));
+                yawSOWFA(iT:nT:end,2),yawSOWFA(iT:nT:end,3),Sim.TimeSteps(k));
         end
         
         % Yaw conversion SOWFA to FLORIDyn
@@ -24,7 +25,7 @@ switch controllerType
         % Read yaw of SOWFA Sim (deg)
         for iT = 1:nT
             yaw(iT) = interp1(...
-                yawSOWFA(iT:nT:end,2),yawSOWFA(iT:nT:end,3),Sim.TimeSteps(i));
+                yawSOWFA(iT:nT:end,2),yawSOWFA(iT:nT:end,3),Sim.TimeSteps(k));
         end
         
         % Yaw conversion SOWFA to FLORIDyn
@@ -32,10 +33,10 @@ switch controllerType
         
         % Ct / Cp calculation based on the blade pitch and tip speed ratio
         for iT = 1:nT
-            bpa = max(interp1(bladePitch(iT:nT:end,2),bladePitch(iT:nT:end,3),Sim.TimeSteps(i)),0);
-            tsr = interp1(tipSpeed(iT:nT:end,2),tipSpeed(iT:nT:end,3),Sim.TimeSteps(i))/T.u(1);
-            T.Cp(iT) = cpInterp(bpa,tsr);
-            T.Ct(iT) = ctInterp(bpa,tsr);
+            bpa = max(interp1(bladePitch(iT:nT:end,2),bladePitch(iT:nT:end,3),Sim.TimeSteps(k)),0);
+            tsr = interp1(tipSpeed(iT:nT:end,2),tipSpeed(iT:nT:end,3),Sim.TimeSteps(k))/T.u(1);
+            T.Cp(iT) = Control.cpInterp(bpa,tsr);
+            T.Ct(iT) = Control.ctInterp(bpa,tsr);
         end
     case 'FLORIDyn_greedy'
         % Calculate Ct and Cp based on the wind speed
@@ -46,6 +47,33 @@ switch controllerType
         
         % Normal yaw (yaw is defined clockwise)
         yaw = (-yaw)/180*pi;
+    case 'MPC'
+%         degPerS = 0.5;
+%         % Apply yaw, bpa and tsr
+%         maxDeg = degPerS*Sim.TimeStep;
+%         
+%         % will reach bpa
+%         wr_bpa = abs(Control.bpa-T.bpa)<maxDeg;
+%         T.bpa(wr_bpa)=Control.bpa(wr_bpa);
+%         T.bpa(~wr_bpa)=sign(Control.bpa(~wr_bpa)-T.bpa(~wr_bpa))*maxDeg;
+%         
+%         % will reach yaw
+%         wr_yaw = abs(Control.yaw-T.yaw)<maxDeg/180*pi;
+%         yaw(wr_yaw)=Control.bpa(wr_yaw);
+%         yaw(~wr_yaw)=sign(Control.bpa(~wr_yaw)-T.bpa(~wr_yaw))*maxDeg/180*pi;
+%         
+%         Ttsr = 12; % Time constant PT1
+%         T.tsr = T.tsr + Sim.TimeStep/Ttsr*(Control.tsr-T.tsr);
+
+        T.tsr = Control.tsr;
+        T.bpa = Control.bpa;
+        yaw = Control.yaw;
+        for iT = 1:nT
+            bpa = T.bpa(iT);
+            tsr = T.tsr(iT);
+            T.Cp(iT) = Control.cpInterp(bpa,tsr);
+            T.Ct(iT) = Control.ctInterp(bpa,tsr);
+        end
 end
 
 % Set Yaw relative to the wind angle and add offset
@@ -58,7 +86,7 @@ T.Ct = min(T.Ct,ones(size(T.Ct))*0.89);
 T.P = 0.5*UF.airDen*(T.D/2).^2.*pi.*T.Cp.*T.u.^3.* Pow.eta.*...
     cos(T.yaw-atan2(T.U(:,2),T.U(:,1))).^Pow.p_p;
 
-powerHist(:,i)= T.P;
+powerHist(:,k)= T.P;
 
 %% ===================================================================== %%
 % = Reviewed: 2020.11.03 (yyyy.mm.dd)                                   = %

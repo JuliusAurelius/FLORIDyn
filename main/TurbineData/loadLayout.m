@@ -168,6 +168,8 @@ T.yaw  = zeros(length(T.D),1);
 T.Ct   = zeros(length(T.D),1);
 T.Cp   = zeros(length(T.D),1);
 T.P    = ones(length(T.D),1)*5*10^6;
+T.bpa  = zeros(length(T.D),1);
+T.tsr  = ones(length(T.D),1)*8;
 %% Store chain configuration
 chain.NumChains = NumChains;
 chain.Length    = ChainLength;
