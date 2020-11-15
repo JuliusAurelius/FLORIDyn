@@ -27,21 +27,27 @@ Control.ctInterp = scatteredInterpolant(...
     sowfaData.tsrArray,...
     sowfaData.ctArray,'linear','nearest');
 Control.Type = 'MPC';
-Control.tsr = ones(3,1)*5;
-Control.bpa = ones(3,1)*0;
-Control.yaw = ones(3,1)*0;
+% Control.tsr = ones(3,1)*7;
+% Control.bpa = ones(3,1)*5;
+%Control.yaw = ones(3,1)*0;
+
+Control.axi = ones(3,1)/3;
+Control.yaw = ones(3,1)*1;
+
+Control.init = true;
 %% MPC test
 % Simulate until steady state
 [powerHist,OP,T,chain]=FLORIDyn(T,OP,U,I,UF,Sim,fieldLims,Pow,VCpCt,chain,Vis,Control);
 powTotal = cell(11,1);
 ConTotal = cell(11,1);
+%ConTotal{1} = [Control.tsr;Control.bpa;Control.yaw];
+ConTotal{1} = [Control.axi;Control.yaw];
 powTotal{1} = powerHist;
-ConTotal{1} = 
 baseLine = powerHist(end,2:end);
 %% FMOINCON Test
 nT = 3; % Number of turbines
 nK = 2; % Number of time steps
-nV = 3; % Number of control variables
+nV = 2; % Number of control variables
 
 % Switch to optimization step duration
 SimDuration = 80;
@@ -50,62 +56,87 @@ NoTimeSteps = length(timeSteps);
 Sim.Duration    = SimDuration;
 Sim.TimeSteps   = timeSteps;
 Sim.NoTimeSteps = NoTimeSteps;
+Control.init = false;
 
-cInp = zeros(nT*nK*nV,1);
-cInp(1:nT*nK) = 5;
-A = [eye(nT*nK*nV);-eye(nT*nK*nV)];
-b = [ones(nT*nK*nV,1);zeros(nT*nK*nV,1)]; %smaller than, bigger than
-b(1:nT*nK)           = 14;         % tsr max
-b(nT*nK+1:2*nT*nK)   = 5;          % bpa max
-b(2*nT*nK+1:3*nT*nK) = 20/180*pi;  % yaw max
-b(3*nT*nK+1:4*nT*nK) = 4;          % tsr min
-b(4*nT*nK+1:5*nT*nK) = 0;          % bpa min
-b(5*nT*nK+1:6*nT*nK) = -20/180*pi; % yaw min
+cInp = ones(nT*nK*nV,1)*1;
+cInp(1:nT*nK) = 1;
+A = [];
+b = [];
+Aeq = [];
+beq = [];
+lb = zeros(nT*nK*nV,1);
+ub = ones(nT*nK*nV,1);
+nonlcon = [];
+options = optimoptions('fmincon','PlotFcn','optimplotfval','Algorithm','sqp');
+% b(1:nT*nK)           = 14;         % tsr max
+% b(nT*nK+1:2*nT*nK)   = 5;          % bpa max
+% b(2*nT*nK+1:3*nT*nK) = 20/180*pi;  % yaw max
+% b(3*nT*nK+1:4*nT*nK) = 4;          % tsr min
+% b(4*nT*nK+1:5*nT*nK) = 0;          % bpa min
+% b(5*nT*nK+1:6*nT*nK) = -20/180*pi; % yaw min
 for k = 1:10
     % Optimization
     helpOpt = @(x) surrogareModel(x,T,OP,U,I,UF,Sim,fieldLims,Pow,VCpCt,chain,Vis,Control);
-    cInp = fmincon(helpOpt,cInp,A,b);
+    cInp = fmincon(helpOpt,cInp,A,b,Aeq,beq,lb,ub,nonlcon,options);
     
     % Apply optimal values
     nInputs = length(cInp)/nV;
-    tsr = cInp(1:nInputs);             %[-]
-    bpa = cInp(nInputs+1:2*nInputs);   %deg
-    yaw = cInp(2*nInputs+1:3*nInputs); %deg
+%     tsr = cInp(1:nInputs)*6 + 4;             %[-]
+%     bpa = cInp(nInputs+1:2*nInputs)*10;   %deg
+%     yaw = (cInp(2*nInputs+1:3*nInputs)*40-20)/180*pi; %rad
+    axi = cInp(1:nInputs)*0.33;             %[-]
+    yaw = (cInp(nInputs+1:2*nInputs)*40-20)/180*pi; %rad
+    
     % Order:
     % tsp = [(t1 k1);(t1 k2);(t1 k3);(t2 k1);(t2 k2);(t2 k3); ... ]
     
     % Simulate 20s
-    Control.tsr = tsr(1:nK:end);
-    Control.bpa = bpa(1:nK:end);
-    Control.yaw = yaw(1:nK:end);
-    [powerHist,OP,T,chain]=FLORIDyn(T,OP,U,I,UF,Sim,fieldLims,Pow,VCpCt,chain,Vis,Control);
+%     Control.tsr = tsr(1:nK:end);
+%     Control.bpa = bpa(1:nK:end);
+%     Control.yaw = yaw(1:nK:end);
+    Control.axi = axi(1:nT);
+    Control.yaw = yaw(1:nT);
+    try
+        [powerHist,OP,T,chain]=FLORIDyn(T,OP,U,I,UF,Sim,fieldLims,Pow,VCpCt,chain,Vis,Control);
+    catch
+        disp('Error')
+    end
     powTotal{k+1} = powerHist;
+    ConTotal{1+k} = [Control.axi;Control.yaw];
 end
 end
 
 function summedP = surrogareModel(cInp,T,OP,U,I,UF,Sim,fieldLims,Pow,VCpCt,chain,Vis,Control)
 nT = 3; % Number of turbines
 nK = 2; % Number of time steps
-nV = 3; % Number of control variables
+nV = 2; % Number of control variables
 
 %% Get turbine inputs
 nInputs = length(cInp)/nV;
-tsr = cInp(1:nInputs);             %[-]
-bpa = cInp(nInputs+1:2*nInputs);   %deg
-yaw = cInp(2*nInputs+1:3*nInputs); %deg
+% tsr = cInp(1:nInputs)*6 + 4;             %[-]
+% bpa = cInp(nInputs+1:2*nInputs)*10;   %deg
+% yaw = (cInp(2*nInputs+1:3*nInputs)*40-20)/180*pi; %rad
+axi = cInp(1:nInputs)*(1/3-0.1)+0.1;             %[-]
+yaw = (cInp(nInputs+1:2*nInputs)*40-20)/180*pi; %rad
 % Order:
 % tsp = [(t1 k1);(t1 k2);(t1 k3);(t2 k1);(t2 k2);(t2 k3); ... ]
 
 for k = 1:nK
     % Set control variables
-    Control.tsr = tsr(k:nK:end);
-    Control.bpa = bpa(k:nK:end);
-    Control.yaw = yaw(k:nK:end);
+%     Control.tsr = tsr(k:nK:end);
+%     Control.bpa = bpa(k:nK:end);
+%     Control.yaw = yaw(k:nK:end);
+    Control.axi = axi((k-1)*nT+1:k*nT);
+    Control.yaw = yaw((k-1)*nT+1:k*nT);
     
-    % Simulate 20s
-    [powerHist,OP,T,chain]=FLORIDyn(T,OP,U,I,UF,Sim,fieldLims,Pow,VCpCt,chain,Vis,Control);
+    % Simulate
+    try
+        [powerHist,OP,T,chain]=FLORIDyn(T,OP,U,I,UF,Sim,fieldLims,Pow,VCpCt,chain,Vis,Control);
+    catch
+        disp('Error')
+    end
 end
-summedP = -(sum(powerHist(end,2:end)));
+summedP = -(sum(powerHist(:,2:end),'all'));
 disp(['Cost: ' num2str(-summedP*10^(-6))])
 end
 
@@ -172,4 +203,9 @@ end
 %     powTotal{3}(2:end,2:end);
 %     powTotal{4}(2:end,2:end);
 %     powTotal{5}(2:end,2:end);
-%     powTotal{6}(2:end,2:end)];
+%     powTotal{6}(2:end,2:end);
+%     powTotal{7}(2:end,2:end);
+%     powTotal{8}(2:end,2:end);
+%     powTotal{9}(2:end,2:end);
+%     powTotal{10}(2:end,2:end);
+%     powTotal{11}(2:end,2:end)];

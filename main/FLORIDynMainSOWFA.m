@@ -78,7 +78,7 @@ function [powerHist,OP,T,UF,Sim] = FLORIDynMainSOWFA(file2val,layout)
 % ======================================================================= %
 % Add necessary local paths
 main_addPaths;
-
+Control.init = true;
 %% Check for SOWFA files and load
 Control.Type = 'SOWFA_greedy_yaw';
 if exist([file2val 'nacelleYaw.csv'], 'file') == 2

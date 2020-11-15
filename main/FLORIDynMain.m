@@ -55,7 +55,7 @@ function [powerHist,OP,T,UF,Sim] = FLORIDynMain(layout)
 % Add necessary local paths
 main_addPaths;
 Control.Type = 'FLORIDyn_greedy';
-
+Control.init = true;
 %% Load Layout
 %   Load the turbine configuration (position, diameter, hub height,...) the
 %   power constants (Efficiency, p_p), data to connect wind speed and

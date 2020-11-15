@@ -64,16 +64,26 @@ switch Control.Type
 %         
 %         Ttsr = 12; % Time constant PT1
 %         T.tsr = T.tsr + Sim.TimeStep/Ttsr*(Control.tsr-T.tsr);
-
-        T.tsr = Control.tsr;
-        T.bpa = Control.bpa;
+        
+%         % Instant TSR, BPA and Yaw
+%         T.tsr = Control.tsr;
+%         T.bpa = Control.bpa;
+%         yaw = Control.yaw;
+%         for iT = 1:nT
+%             bpa = T.bpa(iT);
+%             tsr = T.tsr(iT);
+%             T.Cp(iT) = Control.cpInterp(bpa,tsr);
+%             T.Ct(iT) = Control.ctInterp(bpa,tsr);
+%         end
+    
+        % Axial induction factor
         yaw = Control.yaw;
-        for iT = 1:nT
-            bpa = T.bpa(iT);
-            tsr = T.tsr(iT);
-            T.Cp(iT) = Control.cpInterp(bpa,tsr);
-            T.Ct(iT) = Control.ctInterp(bpa,tsr);
-        end
+        TConst = 12; % Time constant PT1
+        T.axi = Control.axi + Sim.TimeStep/TConst*(Control.axi-T.axi);
+        
+        T.Ct = 4*T.axi.*(1-T.axi.*cos(yaw));
+        T.Cp = 4*T.axi.*(1-T.axi).^2;
+        
 end
 
 % Set Yaw relative to the wind angle and add offset

@@ -21,10 +21,13 @@ I_val   = I.val(1,:);
 % Preallocate the power history
 powerHist = zeros(length(T.D),Sim.NoTimeSteps);
 
-% Set free wind speed as starting wind speed for the turbines
-T.U = getWindVec4(T.pos, U_abs, U_ang, UF);
-T.u = sqrt(T.U(:,1).^2+T.U(:,2).^2);
-T.I_f = zeros(size(T.u));
+if Control.init
+    % Set free wind speed as starting wind speed for the turbines
+    T.U = getWindVec4(T.pos, U_abs, U_ang, UF);
+    T.u = sqrt(T.U(:,1).^2+T.U(:,2).^2);
+    T.I_f = zeros(size(T.u));
+    T.axi = ones(size(T.u))*1/3;
+end
 
 k = 1; % Needed for Controlle Script
 

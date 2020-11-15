@@ -9,7 +9,7 @@ nT = 2;
 
 % Two turbine case
 floidynSteadyState2T00 = [4078000,1266000];
-startI = (500/0.2)*2+1;
+startI = (400/0.2)*2+1;
 powSOWFA2T00 = sowfaPower(startI:end,3);
 
 PSmean2T00  = zeros(1,nT);

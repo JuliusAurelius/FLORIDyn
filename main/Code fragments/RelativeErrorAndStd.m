@@ -5,7 +5,7 @@ sowfaPower00(:,3) = sowfaPower00(:,3)/1.225;
 
 % Two turbine case
 floidynSteadyState = [4078000,1266000];
-startI = (500/0.2)*2+1;
+startI = (400/0.2)*2+1;
 relErrorT2 = sowfaPower00(startI:end,3);
 relErrorT2(1:2:end) = (relErrorT2(1:2:end)-floidynSteadyState(1))./relErrorT2(1:2:end);
 relErrorT2(2:2:end) = (relErrorT2(2:2:end)-floidynSteadyState(2))./relErrorT2(2:2:end);
