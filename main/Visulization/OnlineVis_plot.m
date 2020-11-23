@@ -87,12 +87,12 @@ set(f.Children, ...
 % grid on
 % hold off
 
-pause(0.1)
-if Vis.Snapshots
-    nr = num2str(k);
-    nr = pad(nr,4,'left','0');
-    print(['./Snapshot/' nr], '-dpng', '-r300')
-end
+% pause(0.1)
+% if Vis.Snapshots
+%     nr = num2str(k);
+%     nr = pad(nr,4,'left','0');
+%     print(['./Snapshot/' nr], '-dpng', '-r300')
+% end
 
 
 

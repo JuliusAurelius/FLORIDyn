@@ -118,7 +118,7 @@ if exist([file2val 'bladePitch.csv'], 'file') == 2
         sowfaData.ctArray,'linear','nearest');
     Control.Type = 'SOWFA_bpa_tsr_yaw';
 end
-
+disp(Control.Type);
 %% Load Layout
 %   Load the turbine configuration (position, diameter, hub height,...) the
 %   power constants (Efficiency, p_p), data to connect wind speed and
@@ -160,14 +160,14 @@ end
     'Interaction',true,...
     'posMeasFactor',2000,...
     'alpha_z',0.1,...
-    'windSpeed',8,...
-    'ambTurbulence',0.06);
+    'windSpeed',9,...
+    'ambTurbulence',0.05);
 
 %% Visulization
 % Set to true or false, if set to false, the only output is what this
 % function returns. Disabeling decreases the computational effort noticably
-Vis.online = false;
-Vis.Snapshots = false;
+Vis.online = true;
+Vis.Snapshots = true;
 Vis.FlowField = false;
 Vis.PowerOutput = true;
 %% Create starting OPs and build opList
@@ -221,7 +221,10 @@ for k = 1:Sim.NoTimeSteps
     chain.List = shiftChainList(chain.List);
     
     %===================== ONLINE VISULIZATION ===========================%
-    if Vis.online; OnlineVis_plot; end
+    if Vis.online
+        %OnlineVis_plot; 
+        OnlineFlowField;
+    end
     if and(Vis.FlowField,k == Sim.NoTimeSteps)
         hold off
         PostSimVis;
