@@ -107,10 +107,10 @@ Control.init = true;
 %   .Snapshots: Saves the Scattered OP plots, requires online to be true
 %   .FlowField: Plots the flow field at the end of the simulation
 %   .PowerOutput: Plots the generated power at the end of the simulation
-Vis.online = false;
+Vis.online = true;
 Vis.Snapshots = false;
-Vis.FlowField = false;
-Vis.PowerOutput = true;
+Vis.FlowField = true;
+Vis.PowerOutput = false;
 
 %% Create starting OPs and build opList
 %   Creates the observation point struct (OP) and extends the chain struct.
@@ -119,7 +119,7 @@ Vis.PowerOutput = true;
 %   '2D_horizontal'
 %   '2D_vertical'
 %   'sunflower'
-[OP, chain] = assembleOPList(chain,T,'sunflower');
+[OP, chain] = assembleOPList(chain,T,'2D_horizontal');
 
 %% Preparation for Simulation
 %   Script starts the visulization, checks whether the field variables are

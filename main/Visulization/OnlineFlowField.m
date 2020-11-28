@@ -2,8 +2,8 @@
 % Creates a figure with three subplots with (1) the FLORIDyn flow field,
 % (2) the SOWFA flow field and (3) the Relative Error between the fields.
 %% Flow field SOWFA 
-%path = '/Users/marcusbecker/Qsync/Masterthesis/Data/DataMarteen/data/torque.02.rotating.9T/sliceDataInstantaneous/21';
 path = '/Users/marcusbecker/Qsync/Masterthesis/Data/ThreeTurbineDataDaan/3TurbineDynamicCt/sliceDataInstantaneous/2';
+%path = '/Users/marcusbecker/Qsync/Masterthesis/Data/ThreeTurbineDataDaan/3TurbineDynamicCt/sliceDataInstantaneous/2';
 %file = '/U_slice_streamwise.vtk';
 file = '/U_slice_horizontal.vtk';
 fileTime = max(round(Sim.TimeSteps(k)),2);

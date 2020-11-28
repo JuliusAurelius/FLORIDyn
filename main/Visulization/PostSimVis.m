@@ -8,6 +8,7 @@ if size(OP_pos_old,2)==3
     narc_height = OP_pos_old(:,3)<mean(T.pos(:,3))*1.2;
     narc_height = and(OP_pos_old(:,3)>mean(T.pos(:,3))*0.8,narc_height);
 end
+
 for wakes = 1:length(T.D)
     % Use wake of turbine "wakes" to triangulate
     F = scatteredInterpolant(...
