@@ -1,8 +1,17 @@
 # FLORIDyn
 Dynamic implementation of the FLORIS model including time varying wind speeds and directions.
 
-*WORK IN PROGRESS*
+# Current state
+**This work has been continued in a different repo!**
+Find the current model at https://github.com/MarcusBecker-GitHub/FLORIDyn_Matlab
 
+## Paper and citation
+The paper about this model is currently in discussion in Wind Energy Science and can be accessed here: https://wes.copernicus.org/preprints/wes-2021-154/
+If the Gaussian FLORIDyn model is playing or played a role in your research, consider citing the work:
+Becker, M., Ritter, B., Doekemeijer, B., van der Hoek, D., Konigorski, U., Allaerts, D., and van Wingerden, J.-W.: The revised FLORIDyn model: Implementation of heterogeneous flow and the Gaussian wake, Wind Energ. Sci. Discuss. [preprint], https://doi.org/10.5194/wes-2021-154, in review, 2022.
+
+
+# Description of this repo DEPRECATED
 Beta version of a dynamic FLORIS implementation including time varying wind speeds and directions.
 
 ## Outline
